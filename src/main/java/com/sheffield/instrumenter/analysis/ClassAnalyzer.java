@@ -1,7 +1,5 @@
 package com.sheffield.instrumenter.analysis;
 
-<<<<<<< HEAD
-=======
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -15,7 +13,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.Properties.InstrumentationApproach;
@@ -34,7 +31,6 @@ import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
 import com.sheffield.leapmotion.sampler.FileHandler;
 
-<<<<<<< HEAD
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -43,8 +39,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
-=======
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
 public class ClassAnalyzer {
 
   private static ArrayList<ThrowableListener> throwableListeners;
@@ -504,7 +498,6 @@ public class ClassAnalyzer {
 
   }
 
-<<<<<<< HEAD
   public static float getLineCoverage(){
     int totalLines = 0;
     int coveredLines = 0;
@@ -525,8 +518,7 @@ public class ClassAnalyzer {
     return ((float) coveredLines / (float) totalLines);
   }
 
-=======
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
+
   public static void output(String file, String file2) {
 
     Gson g = new Gson();
@@ -660,11 +652,9 @@ public class ClassAnalyzer {
   }
 
   public static ArrayList<LineHit> getLinesCovered() {
-<<<<<<< HEAD
-=======
+
     collectHitCounters(false);
 
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
     ArrayList<LineHit> coveredLines = new ArrayList<LineHit>();
 
     for (Integer i : lines.keySet()) {
@@ -700,7 +690,7 @@ public class ClassAnalyzer {
     if (className == null) {
       return new ArrayList<Line>();
     }
-<<<<<<< HEAD
+
     className = className.replace(".", "/");
     int classId;
     try {
@@ -709,10 +699,7 @@ public class ClassAnalyzer {
       className = className.replace("/", ".");
       classId = classNames.get(className);
     }
-=======
-    className = className.replace("/", ".");
-    int classId = classNames.get(className);
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
+
     if (!lines.containsKey(classId)) {
       return Collections.<Line> emptyList();
     }
@@ -727,7 +714,7 @@ public class ClassAnalyzer {
     if (className == null) {
       return new ArrayList<Branch>();
     }
-<<<<<<< HEAD
+
     className = className.replace(".", "/");
     int classId = 0;
     try {
@@ -736,9 +723,6 @@ public class ClassAnalyzer {
       className = className.replace("/", ".");
       classId = classNames.get(className);
     }
-=======
-    int classId = classNames.get(className.replace("/", "."));
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
     if (!branches.containsKey(classId)) {
       return Collections.<Branch> emptyList();
     }

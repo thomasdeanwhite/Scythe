@@ -1,7 +1,4 @@
-<<<<<<< HEAD
-target/
-=======
 target
 ../
-
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
+.settings
+.classpath

@@ -30,11 +30,7 @@ public class ClassStore {
 		}
 
 		try {
-<<<<<<< HEAD
 			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(name);
-=======
-			Class<?> c = InstrumentingClassLoader.getInstance().loadClass(name);
->>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
 			store.put(name, c);
 			return c;
 		} catch (ClassNotFoundException e) {
