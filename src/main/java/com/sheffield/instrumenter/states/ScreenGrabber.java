@@ -134,7 +134,10 @@ public class ScreenGrabber {
 			e.printStackTrace();
 		}
 		BufferedImage bi = robot.createScreenCapture(dimensions);
+<<<<<<< HEAD
 		robot = null;
+=======
+>>>>>>> 1a83c1cae7760c85ac9e11a6cf8ae9a9cdabe819
 		return bi;
 	}
 }
