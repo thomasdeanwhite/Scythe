@@ -1,7 +1,7 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.Properties.InstrumentationApproach;
+import com.sheffield.instrumenter.InstrumentationProperties.InstrumentationApproach;
+import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.InstrumentingTask;
 import com.sheffield.instrumenter.analysis.task.Task;
@@ -40,8 +40,8 @@ public class ClassReplacementTransformer {
         }
         seenClasses.add(cName);
 
-        if (Properties.EXILED_CLASSES != null) {
-            for (String s : Properties.EXILED_CLASSES) {
+        if (InstrumentationProperties.EXILED_CLASSES != null) {
+            for (String s : InstrumentationProperties.EXILED_CLASSES) {
                 if (cName.equals(s)) {
                     // App.out.println("Not loaded class " + cName);
                     throw new IllegalClassFormatException();
@@ -67,7 +67,7 @@ public class ClassReplacementTransformer {
             try {
                 ClassReader cr = new ClassReader(ins);
                 Task instrumentingTask = new InstrumentingTask(cName);
-                if (Properties.LOG) {
+                if (InstrumentationProperties.LOG) {
                     TaskTimer.taskStart(instrumentingTask);
                 }
                 try {
@@ -76,7 +76,7 @@ public class ClassReplacementTransformer {
                     t.printStackTrace(ClassAnalyzer.out);
                 }
                 newClass = cw.toByteArray();
-                if (Properties.LOG) {
+                if (InstrumentationProperties.LOG) {
                     TaskTimer.taskEnd(instrumentingTask);
                 }
             } catch (IOException e) {
@@ -127,7 +127,7 @@ public class ClassReplacementTransformer {
     }
 
     public boolean shouldInstrumentClass(String className) {
-        if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.NONE) {
+        if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.NONE) {
             return false;
         }
         if (className == null) {
@@ -149,10 +149,10 @@ public class ClassReplacementTransformer {
             }
         }
 
-        if (Properties.INSTRUMENTED_PACKAGES == null) {
+        if (InstrumentationProperties.INSTRUMENTED_PACKAGES == null) {
             return true;
         }
-        for (String s : Properties.INSTRUMENTED_PACKAGES) {
+        for (String s : InstrumentationProperties.INSTRUMENTED_PACKAGES) {
             if (className.startsWith(s)) {
                 return true;
             }

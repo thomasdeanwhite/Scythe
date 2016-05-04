@@ -91,7 +91,7 @@ public class Display extends JFrame {
 
 	private Display() {
 		super("TGOUT");
-		if (Properties.SHOW_GUI) {
+		if (InstrumentationProperties.SHOW_GUI) {
 			setLayout(new FlowLayout());
 			output = new OutputCanvas();
 			add(output);
@@ -107,7 +107,7 @@ public class Display extends JFrame {
 	}
 
 	public void addCommand(String s) {
-		if (Properties.SHOW_GUI) {
+		if (InstrumentationProperties.SHOW_GUI) {
 			String command = s;
 			if (s.length() > MAX_STRING_LENGTH) {
 				command = s.substring(0, MAX_STRING_LENGTH) + "...";
@@ -119,7 +119,7 @@ public class Display extends JFrame {
 	}
 
 	public void drawTrackerChange(StateTracker st) {
-		if (Properties.SHOW_GUI) {
+		if (InstrumentationProperties.SHOW_GUI) {
 			output.drawTrackerChange(st);
 		}
 	}

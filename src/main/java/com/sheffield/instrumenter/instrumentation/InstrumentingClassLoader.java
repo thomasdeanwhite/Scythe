@@ -1,6 +1,6 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.DependencyTreeClassVisitor;
@@ -121,15 +121,15 @@ public class InstrumentingClassLoader extends URLClassLoader {
                 }
             }
 
-            ClassVisitor cv = Properties.INSTRUMENTATION_APPROACH == Properties.InstrumentationApproach.STATIC
+            ClassVisitor cv = InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationProperties.InstrumentationApproach.STATIC
                     ? new StaticClassVisitor(cw, name) : new ArrayClassVisitor(cw, name);
 
             if (buildDependencyTree) {
                 cv = new DependencyTreeClassVisitor(cv, name);
             }
             byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
-            if (Properties.WRITE_CLASS) {
-                String outputDir = Properties.BYTECODE_DIR + "/"
+            if (InstrumentationProperties.WRITE_CLASS) {
+                String outputDir = InstrumentationProperties.BYTECODE_DIR + "/"
                         + name.replace(".", "/");
                 File output = new File(outputDir + ".class");
 
