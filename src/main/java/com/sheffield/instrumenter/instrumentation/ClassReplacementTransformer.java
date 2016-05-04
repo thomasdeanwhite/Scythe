@@ -1,7 +1,8 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.InstrumentationProperties.InstrumentationApproach;
 import com.sheffield.instrumenter.InstrumentationProperties;
+import com.sheffield.instrumenter.InstrumentationProperties.InstrumentationApproach;
+import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.InstrumentingTask;
 import com.sheffield.instrumenter.analysis.task.Task;
@@ -40,8 +41,8 @@ public class ClassReplacementTransformer {
         }
         seenClasses.add(cName);
 
-        if (InstrumentationProperties.EXILED_CLASSES != null) {
-            for (String s : InstrumentationProperties.EXILED_CLASSES) {
+        if (Properties.EXILED_CLASSES != null) {
+            for (String s : Properties.EXILED_CLASSES) {
                 if (cName.equals(s)) {
                     // App.out.println("Not loaded class " + cName);
                     throw new IllegalClassFormatException();
@@ -149,10 +150,10 @@ public class ClassReplacementTransformer {
             }
         }
 
-        if (InstrumentationProperties.INSTRUMENTED_PACKAGES == null) {
+        if (Properties.INSTRUMENTED_PACKAGES == null) {
             return true;
         }
-        for (String s : InstrumentationProperties.INSTRUMENTED_PACKAGES) {
+        for (String s : Properties.INSTRUMENTED_PACKAGES) {
             if (className.startsWith(s)) {
                 return true;
             }

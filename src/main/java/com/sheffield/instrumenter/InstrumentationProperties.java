@@ -5,10 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class InstrumentationProperties implements PropertySource {
 	public static final String LOG_FILENAME = "";
@@ -29,38 +26,41 @@ public class InstrumentationProperties implements PropertySource {
 		String description();
 
 		boolean hasArgs();
+
+		String category();
 	}
 
 	public enum InstrumentationApproach {
 		STATIC, ARRAY, NONE
 	}
 
-	@Parameter(key = "instrumentation_approach", description = "Determines the approach to be used during class instrumentation. A static approach inserts calls to ClassAnalyzer.lineFound etc to track which lines/branches have been covered. Using an array stores all line/branch executions in an array of integers and has a method to get all the values",  hasArgs = true)
+	@Parameter(key = "instrumentation_approach", description = "Determines the approach to be used during class instrumentation. A static approach inserts calls to ClassAnalyzer.lineFound etc to track which lines/branches have been covered. Using an array stores all line/branch executions in an array of integers and has a method to get all the values",  hasArgs = true, category = "Instrumentation")
 	public static InstrumentationApproach INSTRUMENTATION_APPROACH = InstrumentationApproach.ARRAY;
 
-	@Parameter(key = "instrument_lines", description = "Switch on line instrumentation",  hasArgs = true)
+	@Parameter(key = "instrument_lines", description = "Switch on line instrumentation",  hasArgs = true, category = "Instrumentation")
 	public static boolean INSTRUMENT_LINES = true;
 
-	@Parameter(key = "instrument_branches", description = "Switch on branch instrumentation",  hasArgs = true)
+	@Parameter(key = "instrument_branches", description = "Switch on branch instrumentation",  hasArgs = true, category = "Instrumentation")
 	public static boolean INSTRUMENT_BRANCHES = true;
 
-	@Parameter(key = "write_class", description = "flag to determine whether or not to write classes. If set to true, the InstrumentingClassLoader will write out all classes to the value of BYTECODE_DIR",  hasArgs = true)
+	@Parameter(key = "write_class", description = "flag to determine whether or not to write classes. If set to true, the InstrumentingClassLoader will write out all classes to the value of BYTECODE_DIR",  hasArgs = true, category = "Instrumentation")
 	public static boolean WRITE_CLASS = false;
 
-	@Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true",  hasArgs = true)
+	@Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true",  hasArgs = true, category = "Instrumentation")
 	public static String BYTECODE_DIR = System.getProperty("user.home") + "/.bytecode/";
 
-	@Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)",  hasArgs = true)
+	@Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)",  hasArgs = true, category = "Instrumentation")
 	public static String LOG_DIR = System.getProperty("user.home") + "/.logs/";
 
-	@Parameter(key = "log_timings", description = "set whether application timings should be written to a log file",  hasArgs = true)
+	@Parameter(key = "log_timings", description = "set whether application timings should be written to a log file",  hasArgs = true, category = "Instrumentation")
 	public static boolean LOG = true;
 
-	@Parameter(key = "use_changed_flag", description = "It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data",  hasArgs = true)
+	@Parameter(key = "use_changed_flag", description = "It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data",  hasArgs = true, category = "Instrumentation")
 	public static boolean USE_CHANGED_FLAG = true;
 
 	protected Map<String, Field> parameterMap = new HashMap<String, Field>();
 	protected Map<String, Parameter> annotationMap = new HashMap<String, Parameter>();
+	protected Map<String, ArrayList<String>> categoryMap = new HashMap<String, ArrayList<String>>();
 
 	private void reflectMap() {
 		for (Field field : Arrays.asList(getClass().getFields())) {
@@ -69,6 +69,14 @@ public class InstrumentationProperties implements PropertySource {
 				String key = p.key();
 				parameterMap.put(key, field);
 				annotationMap.put(key, p);
+				if (categoryMap.containsKey(p.category())){
+					categoryMap.get(p.category()).add(key);
+				} else {
+					ArrayList<String> cats = new ArrayList<String>();
+					cats.add(key);
+					categoryMap.put(p.category(), cats);
+				}
+
 			}
 		}
 	}

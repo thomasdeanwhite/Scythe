@@ -446,17 +446,11 @@ public class ClassAnalyzer {
     String csv = "";
 
     if (headers) {
-      csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file,lines_found,lines_covered,line_coverage"
+      csv += "branches,covered_branches,branch_coverage,runtime,positive_hits,negative_hits,lines_found,lines_covered,line_coverage"
           + additionalHeaders + "\n";
     }
-    String clusters = InstrumentationProperties.NGRAM_TYPE.substring(0, InstrumentationProperties.NGRAM_TYPE.indexOf("-"));
-    String ngram = InstrumentationProperties.NGRAM_TYPE.substring(InstrumentationProperties.NGRAM_TYPE.indexOf("-") + 1);
 
-    String gestureFiles = "";
 
-    for (String s : InstrumentationProperties.GESTURE_FILES) {
-      gestureFiles += s + "/";
-    }
     int totalLines = 0;
     int coveredLines = 0;
     for (int s : lines.keySet()) {
@@ -469,10 +463,12 @@ public class ClassAnalyzer {
       }
     }
 
-    csv += InstrumentationProperties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
-        + "," + bCoverage + "," + runtime + "," + clusters + "," + ngram + "," + getBranchesExecuted().size() + ","
-        + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines + ","
+    csv += getAllBranches().size() + "," + getBranchesExecuted().size()
+        + "," + bCoverage + "," + runtime + "," + getBranchesExecuted().size() + ","
+        + getBranchesNotExecuted().size() + "," + totalLines + "," + coveredLines + ","
         + ((float) coveredLines / (float) totalLines);
+
+
     return csv;
 
   }

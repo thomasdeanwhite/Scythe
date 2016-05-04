@@ -1,17 +1,10 @@
 package com.sheffield.instrumenter;
 
-import java.awt.BasicStroke;
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-
 import com.sheffield.instrumenter.states.StateTracker;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class Display extends JFrame {
 
@@ -91,7 +84,7 @@ public class Display extends JFrame {
 
 	private Display() {
 		super("TGOUT");
-		if (InstrumentationProperties.SHOW_GUI) {
+		if (Properties.SHOW_GUI) {
 			setLayout(new FlowLayout());
 			output = new OutputCanvas();
 			add(output);
@@ -107,7 +100,7 @@ public class Display extends JFrame {
 	}
 
 	public void addCommand(String s) {
-		if (InstrumentationProperties.SHOW_GUI) {
+		if (Properties.SHOW_GUI) {
 			String command = s;
 			if (s.length() > MAX_STRING_LENGTH) {
 				command = s.substring(0, MAX_STRING_LENGTH) + "...";
@@ -119,7 +112,7 @@ public class Display extends JFrame {
 	}
 
 	public void drawTrackerChange(StateTracker st) {
-		if (InstrumentationProperties.SHOW_GUI) {
+		if (Properties.SHOW_GUI) {
 			output.drawTrackerChange(st);
 		}
 	}
