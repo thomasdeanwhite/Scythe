@@ -1,17 +1,10 @@
 package com.sheffield.instrumenter;
 
-import java.awt.BasicStroke;
-import java.awt.Canvas;
-import java.awt.Color;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.util.ArrayList;
-
-import javax.swing.JFrame;
-
 import com.sheffield.instrumenter.states.StateTracker;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
 
 public class Display extends JFrame {
 

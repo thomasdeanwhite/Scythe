@@ -159,5 +159,4 @@ public class ArrayClassVisitor extends ClassVisitor {
     mv.visitEnd();
 
   }
-
 }

@@ -1,5 +1,8 @@
 package com.sheffield.instrumenter.analysis.task;
 
+import com.sheffield.instrumenter.InstrumentationProperties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -8,9 +11,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 
 public class TaskTimer {
     private static long applicationStart = System.currentTimeMillis();
@@ -23,11 +23,11 @@ public class TaskTimer {
             public void run() {
                 FileOutputStream out = null;
                 DateFormat format = new SimpleDateFormat("yyyyMMdd-HHmmss");
-                File dir = new File(Properties.LOG_DIR + "/timings/");
+                File dir = new File(InstrumentationProperties.LOG_DIR + "/timings/");
                 File file = new File(
                         dir.getAbsolutePath()
-                                + "/" + (Properties.LOG_FILENAME == null
-                                        ? format.format(Calendar.getInstance().getTime()) : Properties.LOG_FILENAME)
+                                + "/" + (InstrumentationProperties.LOG_FILENAME == null
+                                        ? format.format(Calendar.getInstance().getTime()) : InstrumentationProperties.LOG_FILENAME)
                                 + ".csv");
                 try {
                     if (!dir.exists()) {

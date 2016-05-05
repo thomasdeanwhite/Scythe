@@ -1,21 +1,9 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
-import com.sheffield.instrumenter.Properties;
-import com.sheffield.instrumenter.Properties.InstrumentationApproach;
+import com.sheffield.instrumenter.FileHandler;
+import com.sheffield.instrumenter.InstrumentationProperties;
+import com.sheffield.instrumenter.InstrumentationProperties.InstrumentationApproach;
 import com.sheffield.instrumenter.analysis.task.AbstractTask;
 import com.sheffield.instrumenter.analysis.task.Task;
 import com.sheffield.instrumenter.analysis.task.TaskTimer;
@@ -29,7 +17,6 @@ import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.listeners.StateChangeListener;
 import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
 import com.sheffield.instrumenter.states.StateRecognizer;
-import com.sheffield.leapmotion.sampler.FileHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -152,7 +139,7 @@ public class ClassAnalyzer {
         lh.reset();
       }
     }
-    if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY && Properties.USE_CHANGED_FLAG) {
+    if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY && InstrumentationProperties.USE_CHANGED_FLAG) {
       for (Class<?> cl : changedClasses) {
         try {
           Field changed = cl.getDeclaredField("__changed");
@@ -178,14 +165,6 @@ public class ClassAnalyzer {
 
   public static void setOut(PrintStream stream) {
     out = stream;
-  }
-
-  public static void addBranchToCover(String s) {
-    branchesToCover.add(s);
-  }
-
-  public static void addStateChangeListener(StateChangeListener scl) {
-    stateChangeListeners.add(scl);
   }
 
   private static int branchId = 0;
@@ -467,17 +446,11 @@ public class ClassAnalyzer {
     String csv = "";
 
     if (headers) {
-      csv += "frame_selector,branches,covered_branches,branch_coverage,runtime,clusters,ngram,positive_hits,negative_hits,gesture_file,lines_found,lines_covered,line_coverage"
+      csv += "branches,covered_branches,branch_coverage,runtime,positive_hits,negative_hits,lines_found,lines_covered,line_coverage"
           + additionalHeaders + "\n";
     }
-    String clusters = Properties.NGRAM_TYPE.substring(0, Properties.NGRAM_TYPE.indexOf("-"));
-    String ngram = Properties.NGRAM_TYPE.substring(Properties.NGRAM_TYPE.indexOf("-") + 1);
 
-    String gestureFiles = "";
 
-    for (String s : Properties.GESTURE_FILES) {
-      gestureFiles += s + "/";
-    }
     int totalLines = 0;
     int coveredLines = 0;
     for (int s : lines.keySet()) {
@@ -490,10 +463,12 @@ public class ClassAnalyzer {
       }
     }
 
-    csv += Properties.FRAME_SELECTION_STRATEGY + "," + getAllBranches().size() + "," + getBranchesExecuted().size()
-        + "," + bCoverage + "," + runtime + "," + clusters + "," + ngram + "," + getBranchesExecuted().size() + ","
-        + getBranchesNotExecuted().size() + "," + gestureFiles + "," + totalLines + "," + coveredLines + ","
+    csv += getAllBranches().size() + "," + getBranchesExecuted().size()
+        + "," + bCoverage + "," + runtime + "," + getBranchesExecuted().size() + ","
+        + getBranchesNotExecuted().size() + "," + totalLines + "," + coveredLines + ","
         + ((float) coveredLines / (float) totalLines);
+
+
     return csv;
 
   }
@@ -584,13 +559,13 @@ public class ClassAnalyzer {
       }
     }
     Task timerTask = new CollectHitCountersTimer();
-    if (Properties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
+    if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
       collectingHitCounters = true;
-      if (Properties.LOG) {
+      if (InstrumentationProperties.LOG) {
         TaskTimer.taskStart(timerTask);
       }
       List<Class<?>> classes = changedClasses;
-      if (!Properties.USE_CHANGED_FLAG) {
+      if (!InstrumentationProperties.USE_CHANGED_FLAG) {
         classes = new ArrayList<Class<?>>();
         for (int classId : lines.keySet()) {
           Class<?> c = ClassStore.get(classIds.get(classId));
@@ -640,7 +615,7 @@ public class ClassAnalyzer {
           e.printStackTrace(out);
         }
       }
-      if (Properties.LOG) {
+      if (InstrumentationProperties.LOG) {
         TaskTimer.taskEnd(timerTask);
       }
       collectingHitCounters = false;
