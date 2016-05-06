@@ -2,7 +2,6 @@ package com.sheffield.instrumenter.instrumentation;
 
 import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.InstrumentationProperties.InstrumentationApproach;
-import com.sheffield.instrumenter.Properties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.analysis.InstrumentingTask;
 import com.sheffield.instrumenter.analysis.task.Task;
@@ -41,14 +40,14 @@ public class ClassReplacementTransformer {
         }
         seenClasses.add(cName);
 
-        if (Properties.EXILED_CLASSES != null) {
-            for (String s : Properties.EXILED_CLASSES) {
-                if (cName.equals(s)) {
-                    // App.out.println("Not loaded class " + cName);
-                    throw new IllegalClassFormatException();
-                }
-            }
-        }
+//        if (InstrumentationProperties.EXILED_CLASSES != null) {
+//            for (String s : Properties.EXILED_CLASSES) {
+//                if (cName.equals(s)) {
+//                    // App.out.println("Not loaded class " + cName);
+//                    throw new IllegalClassFormatException();
+//                }
+//            }
+//        }
 
         // App.out.println("Loaded class " + cName);
         try {
@@ -150,14 +149,14 @@ public class ClassReplacementTransformer {
             }
         }
 
-        if (Properties.INSTRUMENTED_PACKAGES == null) {
-            return true;
-        }
-        for (String s : Properties.INSTRUMENTED_PACKAGES) {
-            if (className.startsWith(s)) {
-                return true;
-            }
-        }
+//        if (Properties.INSTRUMENTED_PACKAGES == null) {
+//            return true;
+//        }
+//        for (String s : Properties.INSTRUMENTED_PACKAGES) {
+//            if (className.startsWith(s)) {
+//                return true;
+//            }
+//        }
 
         return false;
     }

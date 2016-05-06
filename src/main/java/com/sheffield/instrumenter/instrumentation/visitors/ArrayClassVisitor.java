@@ -1,21 +1,16 @@
 package com.sheffield.instrumenter.instrumentation.visitors;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.FieldVisitor;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
-
-import com.sheffield.instrumenter.Properties;
+import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import org.objectweb.asm.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ArrayClassVisitor extends ClassVisitor {
 
@@ -68,7 +63,7 @@ public class ArrayClassVisitor extends ClassVisitor {
       fv.visitEnd();
 
       // add changed boolean
-      if (Properties.USE_CHANGED_FLAG) {
+      if (InstrumentationProperties.USE_CHANGED_FLAG) {
         FieldVisitor changed = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, CHANGED_VARIABLE_NAME,
             CHANGED_VARIABLE_DESC, null, null);
         changed.visitEnd();
@@ -79,7 +74,7 @@ public class ArrayClassVisitor extends ClassVisitor {
   @Override
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
     MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-    if (!itf && (access & Opcodes.ACC_ABSTRACT) == 0 && Properties.USE_CHANGED_FLAG) {
+    if (!itf && (access & Opcodes.ACC_ABSTRACT) == 0 && InstrumentationProperties.USE_CHANGED_FLAG) {
       // add call to ClassAnalyzer.changed
       mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
       Label l = new Label();
@@ -94,10 +89,10 @@ public class ArrayClassVisitor extends ClassVisitor {
     if ((access & Opcodes.ACC_STATIC) != 0 || "<init>".equals(name)) {
       mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
     }
-    if (Properties.INSTRUMENT_BRANCHES) {
+    if (InstrumentationProperties.INSTRUMENT_BRANCHES) {
       mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
     }
-    if (Properties.INSTRUMENT_LINES) {
+    if (InstrumentationProperties.INSTRUMENT_LINES) {
       mv = new ArrayLineVisitor(this, mv, className);
     }
 

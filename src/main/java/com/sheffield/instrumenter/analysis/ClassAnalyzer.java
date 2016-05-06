@@ -14,9 +14,6 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
-import com.sheffield.instrumenter.listeners.StateChangeListener;
-import com.sheffield.instrumenter.states.EuclideanStateRecognizer;
-import com.sheffield.instrumenter.states.StateRecognizer;
 
 import java.io.File;
 import java.io.IOException;
@@ -51,13 +48,9 @@ public class ClassAnalyzer {
 
   private static HashMap<String, Float> branchDistance;
 
-  private static StateRecognizer stateRecognizer;
-
   private static final float BRANCH_DISTANCE_ADDITION = 50f;
 
   private static ArrayList<Class<?>> changedClasses;
-
-  private static ArrayList<StateChangeListener> stateChangeListeners;
 
   static {
     Thread.currentThread().setUncaughtExceptionHandler(new LoggingUncaughtExceptionHandler());
@@ -76,10 +69,6 @@ public class ClassAnalyzer {
     distancesWaiting = new ArrayList<String>();
 
     callFrequencies = new HashMap<String, Integer>();
-
-    stateRecognizer = new EuclideanStateRecognizer();
-
-    stateChangeListeners = new ArrayList<StateChangeListener>();
 
     changedClasses = new ArrayList<Class<?>>();
   }

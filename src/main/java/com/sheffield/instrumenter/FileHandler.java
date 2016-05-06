@@ -25,18 +25,18 @@ public class FileHandler {
 
 	@Deprecated
 	public static File generateFile() {
-		File file = new File(Properties.DIRECTORY + "/" + System.currentTimeMillis());
+		File file = new File(""+System.currentTimeMillis());
 		return file;
 	}
 
 	public static File generateFile(String subdirectory) {
-		File file = new File(Properties.DIRECTORY + "/" + subdirectory + "/" + System.currentTimeMillis());
+		File file = new File(subdirectory + "/" + System.currentTimeMillis());
 		return file;
 	}
 
 
 	public static File generateFileWithName(String subdirectory) {
-		File file = new File(Properties.DIRECTORY + "/" + subdirectory);
+		File file = new File(subdirectory);
 		return file;
 	}
 
