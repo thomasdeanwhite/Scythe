@@ -26,6 +26,28 @@ public class ClassReplacementTransformer {
 
     public ClassReplacementTransformer() {
         shouldInstrumentCheckers = new ArrayList<ShouldInstrumentChecker>();
+        shouldInstrumentCheckers.add(new ShouldInstrumentChecker() {
+            @Override
+            public boolean shouldInstrument(String className) {
+                return InstrumentationProperties.INSTRUMENTATION_APPROACH != InstrumentationApproach.NONE;
+            }
+        });
+
+        shouldInstrumentCheckers.add(new ShouldInstrumentChecker() {
+            @Override
+            public boolean shouldInstrument(String className) {
+                if (className == null) {
+                    return false;
+                }
+                if (className.contains(".")) {
+                    className = className.replace(".", "/");
+                }
+                if (isForbiddenPackage(className)) {
+                    return false;
+                }
+                return true;
+            }
+        });
     }
 
     public void setWriteClasses(boolean b) {
@@ -127,18 +149,7 @@ public class ClassReplacementTransformer {
     }
 
     public boolean shouldInstrumentClass(String className) {
-        if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.NONE) {
-            return false;
-        }
-        if (className == null) {
-            return false;
-        }
-        if (className.contains(".")) {
-            className = className.replace(".", "/");
-        }
-        if (isForbiddenPackage(className)) {
-            return false;
-        }
+
         if (className.contains("/")) {
             className = className.replace("/", ".");
         }
@@ -149,16 +160,7 @@ public class ClassReplacementTransformer {
             }
         }
 
-//        if (Properties.INSTRUMENTED_PACKAGES == null) {
-//            return true;
-//        }
-//        for (String s : Properties.INSTRUMENTED_PACKAGES) {
-//            if (className.startsWith(s)) {
-//                return true;
-//            }
-//        }
-
-        return false;
+        return true;
     }
 
     public void addShouldInstrumentChecker(ShouldInstrumentChecker s) {
