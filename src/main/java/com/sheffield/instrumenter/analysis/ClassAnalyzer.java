@@ -1,5 +1,18 @@
 package com.sheffield.instrumenter.analysis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.FileHandler;
 import com.sheffield.instrumenter.InstrumentationProperties;
@@ -14,14 +27,7 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
+import com.sheffield.instrumenter.testcase.TestCaseWrapper;
 
 public class ClassAnalyzer {
 
@@ -51,6 +57,8 @@ public class ClassAnalyzer {
   private static final float BRANCH_DISTANCE_ADDITION = 50f;
 
   private static ArrayList<Class<?>> changedClasses;
+
+  private static TestCaseWrapper activeTestCase;
 
   static {
     Thread.currentThread().setUncaughtExceptionHandler(new LoggingUncaughtExceptionHandler());
@@ -128,7 +136,8 @@ public class ClassAnalyzer {
         lh.reset();
       }
     }
-    if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY && InstrumentationProperties.USE_CHANGED_FLAG) {
+    if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY
+        && InstrumentationProperties.USE_CHANGED_FLAG) {
       for (Class<?> cl : changedClasses) {
         try {
           Field changed = cl.getDeclaredField("__changed");
@@ -221,6 +230,9 @@ public class ClassAnalyzer {
       }
       if (bh.getBranch().getClassName() == null) {
         bh.getBranch().setClassName(new Exception().getStackTrace()[1].getClassName());
+      }
+      if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
+        bh.getBranch().addCoveringTest(activeTestCase);
       }
       Class<?> cl = ClassStore.get(bh.getBranch().getClassName());
       if (!changedClasses.contains(cl)) {
@@ -324,8 +336,7 @@ public class ClassAnalyzer {
   }
 
   /**
-   * Returns distance between negative and positive branch hit. 0 is a positive
-   * hit, 1 is as far away from positive as possible.
+   * Returns distance between negative and positive branch hit. 0 is a positive hit, 1 is as far away from positive as possible.
    *
    * @param branch
    * @return
@@ -388,6 +399,9 @@ public class ClassAnalyzer {
     if (lh.getLine().getClassName() == null) {
       lh.getLine().setClassName(new Exception().getStackTrace()[1].getClassName());
     }
+    if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
+      lh.getLine().addCoveringTest(activeTestCase);
+    }
     Class<?> cl = ClassStore.get(lh.getLine().getClassName());
     if (!changedClasses.contains(cl)) {
       changedClasses.add(cl);
@@ -439,7 +453,6 @@ public class ClassAnalyzer {
           + additionalHeaders + "\n";
     }
 
-
     int totalLines = 0;
     int coveredLines = 0;
     for (int s : lines.keySet()) {
@@ -452,17 +465,15 @@ public class ClassAnalyzer {
       }
     }
 
-    csv += getAllBranches().size() + "," + getBranchesExecuted().size()
-        + "," + bCoverage + "," + runtime + "," + getBranchesExecuted().size() + ","
-        + getBranchesNotExecuted().size() + "," + totalLines + "," + coveredLines + ","
-        + ((float) coveredLines / (float) totalLines);
-
+    csv += getAllBranches().size() + "," + getBranchesExecuted().size() + "," + bCoverage + "," + runtime + ","
+        + getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + totalLines + "," + coveredLines
+        + "," + ((float) coveredLines / (float) totalLines);
 
     return csv;
 
   }
 
-  public static float getLineCoverage(){
+  public static float getLineCoverage() {
     int totalLines = 0;
     int coveredLines = 0;
     for (int s : lines.keySet()) {
@@ -475,13 +486,12 @@ public class ClassAnalyzer {
       }
     }
 
-    if (totalLines == 0){
+    if (totalLines == 0) {
       return 0f;
     }
 
     return ((float) coveredLines / (float) totalLines);
   }
-
 
   public static void output(String file, String file2) {
 
@@ -586,6 +596,9 @@ public class ClassAnalyzer {
               Line line = findLineWithCounterId(classId, i);
               if (line != null) {
                 line.hit(counters[i]);
+                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
+                  line.addCoveringTest(activeTestCase);
+                }
               }
               BranchHit branch = findBranchWithCounterId(classId, i);
               if (branch != null) {
@@ -593,6 +606,9 @@ public class ClassAnalyzer {
                   branch.getBranch().trueHit(counters[i]);
                 } else {
                   branch.getBranch().falseHit(counters[i]);
+                }
+                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
+                  branch.getBranch().addCoveringTest(activeTestCase);
                 }
               }
             }
@@ -659,7 +675,7 @@ public class ClassAnalyzer {
     int classId;
     try {
       classId = classNames.get(className);
-    } catch (NullPointerException e){
+    } catch (NullPointerException e) {
       className = className.replace("/", ".");
       classId = classNames.get(className);
     }
@@ -683,7 +699,7 @@ public class ClassAnalyzer {
     int classId = 0;
     try {
       classId = classNames.get(className);
-    } catch (NullPointerException e){
+    } catch (NullPointerException e) {
       className = className.replace("/", ".");
       classId = classNames.get(className);
     }
@@ -706,5 +722,13 @@ public class ClassAnalyzer {
     public String asString() {
       return "Collecting hit counters";
     }
+  }
+
+  public static TestCaseWrapper getActiveTestCase() {
+    return activeTestCase;
+  }
+
+  public static void setActiveTestCase(TestCaseWrapper activeTestCase) {
+    ClassAnalyzer.activeTestCase = activeTestCase;
   }
 }

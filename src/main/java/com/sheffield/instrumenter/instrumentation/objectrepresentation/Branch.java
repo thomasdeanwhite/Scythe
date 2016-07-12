@@ -1,8 +1,15 @@
 package com.sheffield.instrumenter.instrumentation.objectrepresentation;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.sheffield.instrumenter.testcase.TestCaseWrapper;
+
 public class Branch extends CoverableGoal {
   private int trueHits;
   private int falseHits;
+  private List<TestCaseWrapper> trueBranchCoveringTests = new ArrayList<TestCaseWrapper>();
+  private List<TestCaseWrapper> falseBranchCoveringTests = new ArrayList<TestCaseWrapper>();
 
   public Branch(String className, int lineNumber) {
     super(className, lineNumber);
@@ -61,7 +68,29 @@ public class Branch extends CoverableGoal {
     clone.setGoalId(goalId);
     clone.trueHits = trueHits;
     clone.falseHits = falseHits;
+    clone.coveredBy = new ArrayList<TestCaseWrapper>(coveredBy);
+    clone.falseBranchCoveringTests = new ArrayList<TestCaseWrapper>(falseBranchCoveringTests);
+    clone.trueBranchCoveringTests = new ArrayList<TestCaseWrapper>(trueBranchCoveringTests);
     return clone;
+  }
+
+  @Override
+  public void addCoveringTest(TestCaseWrapper t) {
+    super.addCoveringTest(t);
+    if (trueHits > 0) {
+      trueBranchCoveringTests.add(t);
+    }
+    if (falseHits > 0) {
+      falseBranchCoveringTests.add(t);
+    }
+  }
+
+  public List<TestCaseWrapper> getTrueBranchCoveringTests() {
+    return trueBranchCoveringTests;
+  }
+
+  public List<TestCaseWrapper> getfalseBranchCoveringTests() {
+    return falseBranchCoveringTests;
   }
 
 }
