@@ -5,7 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class InstrumentationProperties implements PropertySource {
 	public static final String LOG_FILENAME = "";
@@ -57,6 +61,9 @@ public class InstrumentationProperties implements PropertySource {
 
 	@Parameter(key = "use_changed_flag", description = "It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data",  hasArgs = true, category = "Instrumentation")
 	public static boolean USE_CHANGED_FLAG = true;
+
+	@Parameter(key = "track_active_testcase", description = "When collecting coverage information, it is possible to include information about which test case covered each line. If this argument is true, use ClassAnalyzer.setActiveTest(TestCase), and then each line/branch object will have a list of test cases that cover it, accessed by CoverableGoal.getCoveringTests", hasArgs=true, category="Instrumentation")
+	public static boolean TRACK_ACTIVE_TESTCASE = false;
 
 	protected Map<String, Field> parameterMap = new HashMap<String, Field>();
 	protected Map<String, Parameter> annotationMap = new HashMap<String, Parameter>();
