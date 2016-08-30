@@ -156,6 +156,9 @@ public class InstrumentingClassLoader extends URLClassLoader {
                 cl = defineClass(className, bytes, 0, bytes.length);
             } catch (final Throwable e) {
                 e.printStackTrace(ClassAnalyzer.out);
+                stream = getInputStreamForClass(name);
+                bytes = IOUtils.toByteArray(stream);
+                cl = defineClass(className, bytes, 0, bytes.length);
             }
 
             ClassStore.put(className, cl);

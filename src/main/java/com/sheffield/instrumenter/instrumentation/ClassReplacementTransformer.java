@@ -105,7 +105,7 @@ public class ClassReplacementTransformer {
                 e.printStackTrace(ClassAnalyzer.out);
             }
             if (shouldWriteClass) {
-                File file = new File("classes/" + cName + ".class");
+                File file = new File("classes/" + cName.replace(".", "/") + ".class");
                 file.getParentFile().mkdirs();
                 file.createNewFile();
                 FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());

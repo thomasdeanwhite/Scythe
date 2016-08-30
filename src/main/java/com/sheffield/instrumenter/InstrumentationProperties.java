@@ -96,8 +96,13 @@ public class InstrumentationProperties implements PropertySource {
 		Class<?> cl = f.getType();
 		if (cl.isAssignableFrom(Number.class) || cl.isPrimitive()) {
 			if (cl.equals(Long.class) || cl.equals(long.class)) {
-				Long l = Long.parseLong(value);
-				f.setLong(null, l);
+				try {
+					Long l = Long.parseLong(value);
+					f.setLong(null, l);
+				} catch (NumberFormatException e){
+					Double fl = Double.parseDouble(value);
+					f.setLong(null, (long)fl.doubleValue());
+				}
 			} else if (cl.equals(Double.class) || cl.equals(double.class)) {
 				Double d = Double.parseDouble(value);
 				f.setDouble(null, d);
@@ -105,8 +110,8 @@ public class InstrumentationProperties implements PropertySource {
 				Float fl = Float.parseFloat(value);
 				f.setFloat(null, fl);
 			} else if (cl.equals(Integer.class) || cl.equals(int.class)) {
-				Integer in = Integer.parseInt(value);
-				f.setInt(null, in);
+				Double fl = Double.parseDouble(value);
+				f.setInt(null, (int)fl.doubleValue());
 			} else if (cl.equals(Boolean.class) || cl.equals(boolean.class)) {
 				Boolean bl = Boolean.parseBoolean(value);
 				f.setBoolean(null, bl);

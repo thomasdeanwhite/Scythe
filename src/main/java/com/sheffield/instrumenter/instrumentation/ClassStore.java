@@ -1,5 +1,7 @@
 package com.sheffield.instrumenter.instrumentation;
 
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+
 import java.util.HashMap;
 
 public class ClassStore {
@@ -34,7 +36,7 @@ public class ClassStore {
 			store.put(name, c);
 			return c;
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			e.printStackTrace(ClassAnalyzer.out);
 		}
 		return null;
 	}
