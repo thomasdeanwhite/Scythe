@@ -1,6 +1,5 @@
 package com.sheffield.instrumenter.analysis;
 
-import com.sheffield.instrumenter.analysis.DependencyTree.ClassNode;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
