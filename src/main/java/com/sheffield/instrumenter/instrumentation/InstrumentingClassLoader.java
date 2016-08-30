@@ -6,6 +6,7 @@ import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.DependencyTreeClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
 import com.sheffield.util.ArrayUtils;
+import com.sheffield.util.ClassNameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.objectweb.asm.ClassVisitor;
@@ -37,7 +38,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
     }
 
     public void setBuildDependencyTree(boolean b) {
-        buildDependencyTree = true;
+        buildDependencyTree = b;
     }
 
     public void addClassInstrumentingInterceptor(ClassInstrumentingInterceptor cii) {
@@ -83,7 +84,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
             return ClassStore.get(className);
         }
         if ("".equals(className)) {
-            throw new ClassNotFoundException();
+            throw new ClassNotFoundException("Empty class name given");
         }
         // check if the class comes from the Java API (i.e. javax/swing or java.io.*)
         if (!crt.shouldInstrumentClass(className)) {
@@ -128,10 +129,9 @@ public class InstrumentingClassLoader extends URLClassLoader {
                 cv = new DependencyTreeClassVisitor(cv, name);
             }
             byte[] bytes = crt.transform(name, IOUtils.toByteArray(stream), cv, writer);
+
             if (InstrumentationProperties.WRITE_CLASS) {
-                String outputDir = InstrumentationProperties.BYTECODE_DIR + "/"
-                        + name.replace(".", "/");
-                File output = new File(outputDir + ".class");
+                File output = new File(InstrumentationProperties.BYTECODE_DIR, ClassNameUtils.replaceDots(name)+".class");
 
 //                if (lastIndex > -1) {
 //                    outputDir = outputDir.substring(0, lastIndex);
@@ -140,8 +140,9 @@ public class InstrumentingClassLoader extends URLClassLoader {
 //                    output = new File(outputDir.substring(outputDir.lastIndexOf(".") + 1) + ".class");
 //                }
 
-                if (output.getParentFile() != null){
+                if (output.getParentFile() != null && !output.getParentFile().exists()){
                     output.getParentFile().mkdirs();
+                    ClassAnalyzer.out.println("- Created new Folder: " + output.getParentFile().getAbsolutePath());
                 }
 
                 output.createNewFile();
@@ -167,11 +168,13 @@ public class InstrumentingClassLoader extends URLClassLoader {
             }
             return cl;
         } catch (final IOException e) {
+            e.printStackTrace(ClassAnalyzer.out);
             throw new ClassNotFoundException("Couldn't instrument class" + e.getLocalizedMessage());
         } catch (final IllegalClassFormatException e) {
+            e.printStackTrace(ClassAnalyzer.out);
             throw new ClassNotFoundException("Couldn't instrument class" + e.getLocalizedMessage());
         } catch (final Exception e) {
-            e.printStackTrace();
+            e.printStackTrace(ClassAnalyzer.out);
             throw new ClassNotFoundException("Couldn't instrument class " + e.getLocalizedMessage());
         } finally {
             try {
