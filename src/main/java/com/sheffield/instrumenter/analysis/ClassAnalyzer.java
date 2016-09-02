@@ -1,18 +1,5 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.FileHandler;
 import com.sheffield.instrumenter.InstrumentationProperties;
@@ -28,6 +15,20 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.testcase.TestCaseWrapper;
+import com.sheffield.output.Csv;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ClassAnalyzer {
 
@@ -441,17 +442,8 @@ public class ClassAnalyzer {
 
   }
 
-  public static String toCsv(boolean headers, int runtime, String additionalHeaders) {
-    if (additionalHeaders != null && additionalHeaders.length() > 0) {
-      additionalHeaders = "," + additionalHeaders;
-    }
+  public static Csv toCsv() {
     double bCoverage = branchCoverage();
-    String csv = "";
-
-    if (headers) {
-      csv += "branches,covered_branches,branch_coverage,runtime,positive_hits,negative_hits,lines_found,lines_covered,line_coverage"
-          + additionalHeaders + "\n";
-    }
 
     int totalLines = 0;
     int coveredLines = 0;
@@ -465,9 +457,14 @@ public class ClassAnalyzer {
       }
     }
 
-    csv += getAllBranches().size() + "," + getBranchesExecuted().size() + "," + bCoverage + "," + runtime + ","
-        + getBranchesExecuted().size() + "," + getBranchesNotExecuted().size() + "," + totalLines + "," + coveredLines
-        + "," + ((float) coveredLines / (float) totalLines);
+    Csv csv = new Csv();
+
+    csv.add("branchesTotal", "" + getAllBranches().size());
+    csv.add("branchesCovered", "" + getBranchesExecuted().size());
+    csv.add("branchCoverage", "" + bCoverage);
+    csv.add("linesTotal", "" + totalLines);
+    csv.add("linesCovered", "" + coveredLines);
+    csv.add("lineCoverage", "" + ((float) coveredLines / (float) totalLines));
 
     return csv;
 
