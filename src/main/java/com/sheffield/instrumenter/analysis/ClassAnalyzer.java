@@ -16,6 +16,7 @@ import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
 import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.testcase.TestCaseWrapper;
 import com.sheffield.output.Csv;
+import com.sheffield.util.ClassNameUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -179,11 +180,20 @@ public class ClassAnalyzer {
   }
 
   public static int registerClass(String className, int classId) {
+
+    String clazz = className;
+
     if (classNames.containsKey(className)) {
       return classNames.get(className);
     }
+
+    if (classNames.containsKey(clazz)) {
+      classId = classNames.get(clazz);
+    }
+
     classIds.put(classId, className);
     classNames.put(className, classId);
+
     return classId;
   }
 
@@ -443,14 +453,12 @@ public class ClassAnalyzer {
   }
 
   public static Csv toCsv() {
-    double bCoverage = branchCoverage();
-
     int totalLines = 0;
     int coveredLines = 0;
     for (int s : lines.keySet()) {
       Map<Integer, LineHit> lh = lines.get(s);
-      totalLines += lh.size();
       for (int i : lh.keySet()) {
+        totalLines++;
         if (lh.get(i).getLine().getHits() > 0) {
           coveredLines++;
         }
@@ -459,8 +467,26 @@ public class ClassAnalyzer {
 
     Csv csv = new Csv();
 
-    csv.add("branchesTotal", "" + getAllBranches().size());
-    csv.add("branchesCovered", "" + getBranchesExecuted().size());
+    List<BranchHit> branchesExecuted = getBranchesExecuted();
+
+    int exec = 0;
+
+    for (BranchHit bh : branchesExecuted){
+      if (bh.getBranch().getTrueHits() > 0){
+        exec++;
+      }
+
+      if (bh.getBranch().getFalseHits() > 0){
+        exec++;
+      }
+    }
+
+    int allBranches = getAllBranches().size() * 2;
+    double bCoverage = exec / (float) allBranches;
+
+    //*2 for true/false hits
+    csv.add("branchesTotal", "" + allBranches);
+    csv.add("branchesCovered", "" + exec);
     csv.add("branchCoverage", "" + bCoverage);
     csv.add("linesTotal", "" + totalLines);
     csv.add("linesCovered", "" + coveredLines);
@@ -490,13 +516,48 @@ public class ClassAnalyzer {
     return ((float) coveredLines / (float) totalLines);
   }
 
-  public static void output(String file, String file2) {
+  public static void output(String file, String file2, String forbidden) {
 
     Gson g = new Gson();
+    if (forbidden == null){
+      forbidden = "";
+    }
+    String[] forbid = forbidden.split(",");
+
+    for (int i = 0; i < forbid.length; i++){
+      forbid[i] = ClassNameUtils.standardise(forbid[i]);
+    }
 
     try {
-      FileHandler.writeToFile(new File(file), g.toJson(branches));
-      FileHandler.writeToFile(new File(file2), g.toJson(lines));
+
+      HashMap<Integer, Map<Integer, BranchHit>> outputBranches = new HashMap<Integer, Map<Integer, BranchHit>>();
+      HashMap<Integer, Map<Integer, LineHit>> outputLines = new HashMap<Integer, Map<Integer, LineHit>>();
+
+      for (Integer classId : lines.keySet()){
+        String className = "";
+        try {
+          className = ClassNameUtils.standardise(classIds.get(classId));
+        } catch (NullPointerException e){
+          continue;
+        }
+
+        boolean fbd = false;
+
+        for (String s : forbid){
+          if (className.equals(s)){
+            fbd = true;
+            break;
+          }
+        }
+
+        if (!fbd){
+          outputBranches.put(classId, branches.get(classId));
+          outputLines.put(classId, lines.get(classId));
+        }
+      }
+
+      FileHandler.writeToFile(new File(file), g.toJson(outputBranches));
+      FileHandler.writeToFile(new File(file2), g.toJson(outputLines));
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -577,6 +638,9 @@ public class ClassAnalyzer {
         changedClasses.addAll(classes);
 
       }
+
+
+
       for (int c = 0; c < classes.size(); c++) {
         Class<?> cl = classes.get(c);
         try {
@@ -585,14 +649,18 @@ public class ClassAnalyzer {
           int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
           if (counters != null) {
             for (int i = 0; i < counters.length; i++) {
+
+
               Object o = classNames.get(cl.getName());
               if (o == null) {
-                o = classNames.get(cl.getName().replace(".", "/"));
+                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
               }
+
               int classId = (Integer) o;
               Line line = findLineWithCounterId(classId, i);
               if (line != null) {
                 line.hit(counters[i]);
+
                 if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
                   line.addCoveringTest(activeTestCase);
                 }
@@ -601,6 +669,11 @@ public class ClassAnalyzer {
               if (branch != null) {
                 if (branch.getTrueCounterId() == i) {
                   branch.getBranch().trueHit(counters[i]);
+//                  if (superClassId >= 0) {
+//                    for (BranchHit bh : branches.get(superClassId)){
+//                      if (bh)
+//                    }
+//                  }
                 } else {
                   branch.getBranch().falseHit(counters[i]);
                 }
@@ -608,6 +681,9 @@ public class ClassAnalyzer {
                   branch.getBranch().addCoveringTest(activeTestCase);
                 }
               }
+
+              String className = cl.getName();
+
             }
           }
           if (reset) {
@@ -674,7 +750,11 @@ public class ClassAnalyzer {
       classId = classNames.get(className);
     } catch (NullPointerException e) {
       className = className.replace("/", ".");
-      classId = classNames.get(className);
+      try {
+        classId = classNames.get(className);
+      } catch(NullPointerException e2){
+        return new ArrayList<Line>();
+      }
     }
 
     if (!lines.containsKey(classId)) {
@@ -697,8 +777,12 @@ public class ClassAnalyzer {
     try {
       classId = classNames.get(className);
     } catch (NullPointerException e) {
-      className = className.replace("/", ".");
-      classId = classNames.get(className);
+      try {
+        className = className.replace("/", ".");
+        classId = classNames.get(className);
+      } catch (NullPointerException e2){
+        return new ArrayList<Branch>();
+      }
     }
     if (!branches.containsKey(classId)) {
       return Collections.<Branch> emptyList();

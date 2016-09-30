@@ -98,6 +98,7 @@ public class ClassReplacementTransformer {
                     t.printStackTrace(ClassAnalyzer.out);
                 }
                 newClass = cw.toByteArray();
+
                 if (InstrumentationProperties.LOG) {
                     TaskTimer.taskEnd(instrumentingTask);
                 }

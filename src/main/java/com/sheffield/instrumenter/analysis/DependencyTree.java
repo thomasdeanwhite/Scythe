@@ -2,6 +2,8 @@ package com.sheffield.instrumenter.analysis;
 
 
 
+import com.sheffield.util.ClassNameUtils;
+
 import java.util.ArrayList;
 
 public class DependencyTree {
@@ -44,9 +46,15 @@ public class DependencyTree {
             child = new ClassNode(childName);
         }
 
+        child.addParent(cn);
         cn.addChild(child);
 
 
+    }
+
+    public ArrayList<ClassNode> getDependencies(String className) {
+        className = ClassNameUtils.standardise(className);
+        return root.findClassNode(className).getDependencies();
     }
 
     public void clear() {
@@ -58,7 +66,7 @@ public class DependencyTree {
     }
 
     public static String convertString(String s) {
-        return s.replace("/", ".");
+        return ClassNameUtils.standardise(s);
     }
 
 
