@@ -49,18 +49,20 @@ public class ArrayClassVisitor extends ClassVisitor {
   public ArrayClassVisitor(ClassVisitor mv, String className) {
     super(Opcodes.ASM5, mv);
     this.className = className.replace('.', '/');
-    this.classId = ClassAnalyzer.registerClass(className);
   }
 
   @Override
   public void visit(int arg0, int access, String arg2, String arg3, String arg4, String[] arg5) {
     super.visit(arg0, access, arg2, arg3, arg4, arg5);
-    itf = (access & Opcodes.ACC_INTERFACE) != 0;
-    if (!itf) {
+
+    itf = ((access & Opcodes.ACC_INTERFACE) == 0) && ((access & Opcodes.ACC_ENUM) == 0);
+    if (itf) {
       // add hit counter array
       FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
           COUNTER_VARIABLE_DESC, null, null);
       fv.visitEnd();
+
+      this.classId = ClassAnalyzer.registerClass(className);
 
       // add changed boolean
       if (InstrumentationProperties.USE_CHANGED_FLAG) {
@@ -68,32 +70,36 @@ public class ArrayClassVisitor extends ClassVisitor {
             CHANGED_VARIABLE_DESC, null, null);
         changed.visitEnd();
       }
+    } else {
+      ClassAnalyzer.out.println("\r " + className + " is an interface or enum!");
     }
   }
 
   @Override
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
     MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-    if (!itf && (access & Opcodes.ACC_ABSTRACT) == 0 && InstrumentationProperties.USE_CHANGED_FLAG) {
-      // add call to ClassAnalyzer.changed
-      mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
-      Label l = new Label();
-      mv.visitJumpInsn(Opcodes.IFGT, l);
-      mv.visitLdcInsn(className);
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, CHANGED_METHOD_NAME,
-          CHANGED_METHOD_DESC, false);
-      mv.visitInsn(Opcodes.ICONST_1);
-      mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
-      mv.visitLabel(l);
-    }
-    if ((access & Opcodes.ACC_STATIC) != 0 || "<init>".equals(name)) {
-      mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
-    }
-    if (InstrumentationProperties.INSTRUMENT_BRANCHES) {
-      mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
-    }
-    if (InstrumentationProperties.INSTRUMENT_LINES) {
-      mv = new ArrayLineVisitor(this, mv, className);
+    if (itf) {
+      if ((access & Opcodes.ACC_ABSTRACT) == 0 && InstrumentationProperties.USE_CHANGED_FLAG) {
+        // add call to ClassAnalyzer.changed
+        mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
+        Label l = new Label();
+        mv.visitJumpInsn(Opcodes.IFGT, l);
+        mv.visitLdcInsn(className);
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, CHANGED_METHOD_NAME,
+                CHANGED_METHOD_DESC, false);
+        mv.visitInsn(Opcodes.ICONST_1);
+        mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
+        mv.visitLabel(l);
+      }
+      if ((access & Opcodes.ACC_STATIC) != 0 || "<init>".equals(name)) {
+        mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
+      }
+      if (InstrumentationProperties.INSTRUMENT_BRANCHES) {
+        mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
+      }
+      if (InstrumentationProperties.INSTRUMENT_LINES) {
+        mv = new ArrayLineVisitor(this, mv, className);
+      }
     }
 
     return mv;
@@ -103,7 +109,7 @@ public class ArrayClassVisitor extends ClassVisitor {
   public void visitEnd() {
     // create visits to our own methods to collect hits, only if it's not an
     // interface
-    if (!itf) {
+    if (itf) {
       addGetCounterMethod(cv);
       addResetCounterMethod(cv);
       addInitMethod(cv);

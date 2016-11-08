@@ -1,5 +1,7 @@
 package com.sheffield.instrumenter.analysis;
 
+import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
+
 import java.util.ArrayList;
 
 /**
@@ -9,10 +11,22 @@ public class ClassNode {
     private String className;
     private ArrayList<ClassNode> children;
 
+    private ArrayList<ClassNode> parent;
+
+
     public ClassNode(String className) {
         className = DependencyTree.convertString(className);
         children = new ArrayList<ClassNode>();
         this.className = className;
+        parent = new ArrayList<ClassNode>();
+    }
+
+    public void addParent(ClassNode cn){
+        parent.add(cn);
+    }
+
+    public ArrayList<ClassNode> getParent(){
+        return parent;
     }
 
     public void addChild(ClassNode child) {
@@ -54,6 +68,31 @@ public class ClassNode {
         ArrayList<String> seen = new ArrayList<String>(children.size());
 
         return findPackages(packageName, seen);
+    }
+
+    public ArrayList<ClassNode> getDependencies(){
+        ArrayList<ClassNode> deps = new ArrayList<ClassNode>();
+//        for (ClassNode cn : parent){
+//            deps.addAll(getDependencies(cn, deps));
+//        }
+
+        getDependencies(this, deps);
+
+        return deps;
+    }
+
+    private ArrayList<ClassNode> getDependencies(ClassNode parent, ArrayList<ClassNode> dependencies){
+        if (parent.getParent().size() == 0 || dependencies.contains(parent) || ClassReplacementTransformer.isForbiddenPackage(parent.getClassName())){
+            return dependencies;
+        }
+
+        dependencies.add(parent);
+
+
+        for (ClassNode cn : parent.getParent()) {
+            getDependencies(cn, dependencies);
+        }
+        return dependencies;
     }
 
     private ArrayList<ClassNode> findPackages(String packageName, ArrayList<String> seen) {
