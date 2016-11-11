@@ -39,7 +39,7 @@ public class Branch extends CoverableGoal {
 
   @Override
   public String toString() {
-    return lineNumber + "#true, " + lineNumber + "#false";
+    return lineNumber + "-" + goalId + "#true, " + lineNumber + "#false";
   }
 
   @Override
@@ -55,6 +55,16 @@ public class Branch extends CoverableGoal {
       return true;
     }
     return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int prime = 31;
+    int result = 1;
+    result = prime * result + lineNumber;
+    result = prime * result + className.hashCode();
+    result = prime * result + goalId;
+    return result;
   }
 
   @Override

@@ -1,5 +1,19 @@
 package com.sheffield.instrumenter.analysis;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.FileHandler;
 import com.sheffield.instrumenter.InstrumentationProperties;
@@ -17,19 +31,6 @@ import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.testcase.TestCaseWrapper;
 import com.sheffield.output.Csv;
 import com.sheffield.util.ClassNameUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class ClassAnalyzer {
 
@@ -507,12 +508,12 @@ public class ClassAnalyzer {
 
     int exec = 0;
 
-    for (BranchHit bh : branchesExecuted){
-      if (bh.getBranch().getTrueHits() > 0){
+    for (BranchHit bh : branchesExecuted) {
+      if (bh.getBranch().getTrueHits() > 0) {
         exec++;
       }
 
-      if (bh.getBranch().getFalseHits() > 0){
+      if (bh.getBranch().getFalseHits() > 0) {
         exec++;
       }
     }
@@ -520,7 +521,7 @@ public class ClassAnalyzer {
     int allBranches = getAllBranches().size() * 2;
     double bCoverage = exec / (float) allBranches;
 
-    //*2 for true/false hits
+    // *2 for true/false hits
     csv.add("branchesTotal", "" + allBranches);
     csv.add("branchesCovered", "" + exec);
     csv.add("branchCoverage", "" + bCoverage);
@@ -555,12 +556,12 @@ public class ClassAnalyzer {
   public static void output(String file, String file2, String forbidden) {
 
     Gson g = new Gson();
-    if (forbidden == null){
+    if (forbidden == null) {
       forbidden = "";
     }
     String[] forbid = forbidden.split(",");
 
-    for (int i = 0; i < forbid.length; i++){
+    for (int i = 0; i < forbid.length; i++) {
       forbid[i] = ClassNameUtils.standardise(forbid[i]);
     }
 
@@ -569,24 +570,24 @@ public class ClassAnalyzer {
       HashMap<Integer, Map<Integer, BranchHit>> outputBranches = new HashMap<Integer, Map<Integer, BranchHit>>();
       HashMap<Integer, Map<Integer, LineHit>> outputLines = new HashMap<Integer, Map<Integer, LineHit>>();
 
-      for (Integer classId : lines.keySet()){
+      for (Integer classId : lines.keySet()) {
         String className = "";
         try {
           className = ClassNameUtils.standardise(classIds.get(classId));
-        } catch (NullPointerException e){
+        } catch (NullPointerException e) {
           continue;
         }
 
         boolean fbd = false;
 
-        for (String s : forbid){
-          if (className.equals(s)){
+        for (String s : forbid) {
+          if (className.equals(s)) {
             fbd = true;
             break;
           }
         }
 
-        if (!fbd){
+        if (!fbd) {
           outputBranches.put(classId, branches.get(classId));
           outputLines.put(classId, lines.get(classId));
         }
@@ -675,8 +676,6 @@ public class ClassAnalyzer {
 
       }
 
-
-
       for (int c = 0; c < classes.size(); c++) {
         Class<?> cl = classes.get(c);
         try {
@@ -685,7 +684,6 @@ public class ClassAnalyzer {
           int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
           if (counters != null) {
             for (int i = 0; i < counters.length; i++) {
-
 
               Object o = classNames.get(cl.getName());
               if (o == null) {
@@ -705,11 +703,11 @@ public class ClassAnalyzer {
               if (branch != null) {
                 if (branch.getTrueCounterId() == i) {
                   branch.getBranch().trueHit(counters[i]);
-//                  if (superClassId >= 0) {
-//                    for (BranchHit bh : branches.get(superClassId)){
-//                      if (bh)
-//                    }
-//                  }
+                  // if (superClassId >= 0) {
+                  // for (BranchHit bh : branches.get(superClassId)){
+                  // if (bh)
+                  // }
+                  // }
                 } else {
                   branch.getBranch().falseHit(counters[i]);
                 }
@@ -788,7 +786,7 @@ public class ClassAnalyzer {
       className = className.replace("/", ".");
       try {
         classId = classNames.get(className);
-      } catch(NullPointerException e2){
+      } catch (NullPointerException e2) {
         return new ArrayList<Line>();
       }
     }
@@ -797,7 +795,8 @@ public class ClassAnalyzer {
       return Collections.<Line> emptyList();
     }
     List<Line> coverableLines = new ArrayList<Line>();
-    for (LineHit lh : lines.get(classId).values()) {
+    Collection<LineHit> lhs = lines.get(classId).values();
+    for (LineHit lh : lhs) {
       coverableLines.add(lh.getLine());
     }
     return coverableLines;
@@ -854,7 +853,7 @@ public class ClassAnalyzer {
       try {
         className = className.replace("/", ".");
         classId = classNames.get(className);
-      } catch (NullPointerException e2){
+      } catch (NullPointerException e2) {
         return new ArrayList<Branch>();
       }
     }
