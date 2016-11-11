@@ -42,8 +42,17 @@ public class ArrayClassVisitor extends ClassVisitor {
     branchHitCounterIds.add(branch);
   }
 
-  public void addLineHit(LineHit line) {
+  public int addLineHit(LineHit line) {
+    for (LineHit lh : lineHitCounterIds){
+      if (lh.getLine().getLineNumber() == line.getLine().getLineNumber()){
+
+        counter.getAndDecrement();
+        return lh.getCounterId();
+      }
+    }
+
     lineHitCounterIds.add(line);
+    return line.getCounterId();
   }
 
   public ArrayClassVisitor(ClassVisitor mv, String className) {
@@ -52,8 +61,8 @@ public class ArrayClassVisitor extends ClassVisitor {
   }
 
   @Override
-  public void visit(int arg0, int access, String arg2, String arg3, String arg4, String[] arg5) {
-    super.visit(arg0, access, arg2, arg3, arg4, arg5);
+  public void visit(int arg0, int access, String className, String arg3, String superName, String[] arg5) {
+    super.visit(arg0, access, className, arg3, superName, arg5);
 
     itf = ((access & Opcodes.ACC_INTERFACE) == 0) && ((access & Opcodes.ACC_ENUM) == 0);
     if (itf) {
@@ -62,7 +71,7 @@ public class ArrayClassVisitor extends ClassVisitor {
           COUNTER_VARIABLE_DESC, null, null);
       fv.visitEnd();
 
-      this.classId = ClassAnalyzer.registerClass(className);
+      this.classId = ClassAnalyzer.registerClass(this.className);
 
       // add changed boolean
       if (InstrumentationProperties.USE_CHANGED_FLAG) {
@@ -70,16 +79,14 @@ public class ArrayClassVisitor extends ClassVisitor {
             CHANGED_VARIABLE_DESC, null, null);
         changed.visitEnd();
       }
-    } else {
-      ClassAnalyzer.out.println("\r " + className + " is an interface or enum!");
     }
   }
 
   @Override
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
     MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-    if (itf) {
-      if ((access & Opcodes.ACC_ABSTRACT) == 0 && InstrumentationProperties.USE_CHANGED_FLAG) {
+    if (itf && (access & Opcodes.ACC_ABSTRACT) == 0 && (access & Opcodes.ACC_SYNTHETIC) == 0) {
+      if (InstrumentationProperties.USE_CHANGED_FLAG) {
         // add call to ClassAnalyzer.changed
         mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
         Label l = new Label();
@@ -98,7 +105,7 @@ public class ArrayClassVisitor extends ClassVisitor {
         mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
       }
       if (InstrumentationProperties.INSTRUMENT_LINES) {
-        mv = new ArrayLineVisitor(this, mv, className);
+        mv = new ArrayLineVisitor(this, mv, className, name);
       }
     }
 

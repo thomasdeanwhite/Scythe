@@ -1,14 +1,14 @@
 package com.sheffield.instrumenter.instrumentation.objectrepresentation;
 
-import java.util.ArrayList;
-
 import com.sheffield.instrumenter.testcase.TestCaseWrapper;
+
+import java.util.ArrayList;
 
 public class Line extends CoverableGoal {
   private int hits;
 
-  public Line(String className, int lineNumber) {
-    super(className, lineNumber);
+  public Line(String className, String methodName, int lineNumber) {
+    super(className, methodName, lineNumber);
   }
 
   public void hit(int newHits) {
@@ -31,7 +31,7 @@ public class Line extends CoverableGoal {
 
   @Override
   public Line clone() {
-    Line clone = new Line(className, lineNumber);
+    Line clone = new Line(className, methodName, lineNumber);
     clone.hits = hits;
     clone.goalId = goalId;
     clone.coveredBy = new ArrayList<TestCaseWrapper>(coveredBy);
