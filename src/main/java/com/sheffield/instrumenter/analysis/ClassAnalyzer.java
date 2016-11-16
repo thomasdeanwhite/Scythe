@@ -8,7 +8,6 @@ import com.sheffield.instrumenter.analysis.task.AbstractTask;
 import com.sheffield.instrumenter.analysis.task.Task;
 import com.sheffield.instrumenter.analysis.task.TaskTimer;
 import com.sheffield.instrumenter.instrumentation.ClassStore;
-import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.instrumenter.instrumentation.LoggingUncaughtExceptionHandler;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
@@ -680,10 +679,10 @@ public class ClassAnalyzer {
         Class<?> cl = classes.get(c);
         try {
 
-          InstrumentingClassLoader instrClassLoader = InstrumentingClassLoader.getInstance();
-          if (!cl.getClassLoader().equals(instrClassLoader)){
-            cl = instrClassLoader.loadClass(cl.getName());
-          }
+//          InstrumentingClassLoader instrClassLoader = InstrumentingClassLoader.getInstance();
+//          if (!cl.getClassLoader().equals(instrClassLoader)){
+//            cl = instrClassLoader.loadClass(cl.getName());
+//          }
 
           Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME,
                   new Class<?>[] {});
