@@ -1,19 +1,5 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.FileHandler;
 import com.sheffield.instrumenter.InstrumentationProperties;
@@ -31,6 +17,14 @@ import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.testcase.TestCaseWrapper;
 import com.sheffield.output.Csv;
 import com.sheffield.util.ClassNameUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.*;
 
 public class ClassAnalyzer {
 
@@ -699,7 +693,7 @@ public class ClassAnalyzer {
   }
 
   public static int getClassId(String className) {
-    return classNames.get(className);
+    return classNames.get(ClassNameUtils.standardise(className));
   }
 
   public static ArrayList<LineHit> getLinesCovered() {
