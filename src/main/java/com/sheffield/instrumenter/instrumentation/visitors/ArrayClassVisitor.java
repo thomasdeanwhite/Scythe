@@ -43,8 +43,17 @@ public class ArrayClassVisitor extends ClassVisitor {
     branchHitCounterIds.add(branch);
   }
 
-  public void addLineHit(LineHit line) {
+  public int addLineHit(LineHit line) {
+    for (LineHit lh : lineHitCounterIds){
+      if (lh.getLine().getLineNumber() == line.getLine().getLineNumber()){
+
+        counter.getAndDecrement();
+        return lh.getCounterId();
+      }
+    }
+
     lineHitCounterIds.add(line);
+    return line.getCounterId();
   }
 
   public ArrayClassVisitor(ClassVisitor mv, String className) {
@@ -82,7 +91,8 @@ public class ArrayClassVisitor extends ClassVisitor {
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
     MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
     if (!itf && !isEnum) {
-      if ((access & Opcodes.ACC_ABSTRACT) == 0 && InstrumentationProperties.USE_CHANGED_FLAG) {
+    if (itf && (access & Opcodes.ACC_ABSTRACT) == 0 && (access & Opcodes.ACC_SYNTHETIC) == 0) {
+      if (InstrumentationProperties.USE_CHANGED_FLAG) {
         // add call to ClassAnalyzer.changed
         mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
         Label l = new Label();
@@ -101,7 +111,7 @@ public class ArrayClassVisitor extends ClassVisitor {
         mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
       }
       if (InstrumentationProperties.INSTRUMENT_LINES) {
-        mv = new ArrayLineVisitor(this, mv, className);
+        mv = new ArrayLineVisitor(this, mv, className, name);
       }
     }
 

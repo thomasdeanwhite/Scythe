@@ -24,7 +24,17 @@ import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+<<<<<<< HEAD
 import java.util.*;
+=======
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+>>>>>>> c0479171428b6f0240287f77f8444820d4eff24e
 
 public class ClassAnalyzer {
 
@@ -78,6 +88,22 @@ public class ClassAnalyzer {
     changedClasses = new ArrayList<Class<?>>();
   }
 
+  public static ArrayList<LineHit> getTotalLines() {
+
+    ArrayList<LineHit> lin = new ArrayList<LineHit>();
+
+    for (Integer i : lines.keySet()){
+      for (Integer j : lines.get(i).keySet()){
+        lin.add(lines.get(i).get(j));
+      }
+    }
+    return lin;
+  }
+
+  public static Map<Integer, Map<Integer, BranchHit>> getTotalBranches() {
+    return branches;
+  }
+
   public static void reset() {
     branches.clear();
     lines.clear();
@@ -108,12 +134,25 @@ public class ClassAnalyzer {
       Map<Integer, LineHit> b2 = l.get(i);
       for (Integer i2 : b2.keySet()) {
         LineHit bh = b2.get(i2);
+
         registerClass(bh.getLine().getClassName(), i);
         if (i >= classId) {
           classId = i + 1;
         }
-        if (lines.get(i) != null && lines.get(i).get(i2) != null) {
-          bh.getLine().hit(lines.get(i).get(i2).getLine().getHits());
+
+        int lineNumber = l.get(i).get(i2).getLine().getLineNumber();
+        int lastId = 0;
+
+        if (lines.get(classId) != null){
+          for (Integer id : lines.get(classId).keySet()){
+            if (lines.get(classId).get(id).getLine().getLineNumber() == lineNumber){
+              lastId = id;
+            }
+          }
+        }
+
+        if (lines.get(classId) != null && lines.get(classId).get(lastId) != null) {
+          bh.getLine().hit(lines.get(classId).get(lastId).getLine().getHits());
         }
       }
     }
@@ -176,18 +215,14 @@ public class ClassAnalyzer {
 
   public static int registerClass(String className, int classId) {
 
-    String clazz = className;
-
-    if (classNames.containsKey(className)) {
-      return classNames.get(className);
-    }
+    String clazz = ClassNameUtils.standardise(className);
 
     if (classNames.containsKey(clazz)) {
-      classId = classNames.get(clazz);
+      return classNames.get(clazz);
     }
 
-    classIds.put(classId, className);
-    classNames.put(className, classId);
+    classIds.put(classId, clazz);
+    classNames.put(clazz, classId);
 
     return classId;
   }
@@ -200,7 +235,7 @@ public class ClassAnalyzer {
     if (!branches.containsKey(classId)) {
       branches.put(classId, new HashMap<Integer, BranchHit>());
     }
-    branches.get(classId).put(branchId, new BranchHit(new Branch(classIds.get(classId), lineNumber), 0, 0));
+    branches.get(classId).put(branchId, new BranchHit(new Branch(classIds.get(classId), "<>", lineNumber), 0, 0));
     branches.get(classId).get(branchId).getBranch().setGoalId(branchId);
     return branchId;
   }
@@ -226,7 +261,7 @@ public class ClassAnalyzer {
 
     BranchHit bh = branches.get(classId).get(branchId);
     if (bh == null) {
-      branches.get(classId).put(branchId, new BranchHit(new Branch(classIds.get(classId), 0), 0, 0));
+      branches.get(classId).put(branchId, new BranchHit(new Branch(classIds.get(classId), "<>", 0), 0, 0));
     }
     if (bh != null) {
       if (hit) {
@@ -392,7 +427,14 @@ public class ClassAnalyzer {
     if (!lines.containsKey(classId)) {
       lines.put(classId, new HashMap<Integer, LineHit>());
     }
-    lines.get(classId).put(lineNumber, new LineHit(new Line(classIds.get(classId), lineNumber), -1));
+
+    for (LineHit lh : lines.get(classId).values()){
+      if (lh.getLine().getLineNumber() == lineNumber){
+        return;
+      }
+    }
+
+    lines.get(classId).put(lineNumber, new LineHit(new Line(classIds.get(classId), "<>", lineNumber), -1));
     lines.get(classId).get(lineNumber).getLine().setGoalId(lineNumber);
   }
 
@@ -418,7 +460,7 @@ public class ClassAnalyzer {
     if (lines.get(classId).containsKey(lineNumber)) {
       return lines.get(classId).get(lineNumber);
     }
-    LineHit lh = new LineHit(new Line(classIds.get(classId), lineNumber), -1);
+    LineHit lh = new LineHit(new Line(classIds.get(classId), "<>", lineNumber), -1);
     lines.get(classId).put(lineNumber, lh);
     return lh;
   }
@@ -586,6 +628,9 @@ public class ClassAnalyzer {
   }
 
   public static void classChanged(String changedClass) {
+
+    changedClass = ClassNameUtils.standardise(changedClass);
+
     Class<?> cl = ClassStore.get(changedClass);
     if (cl != null) {
       changedClasses.add(cl);
@@ -637,7 +682,14 @@ public class ClassAnalyzer {
       for (int c = 0; c < classes.size(); c++) {
         Class<?> cl = classes.get(c);
         try {
-          Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
+
+//          InstrumentingClassLoader instrClassLoader = InstrumentingClassLoader.getInstance();
+//          if (!cl.getClassLoader().equals(instrClassLoader)){
+//            cl = instrClassLoader.loadClass(cl.getName());
+//          }
+
+          Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME,
+                  new Class<?>[] {});
           getCounters.setAccessible(true);
           int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
           if (counters != null) {
@@ -674,14 +726,14 @@ public class ClassAnalyzer {
                 }
               }
 
-              String className = cl.getName();
-
             }
           }
           if (reset) {
             resetHitCounters(cl);
           }
         } catch (Exception e) {
+          e.printStackTrace(out);
+        } catch (Error e){
           e.printStackTrace(out);
         }
       }
@@ -693,11 +745,16 @@ public class ClassAnalyzer {
   }
 
   public static int getClassId(String className) {
-    return classNames.get(ClassNameUtils.standardise(className));
+
+    className = ClassNameUtils.standardise(className);
+
+    if (classNames.containsKey(className)){
+      return classNames.get(className);
+    }
+    return -1;
   }
 
   public static ArrayList<LineHit> getLinesCovered() {
-
     collectHitCounters(false);
 
     ArrayList<LineHit> coveredLines = new ArrayList<LineHit>();
@@ -736,26 +793,51 @@ public class ClassAnalyzer {
       return new ArrayList<Line>();
     }
 
-    className = className.replace(".", "/");
-    int classId;
-    try {
-      classId = classNames.get(className);
-    } catch (NullPointerException e) {
-      className = className.replace("/", ".");
-      try {
-        classId = classNames.get(className);
-      } catch (NullPointerException e2) {
-        return new ArrayList<Line>();
-      }
+    className = ClassNameUtils.standardise(className);
+
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Line>();
     }
+
+    int classId = classNames.get(className);
+
+    List<Line> coverableLines = new ArrayList<Line>();
+    Collection<LineHit> lhs = lines.get(classId).values();
+    for (LineHit lh : lhs) {
+      coverableLines.add(lh.getLine());
+    }
+    return coverableLines;
+  }
+
+  public static List<Line> getCoverableLines(String className, String methodName) {
+    List<String> method = new ArrayList<String>();
+
+    method.add(methodName);
+
+    return getCoverableLines(className, method);
+  }
+
+  public static List<Line> getCoverableLines(String className, List<String> methodNames) {
+    if (className == null || methodNames == null || methodNames.size() == 0) {
+      return new ArrayList<Line>();
+    }
+
+    className = ClassNameUtils.standardise(className);
+
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Line>();
+    }
+
+    int classId = classNames.get(className);
 
     if (!lines.containsKey(classId)) {
       return Collections.<Line> emptyList();
     }
     List<Line> coverableLines = new ArrayList<Line>();
-    Collection<LineHit> lhs = lines.get(classId).values();
-    for (LineHit lh : lhs) {
-      coverableLines.add(lh.getLine());
+    for (LineHit lh : lines.get(classId).values()) {
+      if (methodNames.contains(lh.getLine().getMethodName())) {
+        coverableLines.add(lh.getLine());
+      }
     }
     return coverableLines;
   }
@@ -765,24 +847,54 @@ public class ClassAnalyzer {
       return new ArrayList<Branch>();
     }
 
-    className = className.replace(".", "/");
-    int classId = 0;
-    try {
-      classId = classNames.get(className);
-    } catch (NullPointerException e) {
-      try {
-        className = className.replace("/", ".");
-        classId = classNames.get(className);
-      } catch (NullPointerException e2) {
-        return new ArrayList<Branch>();
-      }
+    className = ClassNameUtils.standardise(className);
+
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Branch>();
     }
+
+    int classId = classNames.get(className);
+
     if (!branches.containsKey(classId)) {
       return Collections.<Branch> emptyList();
     }
     List<Branch> coverableBranches = new ArrayList<Branch>();
     for (BranchHit bh : branches.get(classId).values()) {
       coverableBranches.add(bh.getBranch());
+    }
+    return coverableBranches;
+  }
+
+  public static List<Branch> getCoverableBranches(String className, String methodName) {
+    List<String> method = new ArrayList<String>();
+
+    method.add(methodName);
+
+    return getCoverableBranches(className, method);
+  }
+
+  public static List<Branch> getCoverableBranches(String className, List<String> methodNames) {
+    if (className == null || methodNames == null || methodNames.size() == 0) {
+      return new ArrayList<Branch>();
+    }
+
+    className = ClassNameUtils.standardise(className);
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Branch>();
+    }
+
+    int classId = classNames.get(className);
+
+
+
+    if (!branches.containsKey(classId)) {
+      return Collections.<Branch> emptyList();
+    }
+    List<Branch> coverableBranches = new ArrayList<Branch>();
+    for (BranchHit bh : branches.get(classId).values()) {
+      if (methodNames.contains(bh.getBranch().getMethodName())) {
+        coverableBranches.add(bh.getBranch());
+      }
     }
     return coverableBranches;
   }

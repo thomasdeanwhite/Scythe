@@ -49,7 +49,7 @@ public class ArrayBranchVisitor extends MethodVisitor {
 			case Opcodes.IFNULL:
 				int trueCounter = parent.newCounterId();
 				int falseCounter = parent.newCounterId();
-				parent.addBranchHit(new BranchHit(new Branch(className, currentLine), trueCounter, falseCounter));
+				parent.addBranchHit(new BranchHit(new Branch(className, methodName, currentLine), trueCounter, falseCounter));
 
 				Label l = new Label();
 				Label l2 = new Label();

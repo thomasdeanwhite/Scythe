@@ -82,12 +82,12 @@ public class ClassNode {
     }
 
     private ArrayList<ClassNode> getDependencies(ClassNode parent, ArrayList<ClassNode> dependencies){
-        if (parent.getParent().size() == 0 || dependencies.contains(parent) || ClassReplacementTransformer.isForbiddenPackage(parent.getClassName())){
+        if (dependencies.contains(parent) ||
+                ClassReplacementTransformer.isForbiddenPackage(parent.getClassName())){
             return dependencies;
         }
 
         dependencies.add(parent);
-
 
         for (ClassNode cn : parent.getParent()) {
             getDependencies(cn, dependencies);
@@ -136,7 +136,7 @@ public class ClassNode {
 
     }
 
-    private String toString(ArrayList<String> seen) {
+    public String toString(ArrayList<String> seen) {
         String s = "";//[" + className + "]";
         if (seen.contains(className)) {
             return "";
@@ -144,12 +144,16 @@ public class ClassNode {
             s += className + "\n";
         }
         seen.add(className);
-        for (ClassNode cn : children) {
+        for (ClassNode cn : getDependencies()) {
             if (seen.contains(cn.getClassName())) {
                 continue;
             }
             s += cn.getClassName() + "\n";
             s += cn.toString(seen);
+
+//            for (ClassNode cln : cn.getDependencies()){
+//                s += cln.toString(seen);
+//            }
             //seen.remove(cn.getClassName());
         }
         return s;
@@ -167,6 +171,9 @@ public class ClassNode {
             }
             s += "\n[" + className + "]<--[" + cn.getClassName() + "]\n";
             s += cn.toNomnoml(seen);
+            for (ClassNode cln : cn.getDependencies()){
+                s += cln.toNomnoml(seen);
+            }
             //seen.remove(cn.getClassName());
         }
         return s;

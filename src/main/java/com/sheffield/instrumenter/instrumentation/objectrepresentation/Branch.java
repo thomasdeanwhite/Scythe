@@ -1,9 +1,9 @@
 package com.sheffield.instrumenter.instrumentation.objectrepresentation;
 
+import com.sheffield.instrumenter.testcase.TestCaseWrapper;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import com.sheffield.instrumenter.testcase.TestCaseWrapper;
 
 public class Branch extends CoverableGoal {
   private int trueHits;
@@ -11,8 +11,8 @@ public class Branch extends CoverableGoal {
   private List<TestCaseWrapper> trueBranchCoveringTests = new ArrayList<TestCaseWrapper>();
   private List<TestCaseWrapper> falseBranchCoveringTests = new ArrayList<TestCaseWrapper>();
 
-  public Branch(String className, int lineNumber) {
-    super(className, lineNumber);
+  public Branch(String className, String methodName, int lineNumber) {
+    super(className, methodName, lineNumber);
   }
 
   public void trueHit(int trueHits) {
@@ -74,7 +74,7 @@ public class Branch extends CoverableGoal {
 
   @Override
   public Branch clone() {
-    Branch clone = new Branch(className, lineNumber);
+    Branch clone = new Branch(className, methodName, lineNumber);
     clone.setGoalId(goalId);
     clone.trueHits = trueHits;
     clone.falseHits = falseHits;

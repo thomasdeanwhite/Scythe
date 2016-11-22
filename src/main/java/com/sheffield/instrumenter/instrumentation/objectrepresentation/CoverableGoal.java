@@ -8,13 +8,15 @@ import java.util.List;
 
 public abstract class CoverableGoal {
   protected String className;
+  protected String methodName;
   protected int lineNumber;
   protected int goalId;
   protected List<TestCaseWrapper> coveredBy = new ArrayList<TestCaseWrapper>();
 
-  protected CoverableGoal(String className, int lineNumber) {
+  protected CoverableGoal(String className, String methodName, int lineNumber) {
     this.className = className;
     this.lineNumber = lineNumber;
+    this.methodName = methodName;
   }
 
   public int getGoalId() {
@@ -35,6 +37,10 @@ public abstract class CoverableGoal {
 
   public String getClassName() {
     return className;
+  }
+
+  public String getMethodName() {
+    return methodName;
   }
 
   public void addCoveringTest(TestCaseWrapper t) {
