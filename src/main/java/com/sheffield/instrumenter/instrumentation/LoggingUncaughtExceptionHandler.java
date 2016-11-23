@@ -9,6 +9,7 @@ public class LoggingUncaughtExceptionHandler implements Thread.UncaughtException
 
     @Override
     public void uncaughtException(Thread t, Throwable e) {
+        e.printStackTrace(ClassAnalyzer.out);
         ClassAnalyzer.throwableThrown(e);
     }
 }

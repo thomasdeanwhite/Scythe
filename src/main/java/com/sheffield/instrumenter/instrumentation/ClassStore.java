@@ -1,6 +1,6 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.util.ClassNameUtils;
 
 import java.util.HashMap;
 
@@ -12,11 +12,12 @@ public class ClassStore {
 	private static final long serialVersionUID = -1002975153253026174L;
 
 	public static void put(String name, Class<?> cl) {
-		store.put(name, cl);
+		store.put(ClassNameUtils.standardise(name), cl);
 	}
 
 	public static boolean containsKey(String name) {
-		return store.containsKey(name.replace('.', '/')) || store.containsKey(name.replace('/', '.'));
+		name = ClassNameUtils.standardise(name);
+		return store.containsKey(name);
 	}
 
 	public static Class<?> get(String name) {
@@ -26,17 +27,19 @@ public class ClassStore {
 		if (store.containsKey(name)) {
 			return store.get(name);
 		}
-		name = name.replace('/', '.');
-		if (store.containsKey(name)) {
-			return store.get(name);
+		String newName = ClassNameUtils.standardise(name);
+		if (store.containsKey(newName)) {
+			return store.get(newName);
 		}
 
 		try {
-			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(name);
+			Class<?> c = ClassLoader.getSystemClassLoader().loadClass(ClassNameUtils.replaceSlashes(name));
 			store.put(name, c);
 			return c;
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace(ClassAnalyzer.out);
+		} catch (ClassNotFoundException e ) {
+			//e.printStackTrace(ClassAnalyzer.out);
+		} catch (NoClassDefFoundError e){
+			//e.printStackTrace(ClassAnalyzer.out);
 		}
 		return null;
 	}

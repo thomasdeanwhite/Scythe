@@ -1,19 +1,5 @@
 package com.sheffield.instrumenter.analysis;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import com.google.gson.Gson;
 import com.sheffield.instrumenter.FileHandler;
 import com.sheffield.instrumenter.InstrumentationProperties;
@@ -31,6 +17,24 @@ import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.testcase.TestCaseWrapper;
 import com.sheffield.output.Csv;
 import com.sheffield.util.ClassNameUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+<<<<<<< HEAD
+import java.util.*;
+=======
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+>>>>>>> c0479171428b6f0240287f77f8444820d4eff24e
 
 public class ClassAnalyzer {
 
@@ -211,18 +215,14 @@ public class ClassAnalyzer {
 
   public static int registerClass(String className, int classId) {
 
-    String clazz = className;
-
-    if (classNames.containsKey(className)) {
-      return classNames.get(className);
-    }
+    String clazz = ClassNameUtils.standardise(className);
 
     if (classNames.containsKey(clazz)) {
-      classId = classNames.get(clazz);
+      return classNames.get(clazz);
     }
 
-    classIds.put(classId, className);
-    classNames.put(className, classId);
+    classIds.put(classId, clazz);
+    classNames.put(clazz, classId);
 
     return classId;
   }
@@ -628,6 +628,9 @@ public class ClassAnalyzer {
   }
 
   public static void classChanged(String changedClass) {
+
+    changedClass = ClassNameUtils.standardise(changedClass);
+
     Class<?> cl = ClassStore.get(changedClass);
     if (cl != null) {
       changedClasses.add(cl);
@@ -679,7 +682,14 @@ public class ClassAnalyzer {
       for (int c = 0; c < classes.size(); c++) {
         Class<?> cl = classes.get(c);
         try {
-          Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
+
+//          InstrumentingClassLoader instrClassLoader = InstrumentingClassLoader.getInstance();
+//          if (!cl.getClassLoader().equals(instrClassLoader)){
+//            cl = instrClassLoader.loadClass(cl.getName());
+//          }
+
+          Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME,
+                  new Class<?>[] {});
           getCounters.setAccessible(true);
           int[] counters = (int[]) getCounters.invoke(null, new Object[] {});
           if (counters != null) {
@@ -716,14 +726,14 @@ public class ClassAnalyzer {
                 }
               }
 
-              String className = cl.getName();
-
             }
           }
           if (reset) {
             resetHitCounters(cl);
           }
         } catch (Exception e) {
+          e.printStackTrace(out);
+        } catch (Error e){
           e.printStackTrace(out);
         }
       }
@@ -735,11 +745,16 @@ public class ClassAnalyzer {
   }
 
   public static int getClassId(String className) {
-    return classNames.get(className);
+
+    className = ClassNameUtils.standardise(className);
+
+    if (classNames.containsKey(className)){
+      return classNames.get(className);
+    }
+    return -1;
   }
 
   public static ArrayList<LineHit> getLinesCovered() {
-
     collectHitCounters(false);
 
     ArrayList<LineHit> coveredLines = new ArrayList<LineHit>();
@@ -778,22 +793,14 @@ public class ClassAnalyzer {
       return new ArrayList<Line>();
     }
 
-    className = className.replace(".", "/");
-    int classId;
-    try {
-      classId = classNames.get(className);
-    } catch (NullPointerException e) {
-      className = className.replace("/", ".");
-      try {
-        classId = classNames.get(className);
-      } catch (NullPointerException e2) {
-        return new ArrayList<Line>();
-      }
+    className = ClassNameUtils.standardise(className);
+
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Line>();
     }
 
-    if (!lines.containsKey(classId)) {
-      return Collections.<Line> emptyList();
-    }
+    int classId = classNames.get(className);
+
     List<Line> coverableLines = new ArrayList<Line>();
     Collection<LineHit> lhs = lines.get(classId).values();
     for (LineHit lh : lhs) {
@@ -815,18 +822,13 @@ public class ClassAnalyzer {
       return new ArrayList<Line>();
     }
 
-    className = className.replace(".", "/");
-    int classId;
-    try {
-      classId = classNames.get(className);
-    } catch (NullPointerException e) {
-      className = className.replace("/", ".");
-      try {
-        classId = classNames.get(className);
-      } catch(NullPointerException e2){
-        return new ArrayList<Line>();
-      }
+    className = ClassNameUtils.standardise(className);
+
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Line>();
     }
+
+    int classId = classNames.get(className);
 
     if (!lines.containsKey(classId)) {
       return Collections.<Line> emptyList();
@@ -845,18 +847,14 @@ public class ClassAnalyzer {
       return new ArrayList<Branch>();
     }
 
-    className = className.replace(".", "/");
-    int classId = 0;
-    try {
-      classId = classNames.get(className);
-    } catch (NullPointerException e) {
-      try {
-        className = className.replace("/", ".");
-        classId = classNames.get(className);
-      } catch (NullPointerException e2) {
-        return new ArrayList<Branch>();
-      }
+    className = ClassNameUtils.standardise(className);
+
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Branch>();
     }
+
+    int classId = classNames.get(className);
+
     if (!branches.containsKey(classId)) {
       return Collections.<Branch> emptyList();
     }
@@ -880,18 +878,15 @@ public class ClassAnalyzer {
       return new ArrayList<Branch>();
     }
 
-    className = className.replace(".", "/");
-    int classId = 0;
-    try {
-      classId = classNames.get(className);
-    } catch (NullPointerException e) {
-      try {
-        className = className.replace("/", ".");
-        classId = classNames.get(className);
-      } catch (NullPointerException e2){
-        return new ArrayList<Branch>();
-      }
+    className = ClassNameUtils.standardise(className);
+    if (!classNames.containsKey(className)){
+      return new ArrayList<Branch>();
     }
+
+    int classId = classNames.get(className);
+
+
+
     if (!branches.containsKey(classId)) {
       return Collections.<Branch> emptyList();
     }

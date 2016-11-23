@@ -32,6 +32,7 @@ public class ArrayClassVisitor extends ClassVisitor {
   private List<LineHit> lineHitCounterIds = new ArrayList<LineHit>();
   // itf represents whether or not the class we are visiting is an interface
   private boolean itf;
+  private boolean isEnum;
   private int classId;
 
   public int newCounterId() {
@@ -61,11 +62,13 @@ public class ArrayClassVisitor extends ClassVisitor {
   }
 
   @Override
-  public void visit(int arg0, int access, String className, String arg3, String superName, String[] arg5) {
-    super.visit(arg0, access, className, arg3, superName, arg5);
+  public void visit(int arg0, int access, String className, String signature, String superName, String[] interfaces) {
+    super.visit(arg0, access, className, signature, superName, interfaces);
 
-    itf = ((access & Opcodes.ACC_INTERFACE) == 0) && ((access & Opcodes.ACC_ENUM) == 0);
-    if (itf) {
+    itf = ((access & Opcodes.ACC_INTERFACE) != 0);
+    isEnum = superName.equals("java/lang/Enum");
+
+    if (!itf && !isEnum) {
       // add hit counter array
       FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
           COUNTER_VARIABLE_DESC, null, null);
@@ -79,12 +82,15 @@ public class ArrayClassVisitor extends ClassVisitor {
             CHANGED_VARIABLE_DESC, null, null);
         changed.visitEnd();
       }
+    } else {
+      ClassAnalyzer.out.println("\r " + this.className + " is an interface or enum!");
     }
   }
 
   @Override
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
     MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
+    if (!itf && !isEnum) {
     if (itf && (access & Opcodes.ACC_ABSTRACT) == 0 && (access & Opcodes.ACC_SYNTHETIC) == 0) {
       if (InstrumentationProperties.USE_CHANGED_FLAG) {
         // add call to ClassAnalyzer.changed
