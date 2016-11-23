@@ -3,8 +3,8 @@ package test.classes;
 /**
  * Created by thomas on 23/11/2016.
  */
-public class TestClass {
-    public TestClass() {
+public class ExampleClass {
+    public ExampleClass() {
 
     }
 

@@ -2,7 +2,7 @@ package com.sheffield.instrumenter.instrumentation.visitors;
 
 import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
-import test.classes.TestClass;
+import test.classes.ExampleClass;
 
 /**
  * Created by thomas on 23/11/2016.
@@ -17,7 +17,7 @@ public class ClassTester {
         ICL.setShouldInstrument(true);
 
         InstrumentationProperties.WRITE_CLASS = true;
-        InstrumentationProperties.BYTECODE_DIR = TestClass.class.getResource
+        InstrumentationProperties.BYTECODE_DIR = ExampleClass.class.getResource
                 ("").getFile();
     }
 
@@ -28,7 +28,7 @@ public class ClassTester {
         if (instrumentedClass != null){
             return instrumentedClass;
         }
-        instrumentedClass = ICL.loadClass(TestClass.class.getCanonicalName(),
+        instrumentedClass = ICL.loadClass(ExampleClass.class.getCanonicalName(),
                 false);
         return instrumentedClass;
     }

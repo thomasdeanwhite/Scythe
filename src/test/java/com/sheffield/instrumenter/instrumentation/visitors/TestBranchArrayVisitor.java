@@ -1,12 +1,11 @@
 package com.sheffield.instrumenter.instrumentation.visitors;
 
-import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.Line;
 import org.junit.Before;
 import org.junit.Test;
-import test.classes.TestClass;
+import test.classes.ExampleClass;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -54,7 +53,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Branch> covered = ClassAnalyzer.getCoverableBranches
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
         int trueHits = 0;
         int falseHits = 0;
@@ -85,7 +84,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Branch> covered = ClassAnalyzer.getCoverableBranches
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
         int trueHits = 0;
         int falseHits = 0;
@@ -117,7 +116,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Branch> covered = ClassAnalyzer.getCoverableBranches
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
         int trueHits = 0;
         int falseHits = 0;
@@ -149,7 +148,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Branch> covered = ClassAnalyzer.getCoverableBranches
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
         int trueHits = 0;
         int falseHits = 0;
@@ -181,7 +180,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Branch> covered = ClassAnalyzer.getCoverableBranches
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
         int trueHits = 0;
         int falseHits = 0;
@@ -213,7 +212,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Line> covered = ClassAnalyzer.getCoverableLines
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
 
         List<Integer> coveredLines = Arrays.asList(new Integer[]{
@@ -255,7 +254,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Line> covered = ClassAnalyzer.getCoverableLines
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
 
         List<Integer> coveredLines = Arrays.asList(new Integer[]{
@@ -297,7 +296,7 @@ public class TestBranchArrayVisitor {
         ClassAnalyzer.collectHitCounters(false);
 
         List<Line> covered = ClassAnalyzer.getCoverableLines
-                (TestClass.class.getName());
+                (ExampleClass.class.getName());
 
 
         List<Integer> coveredLines = Arrays.asList(new Integer[]{
