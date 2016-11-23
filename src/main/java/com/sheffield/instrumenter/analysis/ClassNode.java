@@ -46,7 +46,8 @@ public class ClassNode {
     }
 
     private ClassNode findClassNode(String className, ArrayList<String> seen) {
-        for (ClassNode cn : children) {
+        for (int i = 0; i < children.size(); i++) {
+            ClassNode cn = children.get(i);
             if (seen.contains(cn.getClassName())) {
                 continue;
             }
