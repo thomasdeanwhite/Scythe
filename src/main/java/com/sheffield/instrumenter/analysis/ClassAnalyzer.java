@@ -24,9 +24,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-<<<<<<< HEAD
-import java.util.*;
-=======
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -34,7 +32,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
->>>>>>> c0479171428b6f0240287f77f8444820d4eff24e
+
 
 public class ClassAnalyzer {
 

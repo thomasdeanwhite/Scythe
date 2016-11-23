@@ -30,9 +30,10 @@ public class ArrayClassVisitor extends ClassVisitor {
   private AtomicInteger counter = new AtomicInteger(0);
   private List<BranchHit> branchHitCounterIds = new ArrayList<BranchHit>();
   private List<LineHit> lineHitCounterIds = new ArrayList<LineHit>();
-  // itf represents whether or not the class we are visiting is an interface
-  private boolean itf;
+  // isInterface represents whether or not the class we are visiting is an interface
+  private boolean isInterface;
   private boolean isEnum;
+  private boolean shouldInstrument;
   private int classId;
 
   public int newCounterId() {
@@ -65,10 +66,12 @@ public class ArrayClassVisitor extends ClassVisitor {
   public void visit(int arg0, int access, String className, String signature, String superName, String[] interfaces) {
     super.visit(arg0, access, className, signature, superName, interfaces);
 
-    itf = ((access & Opcodes.ACC_INTERFACE) != 0);
+    isInterface = ((access & Opcodes.ACC_INTERFACE) != 0);
     isEnum = superName.equals("java/lang/Enum");
 
-    if (!itf && !isEnum) {
+    shouldInstrument = !(isInterface || isEnum);
+
+    if (shouldInstrument) {
       // add hit counter array
       FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
           COUNTER_VARIABLE_DESC, null, null);
@@ -90,8 +93,7 @@ public class ArrayClassVisitor extends ClassVisitor {
   @Override
   public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
     MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-    if (!itf && !isEnum) {
-    if (itf && (access & Opcodes.ACC_ABSTRACT) == 0 && (access & Opcodes.ACC_SYNTHETIC) == 0) {
+    if (shouldInstrument && (access & Opcodes.ACC_ABSTRACT) == 0 && (access & Opcodes.ACC_SYNTHETIC) == 0) {
       if (InstrumentationProperties.USE_CHANGED_FLAG) {
         // add call to ClassAnalyzer.changed
         mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
@@ -122,7 +124,7 @@ public class ArrayClassVisitor extends ClassVisitor {
   public void visitEnd() {
     // create visits to our own methods to collect hits, only if it's not an
     // interface
-    if (itf) {
+    if (shouldInstrument) {
       addGetCounterMethod(cv);
       addResetCounterMethod(cv);
       addInitMethod(cv);
