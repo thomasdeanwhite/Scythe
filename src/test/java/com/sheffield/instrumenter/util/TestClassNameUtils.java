@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by thomas on 30/08/2016.
  */
-public class ClassNameUtilsTest {
+public class TestClassNameUtils {
 
     @Test
     public void testSlashes(){

@@ -89,7 +89,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
     @Override
     public Class<?> loadClass(String name, boolean resolve)
             throws ClassNotFoundException {
-        String className = name.replace('/', '.');
+        String className = ClassNameUtils.replaceSlashes(name);
         if (ClassStore.containsKey(className)) {
             return ClassStore.get(className);
         }

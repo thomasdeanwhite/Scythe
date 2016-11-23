@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.lang.instrument.IllegalClassFormatException;
 import java.util.ArrayList;
 
+import com.sheffield.util.ClassNameUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -43,9 +44,6 @@ public class ClassReplacementTransformer {
       public boolean shouldInstrument(String className) {
         if (className == null) {
           return false;
-        }
-        if (className.contains(".")) {
-          className = className.replace(".", "/");
         }
         if (isForbiddenPackage(className)) {
           return false;
@@ -154,10 +152,7 @@ public class ClassReplacementTransformer {
   }
 
   public boolean shouldInstrumentClass(String className) {
-
-    if (className.contains("/")) {
-      className = className.replace("/", ".");
-    }
+      className = ClassNameUtils.standardise(className);
 
     for (ShouldInstrumentChecker sic : shouldInstrumentCheckers) {
       if (!sic.shouldInstrument(className)) {
@@ -178,7 +173,7 @@ public class ClassReplacementTransformer {
 
   public static boolean isForbiddenPackage(String clazz) {
     for (String s : forbiddenPackages) {
-      if (clazz.startsWith(s)) {
+      if (clazz.startsWith(ClassNameUtils.standardise(s))) {
         return true;
       }
     }

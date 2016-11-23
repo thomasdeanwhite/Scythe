@@ -108,6 +108,27 @@ public class ClassAnalyzer {
     changedClasses.clear();
   }
 
+  public static void softReset(){
+    for (Map<Integer, BranchHit> mb : branches.values()){
+      for (BranchHit b : mb.values()){
+        b.reset();
+      }
+    }
+
+    for (Map<Integer, LineHit> lb : lines.values()){
+      for (LineHit l : lb.values()){
+        l.reset();
+      }
+    }
+
+
+    for (Class c : changedClasses) {
+        resetHitCounters(c);
+    }
+
+    changedClasses.clear();
+  }
+
   public static void setBranches(Map<Integer, Map<Integer, BranchHit>> b) {
     for (Integer i : b.keySet()) {
       Map<Integer, BranchHit> b2 = b.get(i);

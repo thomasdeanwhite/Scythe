@@ -44,7 +44,7 @@ public class DependencyTree {
     }
 
     public ClassNode getClassNode(String className) {
-        return root.findClassNode(className);
+        return root.findClassNode(ClassNameUtils.standardise(className));
     }
 
     public ArrayList<ClassNode> getPackageNodes(String packageName) {
@@ -65,7 +65,7 @@ public class DependencyTree {
             nodes.put(claName, new HashMap<String, ClassNode>());
 
         if (cn == null)
-            root.findClassNode(className);
+            cn = root.findClassNode(className);
 
         if (cn == null) {
             cn = new ClassNode(className);
@@ -105,6 +105,7 @@ public class DependencyTree {
 
     public void clear() {
         root.clear();
+        nodes.clear();
     }
 
     public ClassNode getRoot() {
