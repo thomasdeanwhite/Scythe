@@ -7,6 +7,9 @@
     <groupId>com.sheffield</groupId>
     <artifactId>instrumentation</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>Light-weight Instrumentation</name>
+
     <build>
         <plugins>
             <plugin>
