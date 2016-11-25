@@ -3,3 +3,5 @@ jdk:
   - oraclejdk8
 script:
   - mvn test
+notifications:
+  slack: simpleins:kQNRJhnUsV83K05WfeAGU4Kc
