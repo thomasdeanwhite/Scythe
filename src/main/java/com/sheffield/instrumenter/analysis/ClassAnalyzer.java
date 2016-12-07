@@ -90,9 +90,12 @@ public class ClassAnalyzer {
 
     ArrayList<LineHit> lin = new ArrayList<LineHit>();
 
-    for (Integer i : lines.keySet()){
-      for (Integer j : lines.get(i).keySet()){
-        lin.add(lines.get(i).get(j));
+    HashMap<Integer, Map<Integer, LineHit>> linesCopy = new HashMap<Integer,
+            Map<Integer, LineHit>>(lines);
+
+    for (Integer i : linesCopy.keySet()){
+      for (Integer j : linesCopy.get(i).keySet()){
+        lin.add(linesCopy.get(i).get(j));
       }
     }
     return lin;
