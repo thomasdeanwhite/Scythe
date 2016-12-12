@@ -119,8 +119,10 @@ public class ClassAnalyzer {
             }
         }
 
-        for (Class c : changedClasses) {
-            resetHitCounters(c);
+        ArrayList<Class<?>> changed = new ArrayList<Class<?>>(changedClasses);
+
+        for (int i = 0; i < changed.size(); i++) {
+            resetHitCounters(changed.get(i));
         }
 
         changedClasses.clear();
