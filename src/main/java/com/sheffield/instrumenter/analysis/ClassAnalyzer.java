@@ -87,10 +87,10 @@ public class ClassAnalyzer {
     public static ArrayList<LineHit> getTotalLines() {
 
         ArrayList<LineHit> lin = new ArrayList<LineHit>();
-
-        for (Integer i : lines.keySet()) {
-            for (Integer j : lines.get(i).keySet()) {
-                lin.add(lines.get(i).get(j));
+        HashMap<Integer, Map<Integer, LineHit>> linesCopy = new HashMap<Integer, Map<Integer, LineHit>>(lines);
+        for (Integer i : linesCopy.keySet()) {
+            for (Integer j : linesCopy.get(i).keySet()) {
+                lin.add(linesCopy.get(i).get(j));
             }
         }
         return lin;
@@ -367,21 +367,21 @@ public class ClassAnalyzer {
         float bd = 0;
 
         switch (bt) {
-        case BRANCH_E:
-            bd = Math.abs(b1 - b2);
-            break;
-        case BRANCH_GE:
-            bd = b1 - b2;
-            break;
-        case BRANCH_GT:
-            bd = b1 - b2;
-            break;
-        case BRANCH_LE:
-            bd = b2 - b1;
-            break;
-        case BRANCH_LT:
-            bd = b2 - b1;
-            break;
+            case BRANCH_E:
+                bd = Math.abs(b1 - b2);
+                break;
+            case BRANCH_GE:
+                bd = b1 - b2;
+                break;
+            case BRANCH_GT:
+                bd = b1 - b2;
+                break;
+            case BRANCH_LE:
+                bd = b2 - b1;
+                break;
+            case BRANCH_LT:
+                bd = b2 - b1;
+                break;
         }
         bd = Math.abs(bd / Float.MAX_VALUE);
         bd = Math.min(1f, Math.max(0f, bd));

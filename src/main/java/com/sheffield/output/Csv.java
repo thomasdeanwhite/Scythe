@@ -39,7 +39,7 @@ public class Csv {
             h += s + ",";
         }
 
-        h.substring(0, h.length() - 1);
+        h = h.substring(0, h.length() - 1);
 
         return h;
     }
@@ -60,7 +60,7 @@ public class Csv {
             h += properties.get(s) + ",";
         }
 
-        h.substring(0, h.length() - 1);
+        h = h.substring(0, h.length() - 1);
 
         return h;
     }
