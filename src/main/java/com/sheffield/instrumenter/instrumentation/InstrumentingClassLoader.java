@@ -1,18 +1,5 @@
 package com.sheffield.instrumenter.instrumentation;
 
-import com.sheffield.instrumenter.InstrumentationProperties;
-import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
-import com.sheffield.instrumenter.instrumentation.visitors
-        .DependencyTreeClassVisitor;
-import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
-import com.sheffield.util.ArrayUtils;
-import com.sheffield.util.ClassNameUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.objectweb.asm.ClassVisitor;
-import org.objectweb.asm.ClassWriter;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -23,6 +10,20 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
+import com.sheffield.instrumenter.InstrumentationProperties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.DependencyTreeClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.MutationClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import com.sheffield.util.ArrayUtils;
+import com.sheffield.util.ClassNameUtils;
+
 public class InstrumentingClassLoader extends URLClassLoader {
 
     private static InstrumentingClassLoader instance;
@@ -30,28 +31,30 @@ public class InstrumentingClassLoader extends URLClassLoader {
     private ClassReplacementTransformer crt = new ClassReplacementTransformer();
     private boolean shouldInstrument;
     private MockClassLoader loader;
-    private ArrayList<ClassInstrumentingInterceptor>
-            classInstrumentingInterceptors;
+    private ArrayList<ClassInstrumentingInterceptor> classInstrumentingInterceptors;
 
     private boolean buildDependencyTree = false;
 
+    private boolean visitMutants = false;
+
     public interface ClassInstrumentingInterceptor {
         ClassVisitor intercept(ClassVisitor parent, String className);
+    }
+
+    public void setVisitMutants(boolean b) {
+        visitMutants = b;
     }
 
     public void setBuildDependencyTree(boolean b) {
         buildDependencyTree = b;
     }
 
-    public void addClassInstrumentingInterceptor(
-            ClassInstrumentingInterceptor cii) {
-        ClassAnalyzer.out.printf("- Added ClassInstrumentingInterceptor: %s.\n",
-                cii.getClass().getName());
+    public void addClassInstrumentingInterceptor(ClassInstrumentingInterceptor cii) {
+        ClassAnalyzer.out.printf("- Added ClassInstrumentingInterceptor: %s.\n", cii.getClass().getName());
         classInstrumentingInterceptors.add(cii);
     }
 
-    public void removeClassInstrumentingInterceptor(
-            ClassInstrumentingInterceptor cii) {
+    public void removeClassInstrumentingInterceptor(ClassInstrumentingInterceptor cii) {
         classInstrumentingInterceptors.remove(cii);
     }
 
@@ -61,13 +64,10 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
     private InstrumentingClassLoader(URL[] urls) {
         super(urls);
-        ClassAnalyzer.out.println(
-                "Created InstrumentingClassLoader with URLS " +
-                        Arrays.toString(urls));
+        ClassAnalyzer.out.println("Created InstrumentingClassLoader with URLS " + Arrays.toString(urls));
         loader = new MockClassLoader(urls);
         this.classLoader = getClass().getClassLoader();
-        classInstrumentingInterceptors =
-                new ArrayList<ClassInstrumentingInterceptor>();
+        classInstrumentingInterceptors = new ArrayList<ClassInstrumentingInterceptor>();
     }
 
     @Override
@@ -82,13 +82,11 @@ public class InstrumentingClassLoader extends URLClassLoader {
     }
 
     /**
-     * * Add a inmemory representation of a class. * @param name * name of
-     * the class * @param bytes * class definition
+     * * Add a inmemory representation of a class. * @param name * name of the class * @param bytes * class definition
      */
 
     @Override
-    public Class<?> loadClass(String name, boolean resolve)
-            throws ClassNotFoundException {
+    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         String className = ClassNameUtils.replaceSlashes(name);
         if (ClassStore.containsKey(className)) {
             return ClassStore.get(className);
@@ -130,11 +128,9 @@ public class InstrumentingClassLoader extends URLClassLoader {
                 File output = new File(InstrumentationProperties.BYTECODE_DIR,
                         ClassNameUtils.replaceDots(name) + ".class");
 
-                if (output.getParentFile() != null &&
-                        !output.getParentFile().exists()) {
+                if (output.getParentFile() != null && !output.getParentFile().exists()) {
                     output.getParentFile().mkdirs();
-                    ClassAnalyzer.out.println("- Created new Folder: " +
-                            output.getParentFile().getAbsolutePath());
+                    ClassAnalyzer.out.println("- Created new Folder: " + output.getParentFile().getAbsolutePath());
                 }
 
                 output.createNewFile();
@@ -161,16 +157,13 @@ public class InstrumentingClassLoader extends URLClassLoader {
             return cl;
         } catch (final IOException e) {
             e.printStackTrace(ClassAnalyzer.out);
-            throw new ClassNotFoundException(
-                    "Couldn't instrument class" + e.getLocalizedMessage());
+            throw new ClassNotFoundException("Couldn't instrument class" + e.getLocalizedMessage());
         } catch (final IllegalClassFormatException e) {
             e.printStackTrace(ClassAnalyzer.out);
-            throw new ClassNotFoundException(
-                    "Couldn't instrument class" + e.getLocalizedMessage());
+            throw new ClassNotFoundException("Couldn't instrument class" + e.getLocalizedMessage());
         } catch (final Exception e) {
             e.printStackTrace(ClassAnalyzer.out);
-            throw new ClassNotFoundException(
-                    "Couldn't instrument class " + e.getLocalizedMessage());
+            throw new ClassNotFoundException("Couldn't instrument class " + e.getLocalizedMessage());
         } finally {
             try {
                 if (stream != null) {
@@ -183,54 +176,49 @@ public class InstrumentingClassLoader extends URLClassLoader {
     }
 
     public boolean shouldInstrumentClass(String className) {
-        return shouldInstrument && crt.shouldInstrumentClass(ClassNameUtils
-                .standardise(className));
+        return shouldInstrument && crt.shouldInstrumentClass(ClassNameUtils.standardise(className));
     }
 
     public boolean shouldInstrument() {
         return shouldInstrument;
     }
 
-    public byte[] modifyBytes(String name, byte[] original) throws
-                                                            ClassNotFoundException, IllegalClassFormatException, IOException {
+    public byte[] modifyBytes(String name, byte[] original)
+            throws ClassNotFoundException, IllegalClassFormatException, IOException {
         String className = ClassNameUtils.replaceSlashes(name);
         if ("".equals(className)) {
             throw new ClassNotFoundException("Empty class name given");
         }
         ByteArrayOutputStream out = null;
 
-        ClassWriter writer = new CustomLoaderClassWriter(
-                ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS,
-                this);
+        ClassWriter writer = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
         ClassVisitor cw = writer;
-        for (ClassInstrumentingInterceptor cii :
-                classInstrumentingInterceptors) {
+        for (ClassInstrumentingInterceptor cii : classInstrumentingInterceptors) {
             ClassVisitor newVisitor = cii.intercept(cw, name);
             if (newVisitor != null) {
                 cw = newVisitor;
             }
         }
 
-        ClassVisitor cv = InstrumentationProperties.INSTRUMENTATION_APPROACH ==
-                InstrumentationProperties.InstrumentationApproach.STATIC
-                ? new StaticClassVisitor(cw, name) :
-                new ArrayClassVisitor(cw, name);
+        ClassVisitor cv = InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationProperties.InstrumentationApproach.STATIC
+                ? new StaticClassVisitor(cw, name) : new ArrayClassVisitor(cw, name);
 
         if (buildDependencyTree) {
             cv = new DependencyTreeClassVisitor(cv, name);
         }
 
+        if (visitMutants) {
+            cv = new MutationClassVisitor(cv);
+        }
+
         byte[] bytes = crt.transform(name, original, cv, writer);
 
         if (InstrumentationProperties.WRITE_CLASS) {
-            File output = new File(InstrumentationProperties.BYTECODE_DIR,
-                    ClassNameUtils.replaceDots(name) + ".class");
+            File output = new File(InstrumentationProperties.BYTECODE_DIR, ClassNameUtils.replaceDots(name) + ".class");
 
-            if (output.getParentFile() != null &&
-                    !output.getParentFile().exists()) {
+            if (output.getParentFile() != null && !output.getParentFile().exists()) {
                 output.getParentFile().mkdirs();
-                ClassAnalyzer.out.println("- Created new Folder: " +
-                        output.getParentFile().getAbsolutePath());
+                ClassAnalyzer.out.println("- Created new Folder: " + output.getParentFile().getAbsolutePath());
             }
 
             output.createNewFile();
@@ -243,9 +231,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
         return bytes;
     }
 
-
-    public Class<?> loadOriginalClass(String name)
-            throws ClassNotFoundException {
+    public Class<?> loadOriginalClass(String name) throws ClassNotFoundException {
         name = name.replace("/", ".");
         try {
 
@@ -262,8 +248,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
     }
 
-    private InputStream getInputStreamForClass(String name)
-            throws ClassNotFoundException {
+    private InputStream getInputStreamForClass(String name) throws ClassNotFoundException {
         String path = name.replace(".", "/") + ".class";
         InputStream stream = getResourceAsStream(path);
         if (stream != null) {
@@ -274,12 +259,9 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
     public static InstrumentingClassLoader getInstance() {
         if (instance == null) {
-            URLClassLoader loader =
-                    (URLClassLoader) ClassLoader.getSystemClassLoader();
-            URL[] urls = ((URLClassLoader) Thread.currentThread()
-                    .getContextClassLoader()).getURLs();
-            instance = new InstrumentingClassLoader(ArrayUtils
-                    .combineArrays(URL.class, true, urls, loader.getURLs()));
+            URLClassLoader loader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            URL[] urls = ((URLClassLoader) Thread.currentThread().getContextClassLoader()).getURLs();
+            instance = new InstrumentingClassLoader(ArrayUtils.combineArrays(URL.class, true, urls, loader.getURLs()));
         }
         return instance;
     }
@@ -289,8 +271,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
             super(urls);
         }
 
-        private Class<?> loadOriginalClass(String name)
-                throws IOException, ClassNotFoundException {
+        private Class<?> loadOriginalClass(String name) throws IOException, ClassNotFoundException {
             InputStream stream;
             Class<?> cl = findLoadedClass(name);
             if (!crt.shouldInstrumentClass(name) || !shouldInstrument) {
@@ -305,8 +286,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
         }
 
         @Override
-        public Class<?> loadClass(String name, boolean resolve)
-                throws ClassNotFoundException {
+        public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
             String localMessage = "";
             if (!crt.shouldInstrumentClass(name) || !shouldInstrument) {
                 return super.loadClass(name, resolve);
