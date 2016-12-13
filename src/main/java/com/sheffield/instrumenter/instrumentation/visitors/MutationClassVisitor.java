@@ -13,8 +13,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.instrumentation.modifiers.MutationMethodVisitor;
+import com.sheffield.instrumenter.mutation.MutationProperties;
 
 public class MutationClassVisitor extends ClassVisitor {
     public static List<Integer> activeMutantIds = new ArrayList<Integer>();
@@ -22,7 +22,7 @@ public class MutationClassVisitor extends ClassVisitor {
 
     public MutationClassVisitor(ClassVisitor mv) throws IOException {
         super(Opcodes.ASM5, mv);
-        Path p = Paths.get(InstrumentationProperties.ACTIVE_MUTANT_FILE);
+        Path p = Paths.get(MutationProperties.ACTIVE_MUTANT_FILE);
         if (Files.exists(p, LinkOption.NOFOLLOW_LINKS)) {
             for (String id : Files.readAllLines(p)) {
                 try {
@@ -32,7 +32,7 @@ public class MutationClassVisitor extends ClassVisitor {
                 }
             }
         } else {
-            throw new IOException("Active Mutant File does not exist! " + InstrumentationProperties.ACTIVE_MUTANT_FILE);
+            throw new IOException("Active Mutant File does not exist! " + MutationProperties.ACTIVE_MUTANT_FILE);
         }
     }
 
