@@ -6,6 +6,8 @@ import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors
         .DependencyTreeClassVisitor;
 import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors
+        .SuperReplacementClassVisitor;
 import com.sheffield.util.ArrayUtils;
 import com.sheffield.util.ClassNameUtils;
 import org.apache.commons.io.IOUtils;
@@ -22,6 +24,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class InstrumentingClassLoader extends URLClassLoader {
 
@@ -33,10 +36,28 @@ public class InstrumentingClassLoader extends URLClassLoader {
     private ArrayList<ClassInstrumentingInterceptor>
             classInstrumentingInterceptors;
 
+    private HashMap<String, String> superClassReplacements = new HashMap
+            <String, String>();
+
     private boolean buildDependencyTree = false;
 
     public interface ClassInstrumentingInterceptor {
         ClassVisitor intercept(ClassVisitor parent, String className);
+    }
+
+    public void addSuperClassReplacement(String superClass, String repalcement){
+        ClassAnalyzer.out.println("- Replacing class [" + superClass +
+                "->" + repalcement + "]");
+        superClassReplacements.put(ClassNameUtils.standardise(superClass),
+                ClassNameUtils.standardise(repalcement));
+    }
+
+    public boolean shouldReplaceSuperClass(String superClass){
+        return superClassReplacements.containsKey(superClass);
+    }
+
+    public String superClassReplacement(String superClass){
+        return superClassReplacements.get(superClass);
     }
 
     public void setBuildDependencyTree(boolean b) {
@@ -203,6 +224,12 @@ public class InstrumentingClassLoader extends URLClassLoader {
                 ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS,
                 this);
         ClassVisitor cw = writer;
+
+
+        if (superClassReplacements.size() > 0){
+            cw = new SuperReplacementClassVisitor(cw, name);
+        }
+
         for (ClassInstrumentingInterceptor cii :
                 classInstrumentingInterceptors) {
             ClassVisitor newVisitor = cii.intercept(cw, name);
