@@ -155,8 +155,10 @@ public class ArrayClassVisitor extends ClassVisitor {
     mv.visitInsn(Opcodes.ARRAYLENGTH);
     mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
     mv.visitFieldInsn(Opcodes.PUTSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
-    mv.visitInsn(Opcodes.ICONST_0);
-    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
+    if(InstrumentationProperties.USE_CHANGED_FLAG) {
+      mv.visitInsn(Opcodes.ICONST_0);
+      mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
+    }
     mv.visitInsn(Opcodes.RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();

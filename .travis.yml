@@ -5,3 +5,9 @@ script:
   - mvn test
 notifications:
   slack: simpleins:kQNRJhnUsV83K05WfeAGU4Kc
+  email:
+    recipients:
+      - dpaterson1@sheffield.ac.uk
+      - tdwhite1@sheffield.ac.uk
+    on_success: change
+    on_failure: change
