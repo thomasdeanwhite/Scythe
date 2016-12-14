@@ -790,7 +790,6 @@ public class ClassAnalyzer {
             Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME, new Class[] {});
             resetCounters.setAccessible(true);
             resetCounters.invoke(null, new Object[] {});
-            changedClasses.remove(cl);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         } catch (InvocationTargetException e) {
