@@ -2,6 +2,7 @@ package com.sheffield.instrumenter.instrumentation.visitors;
 
 import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
@@ -62,8 +63,11 @@ public class ArrayClassVisitor extends ClassVisitor {
     this.className = className.replace('.', '/');
   }
 
+
+
   @Override
   public void visit(int arg0, int access, String className, String signature, String superName, String[] interfaces) {
+
     super.visit(arg0, access, className, signature, superName, interfaces);
 
     isInterface = ((access & Opcodes.ACC_INTERFACE) != 0);

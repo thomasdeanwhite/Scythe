@@ -1,5 +1,20 @@
 package com.sheffield.instrumenter.instrumentation;
 
+import com.sheffield.instrumenter.InstrumentationProperties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.visitors.ArrayClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors
+        .DependencyTreeClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import com.sheffield.instrumenter.instrumentation.visitors
+        .SuperReplacementClassVisitor;
+import com.sheffield.util.ArrayUtils;
+import com.sheffield.util.ClassNameUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,6 +24,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -33,12 +49,30 @@ public class InstrumentingClassLoader extends URLClassLoader {
     private MockClassLoader loader;
     private ArrayList<ClassInstrumentingInterceptor> classInstrumentingInterceptors;
 
+    private HashMap<String, String> superClassReplacements = new HashMap
+            <String, String>();
+
     private boolean buildDependencyTree = false;
 
     private boolean visitMutants = false;
 
     public interface ClassInstrumentingInterceptor {
         ClassVisitor intercept(ClassVisitor parent, String className);
+    }
+
+    public void addSuperClassReplacement(String superClass, String repalcement){
+        ClassAnalyzer.out.println("- Replacing class [" + superClass +
+                "->" + repalcement + "]");
+        superClassReplacements.put(ClassNameUtils.standardise(superClass),
+                ClassNameUtils.standardise(repalcement));
+    }
+
+    public boolean shouldReplaceSuperClass(String superClass){
+        return superClassReplacements.containsKey(superClass);
+    }
+
+    public String superClassReplacement(String superClass) {
+        return superClassReplacements.get(superClass);
     }
 
     public void setVisitMutants(boolean b) {
@@ -193,7 +227,13 @@ public class InstrumentingClassLoader extends URLClassLoader {
 
         ClassWriter writer = new CustomLoaderClassWriter(ClassWriter.COMPUTE_FRAMES | ClassWriter.COMPUTE_MAXS, this);
         ClassVisitor cw = writer;
-        for (ClassInstrumentingInterceptor cii : classInstrumentingInterceptors) {
+
+        if (superClassReplacements.size() > 0){
+            cw = new SuperReplacementClassVisitor(cw, name);
+        }
+
+        for (ClassInstrumentingInterceptor cii :
+                classInstrumentingInterceptors) {
             ClassVisitor newVisitor = cii.intercept(cw, name);
             if (newVisitor != null) {
                 cw = newVisitor;
