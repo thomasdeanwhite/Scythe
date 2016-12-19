@@ -2,7 +2,6 @@ package com.sheffield.instrumenter.instrumentation.visitors;
 
 import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
@@ -72,8 +71,9 @@ public class ArrayClassVisitor extends ClassVisitor {
 
     isInterface = ((access & Opcodes.ACC_INTERFACE) != 0);
     isEnum = superName.equals("java/lang/Enum");
+    boolean isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
 
-    shouldInstrument = !(isInterface || isEnum);
+    shouldInstrument = !(isInterface || isEnum || isSynthetic);
 
     if (shouldInstrument) {
       // add hit counter array
