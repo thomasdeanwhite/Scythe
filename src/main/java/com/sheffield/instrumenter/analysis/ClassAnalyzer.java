@@ -712,6 +712,10 @@ public class ClassAnalyzer {
                                 o = classNames.get(ClassNameUtils.standardise(cl.getName()));
                             }
 
+                            if (o == null){
+                                continue;
+                            }
+
                             int classId = (Integer) o;
                             Line line = findLineWithCounterId(classId, i);
                             if (line != null) {

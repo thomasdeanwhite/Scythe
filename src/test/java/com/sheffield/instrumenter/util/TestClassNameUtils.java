@@ -30,4 +30,18 @@ public class TestClassNameUtils {
 
         assertEquals("some/random/Class", ClassNameUtils.standardise(className));
     }
+
+    @Test
+    public void testClassPackage(){
+        String className = "some/random.Class";
+
+        assertEquals("some", ClassNameUtils.getPackageName(className));
+    }
+
+    @Test
+    public void testClassPackageWithDots(){
+        String className = "some.random.Class";
+
+        assertEquals("some", ClassNameUtils.getPackageName(className));
+    }
 }

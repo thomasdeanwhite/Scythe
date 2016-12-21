@@ -40,6 +40,13 @@ public class ClassNode {
     }
 
     public ClassNode findClassNode(String className) {
+
+        ClassNode cn = DependencyTree.classNodeCache(className);
+
+        if (cn != null){
+            return cn;
+        }
+
         className = DependencyTree.convertString(className);
         ArrayList<String> seen = new ArrayList<String>(children.size());
         return findClassNode(className, seen);

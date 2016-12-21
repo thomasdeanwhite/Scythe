@@ -17,4 +17,20 @@ public class ClassNameUtils {
         return replaceDots(className).trim();
     }
 
+    public static String getPackageName(String className){
+        className = className.trim();
+        if (className.contains("/")){
+            return className.substring(0, className.lastIndexOf("/"));
+        }
+        if (className.toLowerCase().endsWith(".class") || className.toLowerCase().endsWith(".java"))
+            className = className.substring(0, className.lastIndexOf("."));
+
+        if (className.contains(".")) {
+            return className.substring(0, className.lastIndexOf("."));
+        }
+
+        return "";
+
+    }
+
 }

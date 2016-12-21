@@ -2,12 +2,15 @@ package com.sheffield.instrumenter.instrumentation.visitors;
 
 import com.sheffield.instrumenter.InstrumentationProperties;
 import com.sheffield.instrumenter.analysis.ClassAnalyzer;
-import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
 import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
-import org.objectweb.asm.*;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -89,8 +92,8 @@ public class ArrayClassVisitor extends ClassVisitor {
             CHANGED_VARIABLE_DESC, null, null);
         changed.visitEnd();
       }
-    } else {
-      ClassAnalyzer.out.println("\r " + this.className + " is an interface or enum!");
+//    } else {
+//      ClassAnalyzer.out.println("\r " + this.className + " is an interface or enum!");
     }
   }
 
