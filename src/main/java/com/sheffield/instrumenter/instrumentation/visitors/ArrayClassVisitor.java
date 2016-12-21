@@ -75,8 +75,9 @@ public class ArrayClassVisitor extends ClassVisitor {
 
     isInterface = ((access & Opcodes.ACC_INTERFACE) != 0);
     isEnum = superName.equals("java/lang/Enum");
+    boolean isSynthetic = ((access & Opcodes.ACC_SYNTHETIC) != 0);
 
-    shouldInstrument = !(isInterface || isEnum);
+    shouldInstrument = !(isInterface || isEnum || isSynthetic);
 
     if (shouldInstrument) {
       // add hit counter array
