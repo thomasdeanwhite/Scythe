@@ -90,7 +90,20 @@ public class ClassAnalyzer {
         return lin;
     }
 
+    /**
+     * Renamed to getRawBranches
+     * @return
+     */
+    @Deprecated
     public static Map<Integer, Map<Integer, BranchHit>> getTotalBranches() {
+        return branches;
+    }
+
+    public static Map<Integer, Map<Integer, LineHit>> getRawLines() {
+        return lines;
+    }
+
+    public static Map<Integer, Map<Integer, BranchHit>> getRawBranches() {
         return branches;
     }
 
