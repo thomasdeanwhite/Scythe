@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SuperReplacementVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Light-weight Instrumentation</a> &gt; <a href="index.source.html" class="el_package">com.sheffield.instrumenter.instrumentation.modifiers</a> &gt; <span class="el_source">SuperReplacementVisitor.java</span></div><h1>SuperReplacementVisitor.java</h1><pre class="source lang-java linenums">package com.sheffield.instrumenter.instrumentation.modifiers;
+
+import com.sheffield.instrumenter.analysis.DependencyTree;
+import com.sheffield.instrumenter.instrumentation.InstrumentingClassLoader;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+public class SuperReplacementVisitor extends MethodVisitor {
+	private String className;
+	private String methodName;
+
+	public SuperReplacementVisitor(MethodVisitor mv, String className, String methodName,
+                                   String desc, int access) {
+<span class="nc" id="L14">		super(Opcodes.ASM5, mv);</span>
+<span class="nc" id="L15">		this.className = className;</span>
+<span class="nc" id="L16">		this.methodName = methodName;</span>
+<span class="nc" id="L17">	}</span>
+
+	@Override
+	public void visitMethodInsn(int i, String s, String s1, String s2, boolean b) {
+<span class="nc" id="L21">		if (InstrumentingClassLoader.getInstance().shouldReplaceSuperClass</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">				(s)){</span>
+<span class="nc" id="L23">			s = InstrumentingClassLoader.getInstance()</span>
+<span class="nc" id="L24">					.superClassReplacement(s);</span>
+		}
+
+<span class="nc" id="L27">		super.visitMethodInsn(i, s, s1, s2, b);</span>
+<span class="nc" id="L28">	}</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

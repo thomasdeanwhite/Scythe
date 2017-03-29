@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DependencyTree.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Light-weight Instrumentation</a> &gt; <a href="index.source.html" class="el_package">com.sheffield.instrumenter.analysis</a> &gt; <span class="el_source">DependencyTree.java</span></div><h1>DependencyTree.java</h1><pre class="source lang-java linenums">package com.sheffield.instrumenter.analysis;
+
+
+import com.sheffield.util.ClassNameUtils;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+public class DependencyTree {
+
+<span class="fc" id="L11">    private HashMap&lt;String, HashMap&lt;String, ClassNode&gt;&gt; nodes = new HashMap&lt;String, HashMap&lt;String, ClassNode&gt;&gt;();</span>
+
+
+<span class="fc" id="L14">    private HashMap&lt;String, HashMap&lt;String, ClassNode&gt;&gt; packages = new HashMap&lt;String, HashMap&lt;String, ClassNode&gt;&gt;();</span>
+
+    public static String getClassMethodId(String className, String methodName){
+<span class="fc" id="L17">        return className + &quot;::&quot; + methodName + &quot;&quot;;</span>
+    }
+
+    public static String getClassName(String classMethodId){
+<span class="pc bpc" id="L21" title="1 of 2 branches missed.">        if (classMethodId == null){</span>
+<span class="nc" id="L22">            return null;</span>
+        }
+<span class="fc" id="L24">        return classMethodId.split(&quot;::&quot;)[0];</span>
+    }
+
+    public static String getMethodName(String classMethodId){
+<span class="pc bpc" id="L28" title="1 of 4 branches missed.">        if (classMethodId == null || !classMethodId.contains(&quot;::&quot;)){</span>
+<span class="fc" id="L29">            return null;</span>
+        }
+<span class="fc" id="L31">        return classMethodId.split(&quot;::&quot;)[1];</span>
+    }
+
+    public static String getPackageName(String classMethodId){
+<span class="fc" id="L35">        return ClassNameUtils.getPackageName(classMethodId);</span>
+    }
+
+    private static DependencyTree depTree;
+
+    public static DependencyTree getDependencyTree() {
+<span class="fc bfc" id="L41" title="All 2 branches covered.">        if (depTree == null) {</span>
+<span class="fc" id="L42">            depTree = new DependencyTree();</span>
+        }
+<span class="fc" id="L44">        return depTree;</span>
+    }
+
+    private ClassNode root;
+
+<span class="fc" id="L49">    private DependencyTree() {</span>
+<span class="fc" id="L50">        root = new ClassNode(&quot;root&quot;);</span>
+<span class="fc" id="L51">    }</span>
+
+    public ClassNode getClassNode(String className) {
+<span class="fc" id="L54">        return root.findClassNode(ClassNameUtils.standardise(className));</span>
+    }
+
+    public ArrayList&lt;ClassNode&gt; getPackageNodes(String packageName) {
+<span class="nc" id="L58">        packageName = ClassNameUtils.standardise(packageName);</span>
+<span class="nc" id="L59">        return root.findPackages(packageName);</span>
+    }
+
+    public void addDependency(String className, String childName) {
+
+<span class="fc" id="L64">        String pack1 = getPackageName(className);</span>
+<span class="fc" id="L65">        String pack2 = getPackageName(childName);</span>
+
+<span class="fc bfc" id="L67" title="All 2 branches covered.">        if (!packages.containsKey(pack1)){</span>
+<span class="fc" id="L68">            packages.put(pack1, new HashMap&lt;String, ClassNode&gt;());</span>
+        }
+
+<span class="fc bfc" id="L71" title="All 2 branches covered.">        if (!packages.containsKey(pack2)){</span>
+<span class="fc" id="L72">            packages.put(pack2, new HashMap&lt;String, ClassNode&gt;());</span>
+        }
+
+<span class="fc" id="L75">        className = convertString(className);</span>
+<span class="fc" id="L76">        childName = convertString(childName);</span>
+<span class="fc" id="L77">        ClassNode cn = null;</span>
+
+<span class="fc" id="L79">        String claName = getClassName(className);</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        if (nodes.containsKey(claName))</span>
+<span class="fc" id="L82">            cn = nodes.get(claName).get(getMethodName(className));</span>
+        else
+<span class="fc" id="L84">            nodes.put(claName, new HashMap&lt;String, ClassNode&gt;());</span>
+
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        if (cn == null)</span>
+<span class="fc" id="L87">            cn = root.findClassNode(className);</span>
+
+<span class="fc bfc" id="L89" title="All 2 branches covered.">        if (cn == null) {</span>
+<span class="fc" id="L90">            cn = new ClassNode(className);</span>
+<span class="fc" id="L91">            root.addChild(cn);</span>
+<span class="fc" id="L92">            nodes.get(claName).put(getMethodName(className), cn);</span>
+        }
+
+<span class="fc" id="L95">        String parentClassName = className.substring(pack1.length()+1);</span>
+
+<span class="fc bfc" id="L97" title="All 2 branches covered.">        if (!packages.get(pack1).containsKey(parentClassName)){</span>
+<span class="fc" id="L98">            packages.get(pack1).put(parentClassName, cn);</span>
+        }
+
+<span class="fc" id="L101">        String chiName = getClassName(childName);</span>
+
+<span class="fc" id="L103">        ClassNode child = null;</span>
+
+<span class="fc bfc" id="L105" title="All 2 branches covered.">        if (nodes.containsKey(chiName))</span>
+<span class="fc" id="L106">            child = nodes.get(chiName).get(getMethodName(childName));</span>
+        else
+<span class="fc" id="L108">            nodes.put(chiName, new HashMap&lt;String, ClassNode&gt;());</span>
+
+
+
+<span class="fc bfc" id="L112" title="All 2 branches covered.">        if (child == null)</span>
+<span class="fc" id="L113">            root.findClassNode(childName);</span>
+
+<span class="fc bfc" id="L115" title="All 2 branches covered.">        if (child == null) {</span>
+<span class="fc" id="L116">            child = new ClassNode(childName);</span>
+<span class="fc" id="L117">            nodes.get(chiName).put(getMethodName(childName), child);</span>
+        }
+
+
+<span class="fc" id="L121">        String childClassName = childName.substring(pack2.length()+1);</span>
+<span class="fc bfc" id="L122" title="All 2 branches covered.">        if (!packages.get(pack2).containsKey(childClassName)){</span>
+<span class="fc" id="L123">            packages.get(pack2).put(childClassName, child);</span>
+        }
+
+<span class="fc" id="L126">        child.addParent(cn);</span>
+<span class="fc" id="L127">        cn.addChild(child);</span>
+
+
+<span class="fc" id="L130">    }</span>
+
+    public ArrayList&lt;ClassNode&gt; getDependencies(String className) {
+<span class="nc" id="L133">        className = ClassNameUtils.standardise(className);</span>
+<span class="nc" id="L134">        return root.findClassNode(className).getDependencies();</span>
+    }
+
+    public void clear() {
+<span class="fc" id="L138">        root.clear();</span>
+<span class="fc" id="L139">        nodes.clear();</span>
+<span class="fc" id="L140">    }</span>
+
+    public ClassNode getRoot() {
+<span class="nc" id="L143">        return root;</span>
+    }
+
+    public static String convertString(String s) {
+<span class="fc" id="L147">        return ClassNameUtils.standardise(s);</span>
+    }
+
+    protected static ClassNode classNodeCache(String s){
+<span class="fc" id="L151">        String pack = getPackageName(s);</span>
+
+<span class="fc" id="L153">        String className = s.substring(pack.length()+1);</span>
+
+<span class="pc bpc" id="L155" title="1 of 2 branches missed.">        if (getDependencyTree().packages.containsKey(pack)){</span>
+<span class="fc" id="L156">            return getDependencyTree().packages.get(pack).get(className);</span>
+        }
+<span class="nc" id="L158">        return null;</span>
+    }
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

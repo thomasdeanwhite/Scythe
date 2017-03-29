@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClassNode.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Light-weight Instrumentation</a> &gt; <a href="index.source.html" class="el_package">com.sheffield.instrumenter.analysis</a> &gt; <span class="el_source">ClassNode.java</span></div><h1>ClassNode.java</h1><pre class="source lang-java linenums">package com.sheffield.instrumenter.analysis;
+
+import com.sheffield.instrumenter.instrumentation.ClassReplacementTransformer;
+
+import java.util.ArrayList;
+
+/**
+ * Created by thomas on 03/05/2016.
+ */
+public class ClassNode {
+    private String className;
+    private ArrayList&lt;ClassNode&gt; children;
+
+    private ArrayList&lt;ClassNode&gt; parent;
+
+
+<span class="fc" id="L17">    public ClassNode(String className) {</span>
+<span class="fc" id="L18">        className = DependencyTree.convertString(className);</span>
+<span class="fc" id="L19">        children = new ArrayList&lt;ClassNode&gt;();</span>
+<span class="fc" id="L20">        this.className = className;</span>
+<span class="fc" id="L21">        parent = new ArrayList&lt;ClassNode&gt;();</span>
+<span class="fc" id="L22">    }</span>
+
+    public void addParent(ClassNode cn){
+<span class="fc" id="L25">        parent.add(cn);</span>
+<span class="fc" id="L26">    }</span>
+
+    public ArrayList&lt;ClassNode&gt; getParent(){
+<span class="fc" id="L29">        return parent;</span>
+    }
+
+    public void addChild(ClassNode child) {
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">        if (!children.contains(child)) {</span>
+<span class="fc" id="L34">            children.add(child);</span>
+        }
+<span class="fc" id="L36">    }</span>
+
+    public String getClassName() {
+<span class="fc" id="L39">        return className;</span>
+    }
+
+    public ClassNode findClassNode(String className) {
+
+<span class="fc" id="L44">        ClassNode cn = DependencyTree.classNodeCache(className);</span>
+
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (cn != null){</span>
+<span class="fc" id="L47">            return cn;</span>
+        }
+
+<span class="fc" id="L50">        className = DependencyTree.convertString(className);</span>
+<span class="fc" id="L51">        ArrayList&lt;String&gt; seen = new ArrayList&lt;String&gt;(children.size());</span>
+<span class="fc" id="L52">        return findClassNode(className, seen);</span>
+    }
+
+    private ClassNode findClassNode(String className, ArrayList&lt;String&gt; seen) {
+<span class="fc bfc" id="L56" title="All 2 branches covered.">        for (int i = 0; i &lt; children.size(); i++) {</span>
+<span class="fc" id="L57">            ClassNode cn = children.get(i);</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">            if (seen.contains(cn.getClassName())) {</span>
+<span class="fc" id="L59">                continue;</span>
+            }
+<span class="fc" id="L61">            seen.add(cn.getClassName());</span>
+<span class="pc bpc" id="L62" title="1 of 2 branches missed.">            if (cn.getClassName().equals(className)) {</span>
+<span class="nc" id="L63">                return cn;</span>
+            } else {
+<span class="fc" id="L65">                ClassNode result = cn.findClassNode(className, seen);</span>
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">                if (result != null) {</span>
+<span class="nc" id="L67">                    return result;</span>
+                }
+            }
+        }
+<span class="fc" id="L71">        return null;</span>
+
+    }
+
+    public ArrayList&lt;ClassNode&gt; findPackages(String packageName) {
+<span class="nc" id="L76">        ArrayList&lt;String&gt; seen = new ArrayList&lt;String&gt;(children.size());</span>
+
+<span class="nc" id="L78">        return findPackages(packageName, seen);</span>
+    }
+
+    public ArrayList&lt;ClassNode&gt; getDependencies(){
+<span class="nc" id="L82">        ArrayList&lt;ClassNode&gt; deps = new ArrayList&lt;ClassNode&gt;();</span>
+//        for (ClassNode cn : parent){
+//            deps.addAll(getDependencies(cn, deps));
+//        }
+
+<span class="nc" id="L87">        getDependencies(this, deps);</span>
+
+<span class="nc" id="L89">        return deps;</span>
+    }
+
+    private ArrayList&lt;ClassNode&gt; getDependencies(ClassNode parent, ArrayList&lt;ClassNode&gt; dependencies){
+<span class="nc bnc" id="L93" title="All 2 branches missed.">        if (dependencies.contains(parent) ||</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">                ClassReplacementTransformer.isForbiddenPackage(parent.getClassName())){</span>
+<span class="nc" id="L95">            return dependencies;</span>
+        }
+
+<span class="nc" id="L98">        dependencies.add(parent);</span>
+
+<span class="nc bnc" id="L100" title="All 2 branches missed.">        for (ClassNode cn : parent.getParent()) {</span>
+<span class="nc" id="L101">            getDependencies(cn, dependencies);</span>
+<span class="nc" id="L102">        }</span>
+<span class="nc" id="L103">        return dependencies;</span>
+    }
+
+    private ArrayList&lt;ClassNode&gt; findPackages(String packageName, ArrayList&lt;String&gt; seen) {
+<span class="nc" id="L107">        ArrayList&lt;ClassNode&gt; results = new ArrayList&lt;ClassNode&gt;();</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        for (ClassNode cn : children) {</span>
+<span class="nc bnc" id="L109" title="All 2 branches missed.">            if (seen.contains(cn.getClassName())) {</span>
+<span class="nc" id="L110">                continue;</span>
+            }
+<span class="nc" id="L112">            seen.add(cn.getClassName());</span>
+<span class="nc bnc" id="L113" title="All 2 branches missed.">            if (cn.getClassName().startsWith(packageName)) {</span>
+<span class="nc" id="L114">                results.add(cn);</span>
+            }
+<span class="nc" id="L116">            results.addAll(cn.findPackages(packageName, seen));</span>
+<span class="nc" id="L117">        }</span>
+<span class="nc" id="L118">        return results;</span>
+
+    }
+
+    public ArrayList&lt;ClassNode&gt; getChildren() {
+<span class="nc" id="L123">        return new ArrayList&lt;ClassNode&gt;(children);</span>
+    }
+
+    public void clear() {
+<span class="fc" id="L127">        ArrayList&lt;ClassNode&gt; childrenBackup = new ArrayList&lt;ClassNode&gt;(children);</span>
+<span class="fc" id="L128">        children.clear();</span>
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        for (ClassNode cn : childrenBackup) {</span>
+<span class="fc" id="L130">            cn.clear();</span>
+<span class="fc" id="L131">        }</span>
+<span class="fc" id="L132">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L136">        ArrayList&lt;String&gt; seen = new ArrayList&lt;String&gt;(children.size());</span>
+<span class="nc" id="L137">        return toString(seen);</span>
+
+    }
+
+    public String toNomnoml() {
+<span class="nc" id="L142">        ArrayList&lt;String&gt; seen = new ArrayList&lt;String&gt;(children.size());</span>
+<span class="nc" id="L143">        return toNomnoml(seen);</span>
+
+    }
+
+    public String toString(ArrayList&lt;String&gt; seen) {
+<span class="nc" id="L148">        String s = &quot;&quot;;//[&quot; + className + &quot;]&quot;;</span>
+<span class="nc bnc" id="L149" title="All 2 branches missed.">        if (seen.contains(className)) {</span>
+<span class="nc" id="L150">            return &quot;&quot;;</span>
+        } else {
+<span class="nc" id="L152">            s += className + &quot;\n&quot;;</span>
+        }
+<span class="nc" id="L154">        seen.add(className);</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (ClassNode cn : getDependencies()) {</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (seen.contains(cn.getClassName())) {</span>
+<span class="nc" id="L157">                continue;</span>
+            }
+<span class="nc" id="L159">            s += cn.getClassName() + &quot;\n&quot;;</span>
+<span class="nc" id="L160">            s += cn.toString(seen);</span>
+
+//            for (ClassNode cln : cn.getDependencies()){
+//                s += cln.toString(seen);
+//            }
+            //seen.remove(cn.getClassName());
+<span class="nc" id="L166">        }</span>
+<span class="nc" id="L167">        return s;</span>
+    }
+
+    private String toNomnoml(ArrayList&lt;String&gt; seen) {
+<span class="nc" id="L171">        String s = &quot;&quot;;//[&quot; + className + &quot;]&quot;;</span>
+<span class="nc bnc" id="L172" title="All 2 branches missed.">        if (seen.contains(className)) {</span>
+<span class="nc" id="L173">            return &quot;&quot;;</span>
+        }
+<span class="nc" id="L175">        seen.add(className);</span>
+<span class="nc bnc" id="L176" title="All 2 branches missed.">        for (ClassNode cn : children) {</span>
+<span class="nc bnc" id="L177" title="All 2 branches missed.">            if (seen.contains(cn.getClassName())) {</span>
+<span class="nc" id="L178">                continue;</span>
+            }
+<span class="nc" id="L180">            s += &quot;\n[&quot; + className + &quot;]&lt;--[&quot; + cn.getClassName() + &quot;]\n&quot;;</span>
+<span class="nc" id="L181">            s += cn.toNomnoml(seen);</span>
+<span class="nc bnc" id="L182" title="All 2 branches missed.">            for (ClassNode cln : cn.getDependencies()){</span>
+<span class="nc" id="L183">                s += cln.toNomnoml(seen);</span>
+<span class="nc" id="L184">            }</span>
+            //seen.remove(cn.getClassName());
+<span class="nc" id="L186">        }</span>
+<span class="nc" id="L187">        return s;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

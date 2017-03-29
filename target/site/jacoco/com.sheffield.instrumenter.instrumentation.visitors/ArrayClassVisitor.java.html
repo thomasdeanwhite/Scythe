@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ArrayClassVisitor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Light-weight Instrumentation</a> &gt; <a href="index.source.html" class="el_package">com.sheffield.instrumenter.instrumentation.visitors</a> &gt; <span class="el_source">ArrayClassVisitor.java</span></div><h1>ArrayClassVisitor.java</h1><pre class="source lang-java linenums">package com.sheffield.instrumenter.instrumentation.visitors;
+
+import com.sheffield.instrumenter.InstrumentationProperties;
+import com.sheffield.instrumenter.analysis.ClassAnalyzer;
+import com.sheffield.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
+import com.sheffield.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
+import com.sheffield.instrumenter.instrumentation.objectrepresentation.BranchHit;
+import com.sheffield.instrumenter.instrumentation.objectrepresentation.LineHit;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
+public class ArrayClassVisitor extends ClassVisitor {
+
+  private String className;
+  public static final String COUNTER_VARIABLE_NAME = &quot;__hitCounters&quot;;
+  public static final String COUNTER_VARIABLE_DESC = &quot;[I&quot;;
+  public static final String CHANGED_VARIABLE_NAME = &quot;__changed&quot;;
+  public static final String CHANGED_VARIABLE_DESC = &quot;Z&quot;;
+  public static final String COUNTER_METHOD_NAME = &quot;__getHitCounters&quot;;
+  public static final String COUNTER_METHOD_DESC = &quot;()[I&quot;;
+  public static final String RESET_COUNTER_METHOD_NAME = &quot;__resetCounters&quot;;
+  public static final String RESET_COUNTER_METHOD_DESC = &quot;()V&quot;;
+  public static final String INIT_METHOD_NAME = &quot;__instrumentationInit&quot;;
+  public static final String INIT_METHOD_DESC = &quot;()V&quot;;
+  public static final String CHANGED_METHOD_NAME = &quot;classChanged&quot;;
+  public static final String CHANGED_METHOD_DESC = &quot;(Ljava/lang/String;)V&quot;;
+<span class="fc" id="L34">  private AtomicInteger counter = new AtomicInteger(0);</span>
+<span class="fc" id="L35">  private List&lt;BranchHit&gt; branchHitCounterIds = new ArrayList&lt;BranchHit&gt;();</span>
+<span class="fc" id="L36">  private List&lt;LineHit&gt; lineHitCounterIds = new ArrayList&lt;LineHit&gt;();</span>
+  // isInterface represents whether or not the class we are visiting is an interface
+  private boolean isInterface;
+  private boolean isEnum;
+  private boolean shouldInstrument;
+  private int classId;
+
+  public int newCounterId() {
+<span class="fc" id="L44">    return counter.getAndIncrement();</span>
+  }
+
+  public void addBranchHit(BranchHit branch) {
+<span class="fc" id="L48">    branchHitCounterIds.add(branch);</span>
+<span class="fc" id="L49">  }</span>
+
+  public int addLineHit(LineHit line) {
+<span class="fc bfc" id="L52" title="All 2 branches covered.">    for (LineHit lh : lineHitCounterIds){</span>
+<span class="pc bpc" id="L53" title="1 of 2 branches missed.">      if (lh.getLine().getLineNumber() == line.getLine().getLineNumber()){</span>
+
+<span class="nc" id="L55">        counter.getAndDecrement();</span>
+<span class="nc" id="L56">        return lh.getCounterId();</span>
+      }
+<span class="fc" id="L58">    }</span>
+
+<span class="fc" id="L60">    lineHitCounterIds.add(line);</span>
+<span class="fc" id="L61">    return line.getCounterId();</span>
+  }
+
+  public ArrayClassVisitor(ClassVisitor mv, String className) {
+<span class="fc" id="L65">    super(Opcodes.ASM5, mv);</span>
+<span class="fc" id="L66">    this.className = className.replace('.', '/');</span>
+<span class="fc" id="L67">  }</span>
+
+
+
+  @Override
+  public void visit(int arg0, int access, String className, String signature, String superName, String[] interfaces) {
+
+<span class="fc" id="L74">    super.visit(arg0, access, className, signature, superName, interfaces);</span>
+
+<span class="pc bpc" id="L76" title="1 of 2 branches missed.">    isInterface = ((access &amp; Opcodes.ACC_INTERFACE) != 0);</span>
+<span class="fc" id="L77">    isEnum = superName.equals(&quot;java/lang/Enum&quot;);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">    boolean isSynthetic = ((access &amp; Opcodes.ACC_SYNTHETIC) != 0);</span>
+
+<span class="pc bpc" id="L80" title="3 of 6 branches missed.">    shouldInstrument = !(isInterface || isEnum || isSynthetic);</span>
+
+<span class="pc bpc" id="L82" title="1 of 2 branches missed.">    if (shouldInstrument) {</span>
+      // add hit counter array
+<span class="fc" id="L84">      FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,</span>
+          COUNTER_VARIABLE_DESC, null, null);
+<span class="fc" id="L86">      fv.visitEnd();</span>
+
+<span class="fc" id="L88">      this.classId = ClassAnalyzer.registerClass(this.className);</span>
+
+      // add changed boolean
+<span class="pc bpc" id="L91" title="1 of 2 branches missed.">      if (InstrumentationProperties.USE_CHANGED_FLAG) {</span>
+<span class="fc" id="L92">        FieldVisitor changed = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, CHANGED_VARIABLE_NAME,</span>
+            CHANGED_VARIABLE_DESC, null, null);
+<span class="fc" id="L94">        changed.visitEnd();</span>
+      }
+//    } else {
+//      ClassAnalyzer.out.println(&quot;\r &quot; + this.className + &quot; is an interface or enum!&quot;);
+    }
+<span class="fc" id="L99">  }</span>
+
+  @Override
+  public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+<span class="fc" id="L103">    MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);</span>
+<span class="pc bpc" id="L104" title="3 of 6 branches missed.">    if (shouldInstrument &amp;&amp; (access &amp; Opcodes.ACC_ABSTRACT) == 0 &amp;&amp; (access &amp; Opcodes.ACC_SYNTHETIC) == 0) {</span>
+<span class="pc bpc" id="L105" title="1 of 2 branches missed.">      if (InstrumentationProperties.USE_CHANGED_FLAG) {</span>
+        // add call to ClassAnalyzer.changed
+<span class="fc" id="L107">        mv.visitFieldInsn(Opcodes.GETSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);</span>
+<span class="fc" id="L108">        Label l = new Label();</span>
+<span class="fc" id="L109">        mv.visitJumpInsn(Opcodes.IFGT, l);</span>
+<span class="fc" id="L110">        mv.visitLdcInsn(className);</span>
+<span class="fc" id="L111">        mv.visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, CHANGED_METHOD_NAME,</span>
+                CHANGED_METHOD_DESC, false);
+<span class="fc" id="L113">        mv.visitInsn(Opcodes.ICONST_1);</span>
+<span class="fc" id="L114">        mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);</span>
+<span class="fc" id="L115">        mv.visitLabel(l);</span>
+      }
+<span class="pc bpc" id="L117" title="1 of 4 branches missed.">      if ((access &amp; Opcodes.ACC_STATIC) != 0 || &quot;&lt;init&gt;&quot;.equals(name)) {</span>
+<span class="fc" id="L118">        mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);</span>
+      }
+<span class="pc bpc" id="L120" title="1 of 2 branches missed.">      if (InstrumentationProperties.INSTRUMENT_BRANCHES) {</span>
+<span class="fc" id="L121">        mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);</span>
+      }
+<span class="pc bpc" id="L123" title="1 of 2 branches missed.">      if (InstrumentationProperties.INSTRUMENT_LINES) {</span>
+<span class="fc" id="L124">        mv = new ArrayLineVisitor(this, mv, className, name);</span>
+      }
+    }
+
+<span class="fc" id="L128">    return mv;</span>
+  }
+
+  @Override
+  public void visitEnd() {
+    // create visits to our own methods to collect hits, only if it's not an
+    // interface
+<span class="pc bpc" id="L135" title="1 of 2 branches missed.">    if (shouldInstrument) {</span>
+<span class="fc" id="L136">      addGetCounterMethod(cv);</span>
+<span class="fc" id="L137">      addResetCounterMethod(cv);</span>
+<span class="fc" id="L138">      addInitMethod(cv);</span>
+<span class="fc" id="L139">      ClassAnalyzer.classAnalyzed(classId, branchHitCounterIds, lineHitCounterIds);</span>
+    }
+<span class="fc" id="L141">    super.visitEnd();</span>
+<span class="fc" id="L142">  }</span>
+
+  private void addGetCounterMethod(ClassVisitor cv) {
+<span class="fc" id="L145">    MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_METHOD_NAME, COUNTER_METHOD_DESC,</span>
+        null, null);
+<span class="fc" id="L147">    mv.visitCode();</span>
+<span class="fc" id="L148">    mv.visitFieldInsn(Opcodes.GETSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);</span>
+<span class="fc" id="L149">    mv.visitInsn(Opcodes.ARETURN);</span>
+<span class="fc" id="L150">    mv.visitMaxs(0, 0);</span>
+<span class="fc" id="L151">    mv.visitEnd();</span>
+<span class="fc" id="L152">  }</span>
+
+  private void addResetCounterMethod(ClassVisitor cv) {
+<span class="fc" id="L155">    MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, RESET_COUNTER_METHOD_NAME,</span>
+        RESET_COUNTER_METHOD_DESC, null, null);
+<span class="fc" id="L157">    mv.visitCode();</span>
+<span class="fc" id="L158">    mv.visitFieldInsn(Opcodes.GETSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);</span>
+<span class="fc" id="L159">    mv.visitInsn(Opcodes.ARRAYLENGTH);</span>
+<span class="fc" id="L160">    mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);</span>
+<span class="fc" id="L161">    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);</span>
+<span class="pc bpc" id="L162" title="1 of 2 branches missed.">    if(InstrumentationProperties.USE_CHANGED_FLAG) {</span>
+<span class="fc" id="L163">      mv.visitInsn(Opcodes.ICONST_0);</span>
+<span class="fc" id="L164">      mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);</span>
+    }
+<span class="fc" id="L166">    mv.visitInsn(Opcodes.RETURN);</span>
+<span class="fc" id="L167">    mv.visitMaxs(0, 0);</span>
+<span class="fc" id="L168">    mv.visitEnd();</span>
+<span class="fc" id="L169">  }</span>
+
+  private void addInitMethod(ClassVisitor cv) {
+<span class="fc" id="L172">    MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, INIT_METHOD_NAME, INIT_METHOD_DESC, null,</span>
+        null);
+<span class="fc" id="L174">    mv.visitCode();</span>
+<span class="fc" id="L175">    Label l = new Label();</span>
+<span class="fc" id="L176">    mv.visitFieldInsn(Opcodes.GETSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);</span>
+<span class="fc" id="L177">    mv.visitJumpInsn(Opcodes.IFNONNULL, l);</span>
+<span class="fc" id="L178">    int count = counter.get();</span>
+<span class="fc" id="L179">    mv.visitLdcInsn(count);</span>
+<span class="fc" id="L180">    mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);</span>
+<span class="fc" id="L181">    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);</span>
+<span class="fc" id="L182">    mv.visitLabel(l);</span>
+<span class="fc" id="L183">    mv.visitInsn(Opcodes.RETURN);</span>
+<span class="fc" id="L184">    mv.visitMaxs(0, 0);</span>
+<span class="fc" id="L185">    mv.visitEnd();</span>
+
+<span class="fc" id="L187">  }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

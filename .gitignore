@@ -1,7 +1,8 @@
-target
+Btarget
 ../
 .settings
 .classpath
 **.iml
 **/*.jar
 **/*.class
+.idea/*

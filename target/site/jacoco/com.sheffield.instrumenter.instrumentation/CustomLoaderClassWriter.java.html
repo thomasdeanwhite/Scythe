@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomLoaderClassWriter.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Light-weight Instrumentation</a> &gt; <a href="index.source.html" class="el_package">com.sheffield.instrumenter.instrumentation</a> &gt; <span class="el_source">CustomLoaderClassWriter.java</span></div><h1>CustomLoaderClassWriter.java</h1><pre class="source lang-java linenums">package com.sheffield.instrumenter.instrumentation;
+
+import org.objectweb.asm.ClassWriter;
+
+public class CustomLoaderClassWriter extends ClassWriter {
+	private InstrumentingClassLoader loader;
+
+	public CustomLoaderClassWriter(int flags, InstrumentingClassLoader loader) {
+<span class="fc" id="L9">		super(flags);</span>
+<span class="fc" id="L10">		this.loader = loader;</span>
+<span class="fc" id="L11">	}</span>
+
+	@Override
+	protected String getCommonSuperClass(String type1, String type2) {
+		Class&lt;?&gt; c, d;
+		try {
+<span class="nc bnc" id="L17" title="All 2 branches missed.">			if (ClassStore.containsKey(type1)) {</span>
+<span class="nc" id="L18">				c = ClassStore.get(type1);</span>
+			} else {
+<span class="nc" id="L20">				c = loader.loadOriginalClass(type1);</span>
+			}
+<span class="nc bnc" id="L22" title="All 2 branches missed.">			if (ClassStore.containsKey(type2)) {</span>
+<span class="nc" id="L23">				d = ClassStore.get(type2);</span>
+			} else {
+<span class="nc" id="L25">				d = loader.loadOriginalClass(type2);</span>
+			}
+<span class="nc" id="L27">		} catch (Exception e) {</span>
+<span class="nc" id="L28">			throw new RuntimeException(e.toString());</span>
+<span class="nc" id="L29">		}</span>
+<span class="nc bnc" id="L30" title="All 2 branches missed.">		if (c.isAssignableFrom(d)) {</span>
+<span class="nc" id="L31">			return type1;</span>
+		}
+<span class="nc bnc" id="L33" title="All 2 branches missed.">		if (d.isAssignableFrom(c)) {</span>
+<span class="nc" id="L34">			return type2;</span>
+		}
+<span class="nc bnc" id="L36" title="All 4 branches missed.">		if (c.isInterface() || d.isInterface()) {</span>
+<span class="nc" id="L37">			return &quot;java/lang/Object&quot;;</span>
+		} else {
+			do {
+<span class="nc" id="L40">				c = c.getSuperclass();</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">			} while (!c.isAssignableFrom(d));</span>
+<span class="nc" id="L42">			return c.getName().replace('.', '/');</span>
+		}
+	}
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
