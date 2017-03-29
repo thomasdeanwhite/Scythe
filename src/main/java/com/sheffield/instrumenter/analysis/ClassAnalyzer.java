@@ -674,20 +674,20 @@ public class ClassAnalyzer {
     }
 
     public static void collectHitCounters(boolean reset) {
-        while (collectingHitCounters) {
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        while (collectingHitCounters) {
+//            try {
+//                Thread.sleep(50);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
         Task timerTask = new CollectHitCountersTimer();
         if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {
             collectingHitCounters = true;
             if (InstrumentationProperties.LOG) {
                 TaskTimer.taskStart(timerTask);
             }
-            List<Class<?>> classes = changedClasses;
+            List<Class<?>> classes = new ArrayList<Class<?>>(changedClasses);
             if (!InstrumentationProperties.USE_CHANGED_FLAG) {
                 classes = new ArrayList<Class<?>>();
                 for (int classId : lines.keySet()) {
@@ -708,11 +708,6 @@ public class ClassAnalyzer {
             for (int c = 0; c < classes.size(); c++) {
                 Class<?> cl = classes.get(c);
                 try {
-
-                    // InstrumentingClassLoader instrClassLoader = InstrumentingClassLoader.getInstance();
-                    // if (!cl.getClassLoader().equals(instrClassLoader)){
-                    // cl = instrClassLoader.loadClass(cl.getName());
-                    // }
 
                     Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[] {});
                     getCounters.setAccessible(true);
