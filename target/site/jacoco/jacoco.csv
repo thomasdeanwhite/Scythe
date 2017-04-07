@@ -1,0 +1,47 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+Light-weight Instrumentation,com.sheffield.output,Csv,0,183,0,14,0,41,0,14,0,7
+Light-weight Instrumentation,com.sheffield.instrumenter.testcase,TestCaseWrapper,50,0,12,0,13,0,10,0,4,0
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,DependencyTree,24,308,3,27,7,62,6,23,3,11
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassAnalyzer.CollectHitCountersTimer,0,5,0,0,0,2,0,2,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassNode,289,127,29,11,56,34,25,12,9,8
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassAnalyzer.new Object() {...},40,0,0,0,1,0,1,0,1,0
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,BranchType,68,0,0,0,2,0,4,0,4,0
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassAnalyzer,1833,549,223,53,382,123,168,31,46,13
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,InstrumentingTask,0,16,0,0,0,4,0,2,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,ArrayLineVisitor,0,67,0,0,0,16,0,2,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,MutationMethodVisitor,162,0,35,0,51,0,25,0,7,0
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,DependencyTreeVisitor,0,35,0,0,0,9,0,2,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,SuperReplacementVisitor,27,0,2,0,10,0,3,0,2,0
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,ArrayBranchVisitor,4,136,1,1,1,37,1,4,0,4
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,StaticBranchVisitor,253,0,4,0,52,0,8,0,6,0
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,StaticLineVisitor,34,0,0,0,9,0,2,0,2,0
+Light-weight Instrumentation,com.sheffield.instrumenter.mutation,MutantHandler,16,0,0,0,5,0,3,0,3,0
+Light-weight Instrumentation,com.sheffield.instrumenter.mutation,MutationProperties,272,0,38,0,57,0,26,0,7,0
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis.task,TaskTimer,3,89,1,1,1,24,2,4,1,4
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis.task,AbstractTask,0,17,0,0,0,7,0,5,0,5
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis.task,TaskTimer.new Thread() {...},49,81,11,7,10,17,8,3,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,LineHit,0,19,0,0,0,8,0,4,0,4
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,Line,31,20,0,0,6,7,2,4,2,4
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,BranchHit,0,25,0,0,0,10,0,5,0,5
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,CoverableGoal,22,24,0,0,8,9,6,3,6,3
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,Branch,156,43,14,0,32,13,15,6,8,6
+Light-weight Instrumentation,com.sheffield.util,ArrayUtils,43,86,3,7,6,15,5,4,3,1
+Light-weight Instrumentation,com.sheffield.util,ClassUtils,3,13,1,5,1,1,2,3,1,1
+Light-weight Instrumentation,com.sheffield.util,ClassNameUtils,3,58,1,7,1,11,2,7,1,4
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.visitors,MutationClassVisitor,89,0,4,0,16,0,5,0,3,0
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.visitors,StaticClassVisitor,86,4,14,0,17,1,10,1,3,1
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.visitors,DependencyTreeClassVisitor,15,55,1,1,3,13,1,4,0,4
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.visitors,SuperReplacementClassVisitor,70,0,2,0,17,0,5,0,4,0
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.visitors,ArrayClassVisitor,12,399,17,21,2,86,17,12,0,10
+Light-weight Instrumentation,com.sheffield.instrumenter,InstrumentationProperties,0,302,8,30,0,64,8,18,0,7
+Light-weight Instrumentation,com.sheffield.instrumenter,InstrumentationProperties.InstrumentationApproach,9,39,0,0,0,2,2,2,2,2
+Light-weight Instrumentation,com.sheffield.instrumenter,FileHandler,96,0,2,0,20,0,9,0,8,0
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,InstrumentingClassLoader,290,324,27,23,65,75,34,9,11,7
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,ClassReplacementTransformer,78,184,5,15,23,41,9,10,4,5
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,InstrumentingClassLoader.MockClassLoader,75,7,10,0,18,3,8,1,3,1
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,CustomLoaderClassWriter,65,7,14,0,18,3,8,1,1,1
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,ClassReplacementTransformer.new ClassReplacementTransformer.ShouldInstrumentChecker() {...},1,12,1,1,0,2,1,2,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,ClassReplacementTransformer.new ClassReplacementTransformer.ShouldInstrumentChecker() {...},2,15,1,3,1,5,1,3,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,ClassReplacementTransformer.new ClassVisitor() {...},0,26,0,0,0,3,0,2,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,ClassStore,34,30,4,2,12,8,4,4,1,4
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation,LoggingUncaughtExceptionHandler,6,3,0,0,3,1,1,1,1,1

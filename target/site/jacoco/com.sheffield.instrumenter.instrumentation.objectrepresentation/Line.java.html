@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Line.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Light-weight Instrumentation</a> &gt; <a href="index.source.html" class="el_package">com.sheffield.instrumenter.instrumentation.objectrepresentation</a> &gt; <span class="el_source">Line.java</span></div><h1>Line.java</h1><pre class="source lang-java linenums">package com.sheffield.instrumenter.instrumentation.objectrepresentation;
+
+import com.sheffield.instrumenter.testcase.TestCaseWrapper;
+
+import java.util.ArrayList;
+
+public class Line extends CoverableGoal {
+  private int hits;
+
+  public Line(String className, String methodName, int lineNumber) {
+<span class="fc" id="L11">    super(className, methodName, lineNumber);</span>
+<span class="fc" id="L12">  }</span>
+
+  public void hit(int newHits) {
+<span class="fc" id="L15">    this.hits += newHits;</span>
+<span class="fc" id="L16">  }</span>
+
+  public int getHits() {
+<span class="fc" id="L19">    return hits;</span>
+  }
+
+  @Override
+  public void reset() {
+<span class="fc" id="L24">    hits = 0;</span>
+<span class="fc" id="L25">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L29">    return String.valueOf(lineNumber);</span>
+  }
+
+  @Override
+  public Line clone() {
+<span class="nc" id="L34">    Line clone = new Line(className, methodName, lineNumber);</span>
+<span class="nc" id="L35">    clone.hits = hits;</span>
+<span class="nc" id="L36">    clone.goalId = goalId;</span>
+<span class="nc" id="L37">    clone.coveredBy = new ArrayList&lt;TestCaseWrapper&gt;(coveredBy);</span>
+<span class="nc" id="L38">    return clone;</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

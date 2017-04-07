@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ArrayUtils.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">Light-weight Instrumentation</a> &gt; <a href="index.source.html" class="el_package">com.sheffield.util</a> &gt; <span class="el_source">ArrayUtils.java</span></div><h1>ArrayUtils.java</h1><pre class="source lang-java linenums">package com.sheffield.util;
+
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+/**
+ * Created by david on 07/04/16.
+ */
+<span class="nc" id="L13">public class ArrayUtils {</span>
+  public static &lt;T&gt; T[] combineArrays(Class&lt;T&gt; type, T[] first, T[] second) {
+<span class="nc" id="L15">    return combineArrays(type, false, first, second);</span>
+  }
+
+  public static &lt;T&gt; T[] combineArrays(Class&lt;T&gt; type, boolean unique, T[]... arrays) {
+<span class="fc" id="L19">    int size = 0;</span>
+<span class="fc bfc" id="L20" title="All 2 branches covered.">    for (T[] arr : arrays) {</span>
+<span class="fc" id="L21">      size += arr.length;</span>
+    }
+<span class="fc" id="L23">    T[] result = (T[]) Array.newInstance(type, size);</span>
+<span class="fc" id="L24">    int current = 0;</span>
+<span class="fc bfc" id="L25" title="All 2 branches covered.">    for (int i = 0; i &lt; arrays.length; i++) {</span>
+<span class="fc" id="L26">      T[] arr = arrays[i];</span>
+<span class="fc bfc" id="L27" title="All 2 branches covered.">      for (T el : arr) {</span>
+<span class="fc" id="L28">        result[current] = el;</span>
+<span class="fc" id="L29">        current++;</span>
+      }
+    }
+<span class="pc bpc" id="L32" title="1 of 2 branches missed.">    if (unique) {</span>
+
+<span class="fc" id="L34">      Set&lt;T&gt; set = new HashSet&lt;T&gt;();</span>
+<span class="fc" id="L35">      set.addAll(Arrays.asList(result));</span>
+<span class="fc" id="L36">      result = set.toArray((T[]) Array.newInstance(type, set.size()));</span>
+    }
+<span class="fc" id="L38">    return result;</span>
+  }
+
+  public static &lt;T&gt; List&lt;T&gt; createList(T... objects) {
+<span class="nc" id="L42">    List&lt;T&gt; list = new ArrayList&lt;T&gt;();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">    for (T object : objects) {</span>
+<span class="nc" id="L44">      list.add(object);</span>
+    }
+<span class="nc" id="L46">    return list;</span>
+  }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>
