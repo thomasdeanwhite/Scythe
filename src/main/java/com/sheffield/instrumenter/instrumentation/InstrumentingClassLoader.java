@@ -60,11 +60,11 @@ public class InstrumentingClassLoader extends URLClassLoader {
         ClassVisitor intercept(ClassVisitor parent, String className);
     }
 
-    public void addSuperClassReplacement(String superClass, String repalcement){
+    public void addSuperClassReplacement(String superClass, String replacement){
         ClassAnalyzer.out.println("- Replacing class [" + superClass +
-                "->" + repalcement + "]");
+                "->" + replacement + "]");
         superClassReplacements.put(ClassNameUtils.standardise(superClass),
-                ClassNameUtils.standardise(repalcement));
+                ClassNameUtils.standardise(replacement));
     }
 
     public boolean shouldReplaceSuperClass(String superClass){

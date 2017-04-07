@@ -508,9 +508,8 @@ public class ClassAnalyzer {
     }
 
     public static String getReport() {
-        double bCoverage = branchCoverage();
-        return "\t@ Branches Discovered: " + getAllBranches().size() + "\n\t@ Branches Covered: "
-                + getBranchesExecuted().size() + "\n\t@ Branch Coverage: " + bCoverage;
+        return "\n\t@ Lines:\n\t\t total: " + getTotalLines().size() + "\n\t\t covered: " + getLinesCovered().size() + "\n\t\t coverage "
+                + getLineCoverage();
 
     }
 
@@ -641,10 +640,16 @@ public class ClassAnalyzer {
     }
 
     private static Line findLineWithCounterId(int classId, int i) {
+        if (!lines.containsKey(classId)){
+            lines.put(classId, new HashMap<>());
+        }
         return lines.get(classId).containsKey(i) ? lines.get(classId).get(i).getLine() : null;
     }
 
     private static BranchHit findBranchWithCounterId(int classId, int i) {
+        if (!branches.containsKey(classId)){
+            branches.put(classId, new HashMap<>());
+        }
         for (BranchHit bh : branches.get(classId).values()) {
             if (bh.getFalseCounterId() == i || bh.getTrueCounterId() == i) {
                 return bh;
@@ -722,6 +727,11 @@ public class ClassAnalyzer {
 
                             Object o = classNames.get(cl.getName());
                             if (o == null) {
+                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
+                            }
+
+                            if (o == null){
+                                registerClass(ClassNameUtils.standardise(cl.getName()));
                                 o = classNames.get(ClassNameUtils.standardise(cl.getName()));
                             }
 
