@@ -6,20 +6,20 @@ Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassAnalyzer.C
 Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassNode,289,127,29,11,56,34,25,12,9,8
 Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassAnalyzer.new Object() {...},40,0,0,0,1,0,1,0,1,0
 Light-weight Instrumentation,com.sheffield.instrumenter.analysis,BranchType,68,0,0,0,2,0,4,0,4,0
-Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassAnalyzer,1858,561,226,56,385,126,171,31,46,13
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis,ClassAnalyzer,1873,561,226,56,390,126,171,31,46,13
 Light-weight Instrumentation,com.sheffield.instrumenter.analysis,InstrumentingTask,0,16,0,0,0,4,0,2,0,2
-Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,MutationMethodVisitor,162,0,35,0,51,0,25,0,7,0
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,ArrayLineVisitor,0,67,0,0,0,16,0,2,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,MutationMethodVisitor,162,0,35,0,51,0,25,0,7,0
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,DependencyTreeVisitor,0,35,0,0,0,9,0,2,0,2
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,SuperReplacementVisitor,27,0,2,0,10,0,3,0,2,0
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,ArrayBranchVisitor,4,136,1,1,1,37,1,4,0,4
-Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,StaticLineVisitor,34,0,0,0,9,0,2,0,2,0
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,StaticBranchVisitor,253,0,4,0,52,0,8,0,6,0
+Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.modifiers,StaticLineVisitor,34,0,0,0,9,0,2,0,2,0
 Light-weight Instrumentation,com.sheffield.instrumenter.mutation,MutantHandler,16,0,0,0,5,0,3,0,3,0
 Light-weight Instrumentation,com.sheffield.instrumenter.mutation,MutationProperties,272,0,38,0,57,0,26,0,7,0
 Light-weight Instrumentation,com.sheffield.instrumenter.analysis.task,TaskTimer,3,89,1,1,1,24,2,4,1,4
 Light-weight Instrumentation,com.sheffield.instrumenter.analysis.task,AbstractTask,0,17,0,0,0,7,0,5,0,5
-Light-weight Instrumentation,com.sheffield.instrumenter.analysis.task,TaskTimer.new Thread() {...},45,85,11,7,7,20,8,3,0,2
+Light-weight Instrumentation,com.sheffield.instrumenter.analysis.task,TaskTimer.new Thread() {...},49,81,11,7,10,17,8,3,0,2
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,LineHit,0,19,0,0,0,8,0,4,0,4
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,Line,31,20,0,0,6,7,2,4,2,4
 Light-weight Instrumentation,com.sheffield.instrumenter.instrumentation.objectrepresentation,BranchHit,0,25,0,0,0,10,0,5,0,5

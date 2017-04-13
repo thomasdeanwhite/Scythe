@@ -100,11 +100,11 @@ import java.util.*;
     }
 
     public static Map&lt;Integer, Map&lt;Integer, LineHit&gt;&gt; getRawLines() {
-<span class="nc" id="L103">        return lines;</span>
+<span class="nc" id="L103">        return new HashMap&lt;&gt;(lines);</span>
     }
 
     public static Map&lt;Integer, Map&lt;Integer, BranchHit&gt;&gt; getRawBranches() {
-<span class="nc" id="L107">        return branches;</span>
+<span class="nc" id="L107">        return new HashMap&lt;&gt;(branches);</span>
     }
 
     public static void reset() {
@@ -416,267 +416,274 @@ import java.util.*;
 
     public static synchronized List&lt;BranchHit&gt; getBranchesExecuted() {
 <span class="nc" id="L418">        List&lt;BranchHit&gt; branchesHit = new ArrayList&lt;BranchHit&gt;();</span>
-<span class="nc bnc" id="L419" title="All 2 branches missed.">        for (int classId : branches.keySet()) {</span>
-<span class="nc bnc" id="L420" title="All 2 branches missed.">            for (BranchHit b : branches.get(classId).values()) {</span>
-<span class="nc bnc" id="L421" title="All 4 branches missed.">                if (b.getBranch().getTrueHits() &gt; 0 || b.getBranch().getFalseHits() &gt; 0) {</span>
-<span class="nc" id="L422">                    branchesHit.add(b);</span>
+
+<span class="nc" id="L420">        Iterator&lt;Integer&gt; iter = new HashMap&lt;&gt;(branches).keySet().iterator();</span>
+
+<span class="nc bnc" id="L422" title="All 2 branches missed.">        while (iter.hasNext()) {</span>
+<span class="nc" id="L423">            Integer classId = iter.next();</span>
+<span class="nc bnc" id="L424" title="All 2 branches missed.">            for (BranchHit b : branches.get(classId).values()) {</span>
+<span class="nc bnc" id="L425" title="All 4 branches missed.">                if (b.getBranch().getTrueHits() &gt; 0 || b.getBranch().getFalseHits() &gt; 0) {</span>
+<span class="nc" id="L426">                    branchesHit.add(b);</span>
                 }
-<span class="nc" id="L424">            }</span>
-<span class="nc" id="L425">        }</span>
-<span class="nc" id="L426">        return branchesHit;</span>
+<span class="nc" id="L428">            }</span>
+<span class="nc" id="L429">        }</span>
+<span class="nc" id="L430">        return branchesHit;</span>
     }
 
     public static synchronized List&lt;BranchHit&gt; getBranchesNotExecuted() {
-<span class="nc" id="L430">        List&lt;BranchHit&gt; branchesHit = new ArrayList&lt;BranchHit&gt;();</span>
-<span class="nc bnc" id="L431" title="All 2 branches missed.">        for (int classId : branches.keySet()) {</span>
-<span class="nc bnc" id="L432" title="All 2 branches missed.">            for (BranchHit b : branches.get(classId).values()) {</span>
-<span class="nc bnc" id="L433" title="All 2 branches missed.">                if (b.getBranch().getFalseHits() &gt; 0) {</span>
-<span class="nc" id="L434">                    branchesHit.add(b);</span>
+<span class="nc" id="L434">        List&lt;BranchHit&gt; branchesHit = new ArrayList&lt;BranchHit&gt;();</span>
+<span class="nc bnc" id="L435" title="All 2 branches missed.">        for (int classId : branches.keySet()) {</span>
+<span class="nc bnc" id="L436" title="All 2 branches missed.">            for (BranchHit b : branches.get(classId).values()) {</span>
+<span class="nc bnc" id="L437" title="All 2 branches missed.">                if (b.getBranch().getFalseHits() &gt; 0) {</span>
+<span class="nc" id="L438">                    branchesHit.add(b);</span>
                 }
-<span class="nc" id="L436">            }</span>
-<span class="nc" id="L437">        }</span>
-<span class="nc" id="L438">        return branchesHit;</span>
+<span class="nc" id="L440">            }</span>
+<span class="nc" id="L441">        }</span>
+<span class="nc" id="L442">        return branchesHit;</span>
     }
 
     public static synchronized List&lt;BranchHit&gt; getAllBranches() {
-<span class="nc" id="L442">        List&lt;BranchHit&gt; branchesHit = new ArrayList&lt;BranchHit&gt;();</span>
-<span class="nc bnc" id="L443" title="All 2 branches missed.">        for (int classId : branches.keySet()) {</span>
-<span class="nc bnc" id="L444" title="All 2 branches missed.">            for (BranchHit b : branches.get(classId).values()) {</span>
-<span class="nc" id="L445">                branchesHit.add(b);</span>
-<span class="nc" id="L446">            }</span>
-<span class="nc" id="L447">        }</span>
-<span class="nc" id="L448">        return branchesHit;</span>
+<span class="nc" id="L446">        List&lt;BranchHit&gt; branchesHit = new ArrayList&lt;BranchHit&gt;();</span>
+<span class="nc bnc" id="L447" title="All 2 branches missed.">        for (int classId : branches.keySet()) {</span>
+<span class="nc bnc" id="L448" title="All 2 branches missed.">            for (BranchHit b : branches.get(classId).values()) {</span>
+<span class="nc" id="L449">                branchesHit.add(b);</span>
+<span class="nc" id="L450">            }</span>
+<span class="nc" id="L451">        }</span>
+<span class="nc" id="L452">        return branchesHit;</span>
     }
 
     public static void lineFound(int classId, int lineNumber) {
-<span class="nc bnc" id="L452" title="All 2 branches missed.">        if (!lines.containsKey(classId)) {</span>
-<span class="nc" id="L453">            lines.put(classId, new HashMap&lt;Integer, LineHit&gt;());</span>
+<span class="nc bnc" id="L456" title="All 2 branches missed.">        if (!lines.containsKey(classId)) {</span>
+<span class="nc" id="L457">            lines.put(classId, new HashMap&lt;Integer, LineHit&gt;());</span>
         }
 
-<span class="nc bnc" id="L456" title="All 2 branches missed.">        for (LineHit lh : lines.get(classId).values()) {</span>
-<span class="nc bnc" id="L457" title="All 2 branches missed.">            if (lh.getLine().getLineNumber() == lineNumber) {</span>
-<span class="nc" id="L458">                return;</span>
+<span class="nc bnc" id="L460" title="All 2 branches missed.">        for (LineHit lh : lines.get(classId).values()) {</span>
+<span class="nc bnc" id="L461" title="All 2 branches missed.">            if (lh.getLine().getLineNumber() == lineNumber) {</span>
+<span class="nc" id="L462">                return;</span>
             }
-<span class="nc" id="L460">        }</span>
+<span class="nc" id="L464">        }</span>
 
-<span class="nc" id="L462">        lines.get(classId).put(lineNumber, new LineHit(new Line(classIds.get(classId), &quot;&lt;&gt;&quot;, lineNumber), -1));</span>
-<span class="nc" id="L463">        lines.get(classId).get(lineNumber).getLine().setGoalId(lineNumber);</span>
-<span class="nc" id="L464">    }</span>
+<span class="nc" id="L466">        lines.get(classId).put(lineNumber, new LineHit(new Line(classIds.get(classId), &quot;&lt;&gt;&quot;, lineNumber), -1));</span>
+<span class="nc" id="L467">        lines.get(classId).get(lineNumber).getLine().setGoalId(lineNumber);</span>
+<span class="nc" id="L468">    }</span>
 
     public static void lineExecuted(int classId, int lineNumber) {
-<span class="nc bnc" id="L467" title="All 2 branches missed.">        if (!lines.containsKey(classId)) {</span>
-<span class="nc" id="L468">            lines.put(classId, new HashMap&lt;Integer, LineHit&gt;());</span>
+<span class="nc bnc" id="L471" title="All 2 branches missed.">        if (!lines.containsKey(classId)) {</span>
+<span class="nc" id="L472">            lines.put(classId, new HashMap&lt;Integer, LineHit&gt;());</span>
         }
-<span class="nc" id="L470">        LineHit lh = findOrCreateLine(classId, lineNumber);</span>
-<span class="nc" id="L471">        lh.getLine().hit(1);</span>
-<span class="nc bnc" id="L472" title="All 2 branches missed.">        if (lh.getLine().getClassName() == null) {</span>
-<span class="nc" id="L473">            lh.getLine().setClassName(new Exception().getStackTrace()[1].getClassName());</span>
+<span class="nc" id="L474">        LineHit lh = findOrCreateLine(classId, lineNumber);</span>
+<span class="nc" id="L475">        lh.getLine().hit(1);</span>
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        if (lh.getLine().getClassName() == null) {</span>
+<span class="nc" id="L477">            lh.getLine().setClassName(new Exception().getStackTrace()[1].getClassName());</span>
         }
-<span class="nc bnc" id="L475" title="All 2 branches missed.">        if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {</span>
-<span class="nc" id="L476">            lh.getLine().addCoveringTest(activeTestCase);</span>
+<span class="nc bnc" id="L479" title="All 2 branches missed.">        if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {</span>
+<span class="nc" id="L480">            lh.getLine().addCoveringTest(activeTestCase);</span>
         }
-<span class="nc" id="L478">        Class&lt;?&gt; cl = ClassStore.get(lh.getLine().getClassName());</span>
-<span class="nc bnc" id="L479" title="All 2 branches missed.">        if (!changedClasses.contains(cl)) {</span>
-<span class="nc" id="L480">            changedClasses.add(cl);</span>
+<span class="nc" id="L482">        Class&lt;?&gt; cl = ClassStore.get(lh.getLine().getClassName());</span>
+<span class="nc bnc" id="L483" title="All 2 branches missed.">        if (!changedClasses.contains(cl)) {</span>
+<span class="nc" id="L484">            changedClasses.add(cl);</span>
         }
-<span class="nc" id="L482">    }</span>
+<span class="nc" id="L486">    }</span>
 
     private static LineHit findOrCreateLine(int classId, int lineNumber) {
-<span class="nc bnc" id="L485" title="All 2 branches missed.">        if (lines.get(classId).containsKey(lineNumber)) {</span>
-<span class="nc" id="L486">            return lines.get(classId).get(lineNumber);</span>
+<span class="nc bnc" id="L489" title="All 2 branches missed.">        if (lines.get(classId).containsKey(lineNumber)) {</span>
+<span class="nc" id="L490">            return lines.get(classId).get(lineNumber);</span>
         }
-<span class="nc" id="L488">        LineHit lh = new LineHit(new Line(classIds.get(classId), &quot;&lt;&gt;&quot;, lineNumber), -1);</span>
-<span class="nc" id="L489">        lines.get(classId).put(lineNumber, lh);</span>
-<span class="nc" id="L490">        return lh;</span>
+<span class="nc" id="L492">        LineHit lh = new LineHit(new Line(classIds.get(classId), &quot;&lt;&gt;&quot;, lineNumber), -1);</span>
+<span class="nc" id="L493">        lines.get(classId).put(lineNumber, lh);</span>
+<span class="nc" id="L494">        return lh;</span>
     }
 
     public static double lineCoverage() {
-<span class="nc" id="L494">        int totalLines = 0;</span>
-<span class="nc" id="L495">        int coveredLines = 0;</span>
-<span class="nc" id="L496">        int classId = -1;</span>
-<span class="nc bnc" id="L497" title="All 2 branches missed.">        for (Iterator&lt;Integer&gt; it = lines.keySet().iterator(); it.hasNext();) {</span>
-<span class="nc" id="L498">            classId = it.next();</span>
-<span class="nc bnc" id="L499" title="All 2 branches missed.">            for (LineHit lh : lines.get(classId).values()) {</span>
-<span class="nc bnc" id="L500" title="All 2 branches missed.">                if (lh.getLine().getHits() &gt; 0) {</span>
-<span class="nc" id="L501">                    coveredLines++;</span>
+<span class="nc" id="L498">        int totalLines = 0;</span>
+<span class="nc" id="L499">        int coveredLines = 0;</span>
+<span class="nc" id="L500">        int classId = -1;</span>
+<span class="nc bnc" id="L501" title="All 2 branches missed.">        for (Iterator&lt;Integer&gt; it = lines.keySet().iterator(); it.hasNext();) {</span>
+<span class="nc" id="L502">            classId = it.next();</span>
+<span class="nc bnc" id="L503" title="All 2 branches missed.">            for (LineHit lh : lines.get(classId).values()) {</span>
+<span class="nc bnc" id="L504" title="All 2 branches missed.">                if (lh.getLine().getHits() &gt; 0) {</span>
+<span class="nc" id="L505">                    coveredLines++;</span>
                 }
-<span class="nc" id="L503">                totalLines++;</span>
-<span class="nc" id="L504">            }</span>
+<span class="nc" id="L507">                totalLines++;</span>
+<span class="nc" id="L508">            }</span>
 
         }
-<span class="nc" id="L507">        return coveredLines / (double) totalLines;</span>
+<span class="nc" id="L511">        return coveredLines / (double) totalLines;</span>
     }
 
     public static String getReport() {
-<span class="nc" id="L511">        return &quot;\n\t@ Lines:\n\t\t total: &quot; + getTotalLines().size() + &quot;\n\t\t covered: &quot; + getLinesCovered().size() + &quot;\n\t\t coverage &quot;</span>
-<span class="nc" id="L512">                + getLineCoverage();</span>
+<span class="nc" id="L515">        return &quot;\n\t@ Lines:\n\t\t total: &quot; + getTotalLines().size() + &quot;\n\t\t covered: &quot; + getLinesCovered().size() + &quot;\n\t\t coverage &quot;</span>
+<span class="nc" id="L516">                + getLineCoverage();</span>
 
     }
 
     public static Csv toCsv() {
-<span class="nc" id="L517">        int totalLines = 0;</span>
-<span class="nc" id="L518">        int coveredLines = 0;</span>
-<span class="nc bnc" id="L519" title="All 2 branches missed.">        for (int s : lines.keySet()) {</span>
-<span class="nc" id="L520">            Map&lt;Integer, LineHit&gt; lh = lines.get(s);</span>
-<span class="nc bnc" id="L521" title="All 2 branches missed.">            for (int i : lh.keySet()) {</span>
-<span class="nc" id="L522">                totalLines++;</span>
-<span class="nc bnc" id="L523" title="All 2 branches missed.">                if (lh.get(i).getLine().getHits() &gt; 0) {</span>
-<span class="nc" id="L524">                    coveredLines++;</span>
+<span class="nc" id="L521">        int totalLines = 0;</span>
+<span class="nc" id="L522">        int coveredLines = 0;</span>
+
+<span class="nc" id="L524">        Set&lt;Integer&gt; set = new HashMap&lt;&gt;(lines).keySet();</span>
+
+<span class="nc bnc" id="L526" title="All 2 branches missed.">        for (int s : set) {</span>
+<span class="nc" id="L527">            Map&lt;Integer, LineHit&gt; lh = lines.get(s);</span>
+<span class="nc bnc" id="L528" title="All 2 branches missed.">            for (int i : lh.keySet()) {</span>
+<span class="nc" id="L529">                totalLines++;</span>
+<span class="nc bnc" id="L530" title="All 2 branches missed.">                if (lh.get(i).getLine().getHits() &gt; 0) {</span>
+<span class="nc" id="L531">                    coveredLines++;</span>
                 }
-<span class="nc" id="L526">            }</span>
-<span class="nc" id="L527">        }</span>
+<span class="nc" id="L533">            }</span>
+<span class="nc" id="L534">        }</span>
 
-<span class="nc" id="L529">        Csv csv = new Csv();</span>
+<span class="nc" id="L536">        Csv csv = new Csv();</span>
 
-<span class="nc" id="L531">        List&lt;BranchHit&gt; branchesExecuted = getBranchesExecuted();</span>
+<span class="nc" id="L538">        List&lt;BranchHit&gt; branchesExecuted = getBranchesExecuted();</span>
 
-<span class="nc" id="L533">        int exec = 0;</span>
+<span class="nc" id="L540">        int exec = 0;</span>
 
-<span class="nc bnc" id="L535" title="All 2 branches missed.">        for (BranchHit bh : branchesExecuted) {</span>
-<span class="nc bnc" id="L536" title="All 2 branches missed.">            if (bh.getBranch().getTrueHits() &gt; 0) {</span>
-<span class="nc" id="L537">                exec++;</span>
+<span class="nc bnc" id="L542" title="All 2 branches missed.">        for (BranchHit bh : branchesExecuted) {</span>
+<span class="nc bnc" id="L543" title="All 2 branches missed.">            if (bh.getBranch().getTrueHits() &gt; 0) {</span>
+<span class="nc" id="L544">                exec++;</span>
             }
 
-<span class="nc bnc" id="L540" title="All 2 branches missed.">            if (bh.getBranch().getFalseHits() &gt; 0) {</span>
-<span class="nc" id="L541">                exec++;</span>
+<span class="nc bnc" id="L547" title="All 2 branches missed.">            if (bh.getBranch().getFalseHits() &gt; 0) {</span>
+<span class="nc" id="L548">                exec++;</span>
             }
-<span class="nc" id="L543">        }</span>
+<span class="nc" id="L550">        }</span>
 
-<span class="nc" id="L545">        int allBranches = getAllBranches().size() * 2;</span>
-<span class="nc" id="L546">        double bCoverage = exec / (float) allBranches;</span>
+<span class="nc" id="L552">        int allBranches = getAllBranches().size() * 2;</span>
+<span class="nc" id="L553">        double bCoverage = exec / (float) allBranches;</span>
 
         // *2 for true/false hits
-<span class="nc" id="L549">        csv.add(&quot;branchesTotal&quot;, &quot;&quot; + allBranches);</span>
-<span class="nc" id="L550">        csv.add(&quot;branchesCovered&quot;, &quot;&quot; + exec);</span>
-<span class="nc" id="L551">        csv.add(&quot;branchCoverage&quot;, &quot;&quot; + bCoverage);</span>
-<span class="nc" id="L552">        csv.add(&quot;linesTotal&quot;, &quot;&quot; + totalLines);</span>
-<span class="nc" id="L553">        csv.add(&quot;linesCovered&quot;, &quot;&quot; + coveredLines);</span>
-<span class="nc" id="L554">        csv.add(&quot;lineCoverage&quot;, &quot;&quot; + ((float) coveredLines / (float) totalLines));</span>
+<span class="nc" id="L556">        csv.add(&quot;branchesTotal&quot;, &quot;&quot; + allBranches);</span>
+<span class="nc" id="L557">        csv.add(&quot;branchesCovered&quot;, &quot;&quot; + exec);</span>
+<span class="nc" id="L558">        csv.add(&quot;branchCoverage&quot;, &quot;&quot; + bCoverage);</span>
+<span class="nc" id="L559">        csv.add(&quot;linesTotal&quot;, &quot;&quot; + totalLines);</span>
+<span class="nc" id="L560">        csv.add(&quot;linesCovered&quot;, &quot;&quot; + coveredLines);</span>
+<span class="nc" id="L561">        csv.add(&quot;lineCoverage&quot;, &quot;&quot; + ((float) coveredLines / (float) totalLines));</span>
 
-<span class="nc" id="L556">        return csv;</span>
+<span class="nc" id="L563">        return csv;</span>
 
     }
 
     public static float getLineCoverage() {
-<span class="nc" id="L561">        int totalLines = 0;</span>
-<span class="nc" id="L562">        int coveredLines = 0;</span>
-<span class="nc bnc" id="L563" title="All 2 branches missed.">        for (int s : lines.keySet()) {</span>
-<span class="nc" id="L564">            Map&lt;Integer, LineHit&gt; lh = lines.get(s);</span>
-<span class="nc" id="L565">            totalLines += lh.size();</span>
-<span class="nc bnc" id="L566" title="All 2 branches missed.">            for (int i : lh.keySet()) {</span>
-<span class="nc bnc" id="L567" title="All 2 branches missed.">                if (lh.get(i).getLine().getHits() &gt; 0) {</span>
-<span class="nc" id="L568">                    coveredLines++;</span>
+<span class="nc" id="L568">        int totalLines = 0;</span>
+<span class="nc" id="L569">        int coveredLines = 0;</span>
+<span class="nc bnc" id="L570" title="All 2 branches missed.">        for (int s : lines.keySet()) {</span>
+<span class="nc" id="L571">            Map&lt;Integer, LineHit&gt; lh = lines.get(s);</span>
+<span class="nc" id="L572">            totalLines += lh.size();</span>
+<span class="nc bnc" id="L573" title="All 2 branches missed.">            for (int i : lh.keySet()) {</span>
+<span class="nc bnc" id="L574" title="All 2 branches missed.">                if (lh.get(i).getLine().getHits() &gt; 0) {</span>
+<span class="nc" id="L575">                    coveredLines++;</span>
                 }
-<span class="nc" id="L570">            }</span>
-<span class="nc" id="L571">        }</span>
+<span class="nc" id="L577">            }</span>
+<span class="nc" id="L578">        }</span>
 
-<span class="nc bnc" id="L573" title="All 2 branches missed.">        if (totalLines == 0) {</span>
-<span class="nc" id="L574">            return 0f;</span>
+<span class="nc bnc" id="L580" title="All 2 branches missed.">        if (totalLines == 0) {</span>
+<span class="nc" id="L581">            return 0f;</span>
         }
 
-<span class="nc" id="L577">        return ((float) coveredLines / (float) totalLines);</span>
+<span class="nc" id="L584">        return ((float) coveredLines / (float) totalLines);</span>
     }
 
     public static void output(String file, String file2, String forbidden) {
 
-<span class="nc" id="L582">        Gson g = new Gson();</span>
-<span class="nc bnc" id="L583" title="All 2 branches missed.">        if (forbidden == null) {</span>
-<span class="nc" id="L584">            forbidden = &quot;&quot;;</span>
+<span class="nc" id="L589">        Gson g = new Gson();</span>
+<span class="nc bnc" id="L590" title="All 2 branches missed.">        if (forbidden == null) {</span>
+<span class="nc" id="L591">            forbidden = &quot;&quot;;</span>
         }
-<span class="nc" id="L586">        String[] forbid = forbidden.split(&quot;,&quot;);</span>
+<span class="nc" id="L593">        String[] forbid = forbidden.split(&quot;,&quot;);</span>
 
-<span class="nc bnc" id="L588" title="All 2 branches missed.">        for (int i = 0; i &lt; forbid.length; i++) {</span>
-<span class="nc" id="L589">            forbid[i] = ClassNameUtils.standardise(forbid[i]);</span>
+<span class="nc bnc" id="L595" title="All 2 branches missed.">        for (int i = 0; i &lt; forbid.length; i++) {</span>
+<span class="nc" id="L596">            forbid[i] = ClassNameUtils.standardise(forbid[i]);</span>
         }
 
         try {
 
-<span class="nc" id="L594">            HashMap&lt;Integer, Map&lt;Integer, BranchHit&gt;&gt; outputBranches = new HashMap&lt;Integer, Map&lt;Integer, BranchHit&gt;&gt;();</span>
-<span class="nc" id="L595">            HashMap&lt;Integer, Map&lt;Integer, LineHit&gt;&gt; outputLines = new HashMap&lt;Integer, Map&lt;Integer, LineHit&gt;&gt;();</span>
+<span class="nc" id="L601">            HashMap&lt;Integer, Map&lt;Integer, BranchHit&gt;&gt; outputBranches = new HashMap&lt;Integer, Map&lt;Integer, BranchHit&gt;&gt;();</span>
+<span class="nc" id="L602">            HashMap&lt;Integer, Map&lt;Integer, LineHit&gt;&gt; outputLines = new HashMap&lt;Integer, Map&lt;Integer, LineHit&gt;&gt;();</span>
 
-<span class="nc bnc" id="L597" title="All 2 branches missed.">            for (Integer classId : lines.keySet()) {</span>
-<span class="nc" id="L598">                String className = &quot;&quot;;</span>
+<span class="nc bnc" id="L604" title="All 2 branches missed.">            for (Integer classId : lines.keySet()) {</span>
+<span class="nc" id="L605">                String className = &quot;&quot;;</span>
                 try {
-<span class="nc" id="L600">                    className = ClassNameUtils.standardise(classIds.get(classId));</span>
-<span class="nc" id="L601">                } catch (NullPointerException e) {</span>
-<span class="nc" id="L602">                    continue;</span>
-<span class="nc" id="L603">                }</span>
+<span class="nc" id="L607">                    className = ClassNameUtils.standardise(classIds.get(classId));</span>
+<span class="nc" id="L608">                } catch (NullPointerException e) {</span>
+<span class="nc" id="L609">                    continue;</span>
+<span class="nc" id="L610">                }</span>
 
-<span class="nc" id="L605">                boolean fbd = false;</span>
+<span class="nc" id="L612">                boolean fbd = false;</span>
 
-<span class="nc bnc" id="L607" title="All 2 branches missed.">                for (String s : forbid) {</span>
-<span class="nc bnc" id="L608" title="All 2 branches missed.">                    if (className.equals(s)) {</span>
-<span class="nc" id="L609">                        fbd = true;</span>
-<span class="nc" id="L610">                        break;</span>
+<span class="nc bnc" id="L614" title="All 2 branches missed.">                for (String s : forbid) {</span>
+<span class="nc bnc" id="L615" title="All 2 branches missed.">                    if (className.equals(s)) {</span>
+<span class="nc" id="L616">                        fbd = true;</span>
+<span class="nc" id="L617">                        break;</span>
                     }
                 }
 
-<span class="nc bnc" id="L614" title="All 2 branches missed.">                if (!fbd) {</span>
-<span class="nc" id="L615">                    outputBranches.put(classId, branches.get(classId));</span>
-<span class="nc" id="L616">                    outputLines.put(classId, lines.get(classId));</span>
+<span class="nc bnc" id="L621" title="All 2 branches missed.">                if (!fbd) {</span>
+<span class="nc" id="L622">                    outputBranches.put(classId, branches.get(classId));</span>
+<span class="nc" id="L623">                    outputLines.put(classId, lines.get(classId));</span>
                 }
-<span class="nc" id="L618">            }</span>
+<span class="nc" id="L625">            }</span>
 
-<span class="nc" id="L620">            FileHandler.writeToFile(new File(file), g.toJson(outputBranches));</span>
-<span class="nc" id="L621">            FileHandler.writeToFile(new File(file2), g.toJson(outputLines));</span>
-<span class="nc" id="L622">        } catch (IOException e) {</span>
-<span class="nc" id="L623">            e.printStackTrace();</span>
-<span class="nc" id="L624">        }</span>
-<span class="nc" id="L625">    }</span>
+<span class="nc" id="L627">            FileHandler.writeToFile(new File(file), g.toJson(outputBranches));</span>
+<span class="nc" id="L628">            FileHandler.writeToFile(new File(file2), g.toJson(outputLines));</span>
+<span class="nc" id="L629">        } catch (IOException e) {</span>
+<span class="nc" id="L630">            e.printStackTrace();</span>
+<span class="nc" id="L631">        }</span>
+<span class="nc" id="L632">    }</span>
 
     public static void classAnalyzed(int classId, List&lt;BranchHit&gt; branchHitCounterIds,
             List&lt;LineHit&gt; lineHitCounterIds) {
-<span class="fc" id="L629">        lines.put(classId, new HashMap&lt;Integer, LineHit&gt;());</span>
-<span class="fc bfc" id="L630" title="All 2 branches covered.">        for (LineHit lh : lineHitCounterIds) {</span>
-<span class="fc" id="L631">            lh.getLine().setGoalId(lh.getLine().getLineNumber());</span>
-<span class="fc" id="L632">            lines.get(classId).put(lh.getCounterId(), lh);</span>
-<span class="fc" id="L633">        }</span>
-<span class="fc" id="L634">        branches.put(classId, new HashMap&lt;Integer, BranchHit&gt;());</span>
-<span class="fc bfc" id="L635" title="All 2 branches covered.">        for (BranchHit b : branchHitCounterIds) {</span>
-<span class="fc" id="L636">            int branchId = getNewBranchId();</span>
-<span class="fc" id="L637">            b.getBranch().setGoalId(branchId);</span>
-<span class="fc" id="L638">            branches.get(classId).put(branchId, b);</span>
-<span class="fc" id="L639">        }</span>
-<span class="fc" id="L640">    }</span>
+<span class="fc" id="L636">        lines.put(classId, new HashMap&lt;Integer, LineHit&gt;());</span>
+<span class="fc bfc" id="L637" title="All 2 branches covered.">        for (LineHit lh : lineHitCounterIds) {</span>
+<span class="fc" id="L638">            lh.getLine().setGoalId(lh.getLine().getLineNumber());</span>
+<span class="fc" id="L639">            lines.get(classId).put(lh.getCounterId(), lh);</span>
+<span class="fc" id="L640">        }</span>
+<span class="fc" id="L641">        branches.put(classId, new HashMap&lt;Integer, BranchHit&gt;());</span>
+<span class="fc bfc" id="L642" title="All 2 branches covered.">        for (BranchHit b : branchHitCounterIds) {</span>
+<span class="fc" id="L643">            int branchId = getNewBranchId();</span>
+<span class="fc" id="L644">            b.getBranch().setGoalId(branchId);</span>
+<span class="fc" id="L645">            branches.get(classId).put(branchId, b);</span>
+<span class="fc" id="L646">        }</span>
+<span class="fc" id="L647">    }</span>
 
     private static Line findLineWithCounterId(int classId, int i) {
-<span class="pc bpc" id="L643" title="1 of 2 branches missed.">        if (!lines.containsKey(classId)){</span>
-<span class="nc" id="L644">            lines.put(classId, new HashMap&lt;&gt;());</span>
+<span class="pc bpc" id="L650" title="1 of 2 branches missed.">        if (!lines.containsKey(classId)){</span>
+<span class="nc" id="L651">            lines.put(classId, new HashMap&lt;&gt;());</span>
         }
-<span class="fc bfc" id="L646" title="All 2 branches covered.">        return lines.get(classId).containsKey(i) ? lines.get(classId).get(i).getLine() : null;</span>
+<span class="fc bfc" id="L653" title="All 2 branches covered.">        return lines.get(classId).containsKey(i) ? lines.get(classId).get(i).getLine() : null;</span>
     }
 
     private static BranchHit findBranchWithCounterId(int classId, int i) {
-<span class="pc bpc" id="L650" title="1 of 2 branches missed.">        if (!branches.containsKey(classId)){</span>
-<span class="nc" id="L651">            branches.put(classId, new HashMap&lt;&gt;());</span>
+<span class="pc bpc" id="L657" title="1 of 2 branches missed.">        if (!branches.containsKey(classId)){</span>
+<span class="nc" id="L658">            branches.put(classId, new HashMap&lt;&gt;());</span>
         }
-<span class="fc bfc" id="L653" title="All 2 branches covered.">        for (BranchHit bh : branches.get(classId).values()) {</span>
-<span class="fc bfc" id="L654" title="All 4 branches covered.">            if (bh.getFalseCounterId() == i || bh.getTrueCounterId() == i) {</span>
-<span class="fc" id="L655">                return bh;</span>
+<span class="fc bfc" id="L660" title="All 2 branches covered.">        for (BranchHit bh : branches.get(classId).values()) {</span>
+<span class="fc bfc" id="L661" title="All 4 branches covered.">            if (bh.getFalseCounterId() == i || bh.getTrueCounterId() == i) {</span>
+<span class="fc" id="L662">                return bh;</span>
             }
-<span class="fc" id="L657">        }</span>
-<span class="fc" id="L658">        return null;</span>
+<span class="fc" id="L664">        }</span>
+<span class="fc" id="L665">        return null;</span>
     }
 
     public static void classChanged(String changedClass) {
 
-<span class="fc" id="L663">        changedClass = ClassNameUtils.standardise(changedClass);</span>
+<span class="fc" id="L670">        changedClass = ClassNameUtils.standardise(changedClass);</span>
 
-<span class="fc" id="L665">        Class&lt;?&gt; cl = ClassStore.get(changedClass);</span>
-<span class="pc bpc" id="L666" title="1 of 2 branches missed.">        if (cl != null) {</span>
-<span class="fc" id="L667">            changedClasses.add(cl);</span>
+<span class="fc" id="L672">        Class&lt;?&gt; cl = ClassStore.get(changedClass);</span>
+<span class="pc bpc" id="L673" title="1 of 2 branches missed.">        if (cl != null) {</span>
+<span class="fc" id="L674">            changedClasses.add(cl);</span>
         }
-<span class="fc" id="L669">    }</span>
+<span class="fc" id="L676">    }</span>
 
-<span class="fc" id="L671">    public static boolean collectingHitCounters = false;</span>
+<span class="fc" id="L678">    public static boolean collectingHitCounters = false;</span>
 
     @Deprecated
     /**
      * Please use collectHitCounters(boolean reset)
      */
     public static void collectHitCounters() {
-<span class="nc" id="L678">        collectHitCounters(true);</span>
-<span class="nc" id="L679">    }</span>
+<span class="nc" id="L685">        collectHitCounters(true);</span>
+<span class="nc" id="L686">    }</span>
 
     public static void collectHitCounters(boolean reset) {
 //        while (collectingHitCounters) {
@@ -686,268 +693,273 @@ import java.util.*;
 //                e.printStackTrace();
 //            }
 //        }
-<span class="fc" id="L689">        Task timerTask = new CollectHitCountersTimer();</span>
-<span class="pc bpc" id="L690" title="1 of 2 branches missed.">        if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {</span>
-<span class="fc" id="L691">            collectingHitCounters = true;</span>
-<span class="pc bpc" id="L692" title="1 of 2 branches missed.">            if (InstrumentationProperties.LOG) {</span>
-<span class="fc" id="L693">                TaskTimer.taskStart(timerTask);</span>
+<span class="fc" id="L696">        Task timerTask = new CollectHitCountersTimer();</span>
+<span class="pc bpc" id="L697" title="1 of 2 branches missed.">        if (InstrumentationProperties.INSTRUMENTATION_APPROACH == InstrumentationApproach.ARRAY) {</span>
+<span class="fc" id="L698">            collectingHitCounters = true;</span>
+<span class="pc bpc" id="L699" title="1 of 2 branches missed.">            if (InstrumentationProperties.LOG) {</span>
+<span class="fc" id="L700">                TaskTimer.taskStart(timerTask);</span>
             }
-<span class="fc" id="L695">            List&lt;Class&lt;?&gt;&gt; classes = new ArrayList&lt;Class&lt;?&gt;&gt;(changedClasses);</span>
-<span class="pc bpc" id="L696" title="1 of 2 branches missed.">            if (!InstrumentationProperties.USE_CHANGED_FLAG) {</span>
-<span class="nc" id="L697">                classes = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
-<span class="nc bnc" id="L698" title="All 2 branches missed.">                for (int classId : lines.keySet()) {</span>
-<span class="nc" id="L699">                    Class&lt;?&gt; c = ClassStore.get(classIds.get(classId));</span>
-<span class="nc bnc" id="L700" title="All 2 branches missed.">                    if (c == null) {</span>
+<span class="fc" id="L702">            List&lt;Class&lt;?&gt;&gt; classes = new ArrayList&lt;Class&lt;?&gt;&gt;(changedClasses);</span>
+<span class="pc bpc" id="L703" title="1 of 2 branches missed.">            if (!InstrumentationProperties.USE_CHANGED_FLAG) {</span>
+<span class="nc" id="L704">                classes = new ArrayList&lt;Class&lt;?&gt;&gt;();</span>
+<span class="nc bnc" id="L705" title="All 2 branches missed.">                for (int classId : lines.keySet()) {</span>
+<span class="nc" id="L706">                    Class&lt;?&gt; c = ClassStore.get(classIds.get(classId));</span>
+<span class="nc bnc" id="L707" title="All 2 branches missed.">                    if (c == null) {</span>
                         try {
-<span class="nc" id="L702">                            c = ClassLoader.getSystemClassLoader().loadClass(classIds.get(classId));</span>
-<span class="nc" id="L703">                        } catch (ClassNotFoundException e) {</span>
-<span class="nc" id="L704">                            e.printStackTrace();</span>
-<span class="nc" id="L705">                        }</span>
+<span class="nc" id="L709">                            c = ClassLoader.getSystemClassLoader().loadClass(classIds.get(classId));</span>
+<span class="nc" id="L710">                        } catch (ClassNotFoundException e) {</span>
+<span class="nc" id="L711">                            e.printStackTrace();</span>
+<span class="nc" id="L712">                        }</span>
                     }
-<span class="nc" id="L707">                    classes.add(c);</span>
-<span class="nc" id="L708">                }</span>
-<span class="nc" id="L709">                changedClasses.addAll(classes);</span>
+<span class="nc" id="L714">                    classes.add(c);</span>
+<span class="nc" id="L715">                }</span>
+<span class="nc" id="L716">                changedClasses.addAll(classes);</span>
 
             }
 
-<span class="fc bfc" id="L713" title="All 2 branches covered.">            for (int c = 0; c &lt; classes.size(); c++) {</span>
-<span class="fc" id="L714">                Class&lt;?&gt; cl = classes.get(c);</span>
+<span class="fc bfc" id="L720" title="All 2 branches covered.">            for (int c = 0; c &lt; classes.size(); c++) {</span>
+<span class="fc" id="L721">                Class&lt;?&gt; cl = classes.get(c);</span>
                 try {
 
-<span class="fc" id="L717">                    Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class&lt;?&gt;[] {});</span>
-<span class="fc" id="L718">                    getCounters.setAccessible(true);</span>
-<span class="fc" id="L719">                    int[] counters = (int[]) getCounters.invoke(null, new Object[] {});</span>
-<span class="pc bpc" id="L720" title="1 of 2 branches missed.">                    if (counters != null) {</span>
-<span class="fc bfc" id="L721" title="All 2 branches covered.">                        for (int i = 0; i &lt; counters.length; i++) {</span>
+<span class="fc" id="L724">                    Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class&lt;?&gt;[] {});</span>
+<span class="fc" id="L725">                    getCounters.setAccessible(true);</span>
+<span class="fc" id="L726">                    int[] counters = (int[]) getCounters.invoke(null, new Object[] {});</span>
+<span class="pc bpc" id="L727" title="1 of 2 branches missed.">                    if (counters != null) {</span>
+<span class="fc bfc" id="L728" title="All 2 branches covered.">                        for (int i = 0; i &lt; counters.length; i++) {</span>
 
-<span class="fc" id="L723">                            Object o = classNames.get(cl.getName());</span>
-<span class="pc bpc" id="L724" title="1 of 2 branches missed.">                            if (o == null) {</span>
-<span class="fc" id="L725">                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));</span>
+<span class="fc" id="L730">                            Object o = classNames.get(cl.getName());</span>
+<span class="pc bpc" id="L731" title="1 of 2 branches missed.">                            if (o == null) {</span>
+<span class="fc" id="L732">                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));</span>
                             }
 
-<span class="pc bpc" id="L728" title="1 of 2 branches missed.">                            if (o == null){</span>
-<span class="nc" id="L729">                                registerClass(ClassNameUtils.standardise(cl.getName()));</span>
-<span class="nc" id="L730">                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));</span>
+<span class="pc bpc" id="L735" title="1 of 2 branches missed.">                            if (o == null){</span>
+<span class="nc" id="L736">                                registerClass(ClassNameUtils.standardise(cl.getName()));</span>
+<span class="nc" id="L737">                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));</span>
                             }
 
-<span class="pc bpc" id="L733" title="1 of 2 branches missed.">                            if (o == null){</span>
-<span class="nc" id="L734">                                continue;</span>
+<span class="pc bpc" id="L740" title="1 of 2 branches missed.">                            if (o == null){</span>
+<span class="nc" id="L741">                                continue;</span>
                             }
 
-<span class="fc" id="L737">                            int classId = (Integer) o;</span>
-<span class="fc" id="L738">                            Line line = findLineWithCounterId(classId, i);</span>
-<span class="fc bfc" id="L739" title="All 2 branches covered.">                            if (line != null) {</span>
-<span class="fc" id="L740">                                line.hit(counters[i]);</span>
+<span class="fc" id="L744">                            int classId = (Integer) o;</span>
+<span class="fc" id="L745">                            Line line = findLineWithCounterId(classId, i);</span>
+<span class="fc bfc" id="L746" title="All 2 branches covered.">                            if (line != null) {</span>
+<span class="fc" id="L747">                                line.hit(counters[i]);</span>
 
-<span class="pc bpc" id="L742" title="1 of 2 branches missed.">                                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {</span>
-<span class="nc" id="L743">                                    line.addCoveringTest(activeTestCase);</span>
+<span class="pc bpc" id="L749" title="1 of 2 branches missed.">                                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {</span>
+<span class="nc" id="L750">                                    line.addCoveringTest(activeTestCase);</span>
                                 }
                             }
-<span class="fc" id="L746">                            BranchHit branch = findBranchWithCounterId(classId, i);</span>
-<span class="fc bfc" id="L747" title="All 2 branches covered.">                            if (branch != null) {</span>
-<span class="fc bfc" id="L748" title="All 2 branches covered.">                                if (branch.getTrueCounterId() == i) {</span>
-<span class="fc" id="L749">                                    branch.getBranch().trueHit(counters[i]);</span>
+<span class="fc" id="L753">                            BranchHit branch = findBranchWithCounterId(classId, i);</span>
+<span class="fc bfc" id="L754" title="All 2 branches covered.">                            if (branch != null) {</span>
+<span class="fc bfc" id="L755" title="All 2 branches covered.">                                if (branch.getTrueCounterId() == i) {</span>
+<span class="fc" id="L756">                                    branch.getBranch().trueHit(counters[i]);</span>
                                     // if (superClassId &gt;= 0) {
                                     // for (BranchHit bh : branches.get(superClassId)){
                                     // if (bh)
                                     // }
                                     // }
                                 } else {
-<span class="fc" id="L756">                                    branch.getBranch().falseHit(counters[i]);</span>
+<span class="fc" id="L763">                                    branch.getBranch().falseHit(counters[i]);</span>
                                 }
-<span class="pc bpc" id="L758" title="1 of 2 branches missed.">                                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {</span>
-<span class="nc" id="L759">                                    branch.getBranch().addCoveringTest(activeTestCase);</span>
+<span class="pc bpc" id="L765" title="1 of 2 branches missed.">                                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {</span>
+<span class="nc" id="L766">                                    branch.getBranch().addCoveringTest(activeTestCase);</span>
                                 }
                             }
 
                         }
                     }
-<span class="pc bpc" id="L765" title="1 of 2 branches missed.">                    if (reset) {</span>
-<span class="nc" id="L766">                        resetHitCounters(cl);</span>
+<span class="pc bpc" id="L772" title="1 of 2 branches missed.">                    if (reset) {</span>
+<span class="nc" id="L773">                        resetHitCounters(cl);</span>
                     }
-<span class="nc" id="L768">                } catch (Exception e) {</span>
-<span class="nc" id="L769">                    e.printStackTrace(out);</span>
-<span class="nc" id="L770">                } catch (Error e) {</span>
-<span class="nc" id="L771">                    e.printStackTrace(out);</span>
-<span class="pc" id="L772">                }</span>
+<span class="nc" id="L775">                } catch (Exception e) {</span>
+<span class="nc" id="L776">                    e.printStackTrace(out);</span>
+<span class="nc" id="L777">                } catch (Error e) {</span>
+<span class="nc" id="L778">                    e.printStackTrace(out);</span>
+<span class="pc" id="L779">                }</span>
             }
-<span class="pc bpc" id="L774" title="1 of 2 branches missed.">            if (InstrumentationProperties.LOG) {</span>
-<span class="fc" id="L775">                TaskTimer.taskEnd(timerTask);</span>
+<span class="pc bpc" id="L781" title="1 of 2 branches missed.">            if (InstrumentationProperties.LOG) {</span>
+<span class="fc" id="L782">                TaskTimer.taskEnd(timerTask);</span>
             }
-<span class="fc" id="L777">            collectingHitCounters = false;</span>
+<span class="fc" id="L784">            collectingHitCounters = false;</span>
         }
-<span class="fc" id="L779">    }</span>
+<span class="fc" id="L786">    }</span>
 
     public static int getClassId(String className) {
 
-<span class="nc" id="L783">        className = ClassNameUtils.standardise(className);</span>
+<span class="nc" id="L790">        className = ClassNameUtils.standardise(className);</span>
 
-<span class="nc bnc" id="L785" title="All 2 branches missed.">        if (classNames.containsKey(className)) {</span>
-<span class="nc" id="L786">            return classNames.get(className);</span>
+<span class="nc bnc" id="L792" title="All 2 branches missed.">        if (classNames.containsKey(className)) {</span>
+<span class="nc" id="L793">            return classNames.get(className);</span>
         }
-<span class="nc" id="L788">        return -1;</span>
+<span class="nc" id="L795">        return -1;</span>
     }
 
     public static ArrayList&lt;LineHit&gt; getLinesCovered() {
-<span class="nc" id="L792">        collectHitCounters(false);</span>
+<span class="nc" id="L799">        collectHitCounters(false);</span>
 
-<span class="nc" id="L794">        ArrayList&lt;LineHit&gt; coveredLines = new ArrayList&lt;LineHit&gt;();</span>
+<span class="nc" id="L801">        ArrayList&lt;LineHit&gt; coveredLines = new ArrayList&lt;LineHit&gt;();</span>
 
-<span class="nc bnc" id="L796" title="All 2 branches missed.">        for (Integer i : lines.keySet()) {</span>
-<span class="nc" id="L797">            Map&lt;Integer, LineHit&gt; h = lines.get(i);</span>
+<span class="nc" id="L803">        Iterator&lt;Integer&gt; iter = new HashMap&lt;&gt;(lines).keySet().iterator();</span>
 
-<span class="nc bnc" id="L799" title="All 2 branches missed.">            for (LineHit l : h.values()) {</span>
-<span class="nc bnc" id="L800" title="All 2 branches missed.">                if (l.getLine().getHits() &gt; 0) {</span>
-<span class="nc" id="L801">                    coveredLines.add(l);</span>
+<span class="nc bnc" id="L805" title="All 2 branches missed.">        while ( iter.hasNext()) {</span>
+
+<span class="nc" id="L807">            Integer i = iter.next();</span>
+
+<span class="nc" id="L809">            Map&lt;Integer, LineHit&gt; h = lines.get(i);</span>
+
+<span class="nc bnc" id="L811" title="All 2 branches missed.">            for (LineHit l : h.values()) {</span>
+<span class="nc bnc" id="L812" title="All 2 branches missed.">                if (l.getLine().getHits() &gt; 0) {</span>
+<span class="nc" id="L813">                    coveredLines.add(l);</span>
                 }
-<span class="nc" id="L803">            }</span>
-<span class="nc" id="L804">        }</span>
+<span class="nc" id="L815">            }</span>
+<span class="nc" id="L816">        }</span>
 
-<span class="nc" id="L806">        return coveredLines;</span>
+<span class="nc" id="L818">        return coveredLines;</span>
 
     }
 
     public static void resetHitCounters(Class&lt;?&gt; cl) {
         try {
-<span class="fc" id="L812">            Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME, new Class[] {});</span>
-<span class="fc" id="L813">            resetCounters.setAccessible(true);</span>
-<span class="fc" id="L814">            resetCounters.invoke(null, new Object[] {});</span>
-<span class="nc" id="L815">        } catch (NoSuchMethodException e) {</span>
-<span class="nc" id="L816">            e.printStackTrace();</span>
-<span class="nc" id="L817">        } catch (InvocationTargetException e) {</span>
-<span class="nc" id="L818">            e.printStackTrace();</span>
-<span class="nc" id="L819">        } catch (IllegalAccessException e) {</span>
-<span class="nc" id="L820">            e.printStackTrace();</span>
-<span class="pc" id="L821">        }</span>
+<span class="fc" id="L824">            Method resetCounters = cl.getDeclaredMethod(ArrayClassVisitor.RESET_COUNTER_METHOD_NAME, new Class[] {});</span>
+<span class="fc" id="L825">            resetCounters.setAccessible(true);</span>
+<span class="fc" id="L826">            resetCounters.invoke(null, new Object[] {});</span>
+<span class="nc" id="L827">        } catch (NoSuchMethodException e) {</span>
+<span class="nc" id="L828">            e.printStackTrace();</span>
+<span class="nc" id="L829">        } catch (InvocationTargetException e) {</span>
+<span class="nc" id="L830">            e.printStackTrace();</span>
+<span class="nc" id="L831">        } catch (IllegalAccessException e) {</span>
+<span class="nc" id="L832">            e.printStackTrace();</span>
+<span class="pc" id="L833">        }</span>
 
-<span class="fc" id="L823">    }</span>
+<span class="fc" id="L835">    }</span>
 
     public static List&lt;Line&gt; getCoverableLines(String className) {
-<span class="pc bpc" id="L826" title="1 of 2 branches missed.">        if (className == null) {</span>
-<span class="nc" id="L827">            return new ArrayList&lt;Line&gt;();</span>
+<span class="pc bpc" id="L838" title="1 of 2 branches missed.">        if (className == null) {</span>
+<span class="nc" id="L839">            return new ArrayList&lt;Line&gt;();</span>
         }
 
-<span class="fc" id="L830">        className = ClassNameUtils.standardise(className);</span>
+<span class="fc" id="L842">        className = ClassNameUtils.standardise(className);</span>
 
-<span class="pc bpc" id="L832" title="1 of 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
-<span class="nc" id="L833">            return new ArrayList&lt;Line&gt;();</span>
+<span class="pc bpc" id="L844" title="1 of 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
+<span class="nc" id="L845">            return new ArrayList&lt;Line&gt;();</span>
         }
 
-<span class="fc" id="L836">        int classId = classNames.get(className);</span>
+<span class="fc" id="L848">        int classId = classNames.get(className);</span>
 
-<span class="fc" id="L838">        List&lt;Line&gt; coverableLines = new ArrayList&lt;Line&gt;();</span>
-<span class="fc" id="L839">        Collection&lt;LineHit&gt; lhs = lines.get(classId).values();</span>
-<span class="fc bfc" id="L840" title="All 2 branches covered.">        for (LineHit lh : lhs) {</span>
-<span class="fc" id="L841">            coverableLines.add(lh.getLine());</span>
-<span class="fc" id="L842">        }</span>
-<span class="fc" id="L843">        return coverableLines;</span>
+<span class="fc" id="L850">        List&lt;Line&gt; coverableLines = new ArrayList&lt;Line&gt;();</span>
+<span class="fc" id="L851">        Collection&lt;LineHit&gt; lhs = lines.get(classId).values();</span>
+<span class="fc bfc" id="L852" title="All 2 branches covered.">        for (LineHit lh : lhs) {</span>
+<span class="fc" id="L853">            coverableLines.add(lh.getLine());</span>
+<span class="fc" id="L854">        }</span>
+<span class="fc" id="L855">        return coverableLines;</span>
     }
 
     public static List&lt;Line&gt; getCoverableLines(String className, String methodName) {
-<span class="nc" id="L847">        List&lt;String&gt; method = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L859">        List&lt;String&gt; method = new ArrayList&lt;String&gt;();</span>
 
-<span class="nc" id="L849">        method.add(methodName);</span>
+<span class="nc" id="L861">        method.add(methodName);</span>
 
-<span class="nc" id="L851">        return getCoverableLines(className, method);</span>
+<span class="nc" id="L863">        return getCoverableLines(className, method);</span>
     }
 
     public static List&lt;Line&gt; getCoverableLines(String className, List&lt;String&gt; methodNames) {
-<span class="nc bnc" id="L855" title="All 6 branches missed.">        if (className == null || methodNames == null || methodNames.size() == 0) {</span>
-<span class="nc" id="L856">            return new ArrayList&lt;Line&gt;();</span>
+<span class="nc bnc" id="L867" title="All 6 branches missed.">        if (className == null || methodNames == null || methodNames.size() == 0) {</span>
+<span class="nc" id="L868">            return new ArrayList&lt;Line&gt;();</span>
         }
 
-<span class="nc" id="L859">        className = ClassNameUtils.standardise(className);</span>
+<span class="nc" id="L871">        className = ClassNameUtils.standardise(className);</span>
 
-<span class="nc bnc" id="L861" title="All 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
-<span class="nc" id="L862">            return new ArrayList&lt;Line&gt;();</span>
+<span class="nc bnc" id="L873" title="All 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
+<span class="nc" id="L874">            return new ArrayList&lt;Line&gt;();</span>
         }
 
-<span class="nc" id="L865">        int classId = classNames.get(className);</span>
+<span class="nc" id="L877">        int classId = classNames.get(className);</span>
 
-<span class="nc bnc" id="L867" title="All 2 branches missed.">        if (!lines.containsKey(classId)) {</span>
-<span class="nc" id="L868">            return Collections.&lt;Line&gt; emptyList();</span>
+<span class="nc bnc" id="L879" title="All 2 branches missed.">        if (!lines.containsKey(classId)) {</span>
+<span class="nc" id="L880">            return Collections.&lt;Line&gt; emptyList();</span>
         }
-<span class="nc" id="L870">        List&lt;Line&gt; coverableLines = new ArrayList&lt;Line&gt;();</span>
-<span class="nc bnc" id="L871" title="All 2 branches missed.">        for (LineHit lh : lines.get(classId).values()) {</span>
-<span class="nc bnc" id="L872" title="All 2 branches missed.">            if (methodNames.contains(lh.getLine().getMethodName())) {</span>
-<span class="nc" id="L873">                coverableLines.add(lh.getLine());</span>
+<span class="nc" id="L882">        List&lt;Line&gt; coverableLines = new ArrayList&lt;Line&gt;();</span>
+<span class="nc bnc" id="L883" title="All 2 branches missed.">        for (LineHit lh : lines.get(classId).values()) {</span>
+<span class="nc bnc" id="L884" title="All 2 branches missed.">            if (methodNames.contains(lh.getLine().getMethodName())) {</span>
+<span class="nc" id="L885">                coverableLines.add(lh.getLine());</span>
             }
-<span class="nc" id="L875">        }</span>
-<span class="nc" id="L876">        return coverableLines;</span>
+<span class="nc" id="L887">        }</span>
+<span class="nc" id="L888">        return coverableLines;</span>
     }
 
     public static List&lt;Branch&gt; getCoverableBranches(String className) {
-<span class="pc bpc" id="L880" title="1 of 2 branches missed.">        if (className == null) {</span>
-<span class="nc" id="L881">            return new ArrayList&lt;Branch&gt;();</span>
+<span class="pc bpc" id="L892" title="1 of 2 branches missed.">        if (className == null) {</span>
+<span class="nc" id="L893">            return new ArrayList&lt;Branch&gt;();</span>
         }
 
-<span class="fc" id="L884">        className = ClassNameUtils.standardise(className);</span>
+<span class="fc" id="L896">        className = ClassNameUtils.standardise(className);</span>
 
-<span class="pc bpc" id="L886" title="1 of 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
-<span class="nc" id="L887">            return new ArrayList&lt;Branch&gt;();</span>
+<span class="pc bpc" id="L898" title="1 of 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
+<span class="nc" id="L899">            return new ArrayList&lt;Branch&gt;();</span>
         }
 
-<span class="fc" id="L890">        int classId = classNames.get(className);</span>
+<span class="fc" id="L902">        int classId = classNames.get(className);</span>
 
-<span class="pc bpc" id="L892" title="1 of 2 branches missed.">        if (!branches.containsKey(classId)) {</span>
-<span class="nc" id="L893">            return Collections.&lt;Branch&gt; emptyList();</span>
+<span class="pc bpc" id="L904" title="1 of 2 branches missed.">        if (!branches.containsKey(classId)) {</span>
+<span class="nc" id="L905">            return Collections.&lt;Branch&gt; emptyList();</span>
         }
-<span class="fc" id="L895">        List&lt;Branch&gt; coverableBranches = new ArrayList&lt;Branch&gt;();</span>
-<span class="fc bfc" id="L896" title="All 2 branches covered.">        for (BranchHit bh : branches.get(classId).values()) {</span>
-<span class="fc" id="L897">            coverableBranches.add(bh.getBranch());</span>
-<span class="fc" id="L898">        }</span>
-<span class="fc" id="L899">        return coverableBranches;</span>
+<span class="fc" id="L907">        List&lt;Branch&gt; coverableBranches = new ArrayList&lt;Branch&gt;();</span>
+<span class="fc bfc" id="L908" title="All 2 branches covered.">        for (BranchHit bh : branches.get(classId).values()) {</span>
+<span class="fc" id="L909">            coverableBranches.add(bh.getBranch());</span>
+<span class="fc" id="L910">        }</span>
+<span class="fc" id="L911">        return coverableBranches;</span>
     }
 
     public static List&lt;Branch&gt; getCoverableBranches(String className, String methodName) {
-<span class="nc" id="L903">        List&lt;String&gt; method = new ArrayList&lt;String&gt;();</span>
+<span class="nc" id="L915">        List&lt;String&gt; method = new ArrayList&lt;String&gt;();</span>
 
-<span class="nc" id="L905">        method.add(methodName);</span>
+<span class="nc" id="L917">        method.add(methodName);</span>
 
-<span class="nc" id="L907">        return getCoverableBranches(className, method);</span>
+<span class="nc" id="L919">        return getCoverableBranches(className, method);</span>
     }
 
     public static List&lt;Branch&gt; getCoverableBranches(String className, List&lt;String&gt; methodNames) {
-<span class="nc bnc" id="L911" title="All 6 branches missed.">        if (className == null || methodNames == null || methodNames.size() == 0) {</span>
-<span class="nc" id="L912">            return new ArrayList&lt;Branch&gt;();</span>
+<span class="nc bnc" id="L923" title="All 6 branches missed.">        if (className == null || methodNames == null || methodNames.size() == 0) {</span>
+<span class="nc" id="L924">            return new ArrayList&lt;Branch&gt;();</span>
         }
 
-<span class="nc" id="L915">        className = ClassNameUtils.standardise(className);</span>
-<span class="nc bnc" id="L916" title="All 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
-<span class="nc" id="L917">            return new ArrayList&lt;Branch&gt;();</span>
+<span class="nc" id="L927">        className = ClassNameUtils.standardise(className);</span>
+<span class="nc bnc" id="L928" title="All 2 branches missed.">        if (!classNames.containsKey(className)) {</span>
+<span class="nc" id="L929">            return new ArrayList&lt;Branch&gt;();</span>
         }
 
-<span class="nc" id="L920">        int classId = classNames.get(className);</span>
+<span class="nc" id="L932">        int classId = classNames.get(className);</span>
 
-<span class="nc bnc" id="L922" title="All 2 branches missed.">        if (!branches.containsKey(classId)) {</span>
-<span class="nc" id="L923">            return Collections.&lt;Branch&gt; emptyList();</span>
+<span class="nc bnc" id="L934" title="All 2 branches missed.">        if (!branches.containsKey(classId)) {</span>
+<span class="nc" id="L935">            return Collections.&lt;Branch&gt; emptyList();</span>
         }
-<span class="nc" id="L925">        List&lt;Branch&gt; coverableBranches = new ArrayList&lt;Branch&gt;();</span>
-<span class="nc bnc" id="L926" title="All 2 branches missed.">        for (BranchHit bh : branches.get(classId).values()) {</span>
-<span class="nc bnc" id="L927" title="All 2 branches missed.">            if (methodNames.contains(bh.getBranch().getMethodName())) {</span>
-<span class="nc" id="L928">                coverableBranches.add(bh.getBranch());</span>
+<span class="nc" id="L937">        List&lt;Branch&gt; coverableBranches = new ArrayList&lt;Branch&gt;();</span>
+<span class="nc bnc" id="L938" title="All 2 branches missed.">        for (BranchHit bh : branches.get(classId).values()) {</span>
+<span class="nc bnc" id="L939" title="All 2 branches missed.">            if (methodNames.contains(bh.getBranch().getMethodName())) {</span>
+<span class="nc" id="L940">                coverableBranches.add(bh.getBranch());</span>
             }
-<span class="nc" id="L930">        }</span>
-<span class="nc" id="L931">        return coverableBranches;</span>
+<span class="nc" id="L942">        }</span>
+<span class="nc" id="L943">        return coverableBranches;</span>
     }
 
     public static List&lt;Class&lt;?&gt;&gt; getChangedClasses() {
-<span class="nc" id="L935">        return new ArrayList&lt;Class&lt;?&gt;&gt;(changedClasses);</span>
+<span class="nc" id="L947">        return new ArrayList&lt;Class&lt;?&gt;&gt;(changedClasses);</span>
     }
 
-<span class="fc" id="L938">    private static final class CollectHitCountersTimer extends AbstractTask {</span>
+<span class="fc" id="L950">    private static final class CollectHitCountersTimer extends AbstractTask {</span>
         @Override
         public String asString() {
-<span class="fc" id="L941">            return &quot;Collecting hit counters&quot;;</span>
+<span class="fc" id="L953">            return &quot;Collecting hit counters&quot;;</span>
         }
     }
 
     public static TestCaseWrapper getActiveTestCase() {
-<span class="nc" id="L946">        return activeTestCase;</span>
+<span class="nc" id="L958">        return activeTestCase;</span>
     }
 
     public static void setActiveTestCase(TestCaseWrapper activeTestCase) {
-<span class="nc" id="L950">        ClassAnalyzer.activeTestCase = activeTestCase;</span>
-<span class="nc" id="L951">    }</span>
+<span class="nc" id="L962">        ClassAnalyzer.activeTestCase = activeTestCase;</span>
+<span class="nc" id="L963">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.7.8.201612092310</span></div></body></html>

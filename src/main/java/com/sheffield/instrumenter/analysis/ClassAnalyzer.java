@@ -100,11 +100,11 @@ public class ClassAnalyzer {
     }
 
     public static Map<Integer, Map<Integer, LineHit>> getRawLines() {
-        return lines;
+        return new HashMap<>(lines);
     }
 
     public static Map<Integer, Map<Integer, BranchHit>> getRawBranches() {
-        return branches;
+        return new HashMap<>(branches);
     }
 
     public static void reset() {
@@ -416,7 +416,11 @@ public class ClassAnalyzer {
 
     public static synchronized List<BranchHit> getBranchesExecuted() {
         List<BranchHit> branchesHit = new ArrayList<BranchHit>();
-        for (int classId : branches.keySet()) {
+
+        Iterator<Integer> iter = new HashMap<>(branches).keySet().iterator();
+
+        while (iter.hasNext()) {
+            Integer classId = iter.next();
             for (BranchHit b : branches.get(classId).values()) {
                 if (b.getBranch().getTrueHits() > 0 || b.getBranch().getFalseHits() > 0) {
                     branchesHit.add(b);
@@ -516,7 +520,10 @@ public class ClassAnalyzer {
     public static Csv toCsv() {
         int totalLines = 0;
         int coveredLines = 0;
-        for (int s : lines.keySet()) {
+
+        Set<Integer> set = new HashMap<>(lines).keySet();
+
+        for (int s : set) {
             Map<Integer, LineHit> lh = lines.get(s);
             for (int i : lh.keySet()) {
                 totalLines++;
@@ -793,7 +800,12 @@ public class ClassAnalyzer {
 
         ArrayList<LineHit> coveredLines = new ArrayList<LineHit>();
 
-        for (Integer i : lines.keySet()) {
+        Iterator<Integer> iter = new HashMap<>(lines).keySet().iterator();
+
+        while ( iter.hasNext()) {
+
+            Integer i = iter.next();
+
             Map<Integer, LineHit> h = lines.get(i);
 
             for (LineHit l : h.values()) {
