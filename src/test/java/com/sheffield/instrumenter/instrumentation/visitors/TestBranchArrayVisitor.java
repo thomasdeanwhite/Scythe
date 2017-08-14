@@ -350,6 +350,9 @@ public class TestBranchArrayVisitor {
             if (l.getHits() > 0){
                 assertTrue("Line " + l.getLineNumber() + " should be covered",
                         coveredLines.contains(l.getLineNumber()));
+
+                assertEquals("Line should only be hit once", 1, l.getHits());
+
                 numLinesCovered++;
             } else {
                 assertFalse("Line " + l.getLineNumber() + " should not be " +
@@ -377,7 +380,6 @@ public class TestBranchArrayVisitor {
             if (l.getHits() > 0){
                 assertTrue("Line " + l.getLineNumber() + " should be covered",
                         coveredLines.contains(l.getLineNumber()));
-                assertEquals("Line should only be hit once", 1, l.getHits());
                 numLinesCovered++;
             } else {
                 assertFalse("Line " + l.getLineNumber() + " should be " +
