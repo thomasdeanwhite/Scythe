@@ -5,17 +5,21 @@ import com.sheffield.instrumenter.testcase.TestCaseWrapper;
 import java.util.ArrayList;
 
 public class Line extends CoverableGoal {
-  private int hits;
+  private long hits;
 
   public Line(String className, String methodName, int lineNumber) {
     super(className, methodName, lineNumber);
   }
 
-  public void hit(int newHits) {
-    this.hits += newHits;
+  public void hit(long newHits) {
+    if (newHits >= 0 && newHits < Long.MAX_VALUE) {
+      this.hits = newHits;
+    } else {
+      this.hits = Long.MAX_VALUE;
+    }
   }
 
-  public int getHits() {
+  public long getHits() {
     return hits;
   }
 

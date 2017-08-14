@@ -138,53 +138,38 @@ public class ClassAnalyzer {
     }
 
     public static void setBranches(Map<Integer, Map<Integer, BranchHit>> b) {
-        for (Integer i : b.keySet()) {
-            Map<Integer, BranchHit> b2 = b.get(i);
-            for (Integer i2 : b2.keySet()) {
-                BranchHit bh = b2.get(i2);
-                registerClass(bh.getBranch().getClassName(), i);
-                if (i >= classId) {
-                    classId = i + 1;
-                }
-                if (branches.get(i) != null && branches.get(i).get(i2) != null) {
-                    bh.getBranch().falseHit(branches.get(i).get(i2).getBranch().getFalseHits());
-                    bh.getBranch().trueHit(branches.get(i).get(i2).getBranch().getTrueHits());
-                }
-            }
-        }
-
-        branches = new ConcurrentHashMap<>(b);
+//        for (Integer i : b.keySet()) {
+//            Map<Integer, BranchHit> b2 = b.get(i);
+//            for (Integer i2 : b2.keySet()) {
+//                BranchHit bh = b2.get(i2);
+//                registerClass(bh.getBranch().getClassName(), i);
+//                if (i >= classId) {
+//                    classId = i + 1;
+//                }
+//                if (branches.get(i) != null && branches.get(i).get(i2) != null) {
+//                    bh.getBranch().falseHit(branches.get(i).get(i2).getBranch().getFalseHits());
+//                    bh.getBranch().trueHit(branches.get(i).get(i2).getBranch().getTrueHits());
+//                }
+//            }
+//        }
+//
+//        branches = new ConcurrentHashMap<>(b);
     }
 
     public static void setLines(Map<Integer, Map<Integer, LineHit>> l) {
+        ConcurrentHashMap<Integer, Map<Integer, LineHit>> newLines = new ConcurrentHashMap<>();
         for (Integer i : l.keySet()) {
             Map<Integer, LineHit> b2 = l.get(i);
             for (Integer i2 : b2.keySet()) {
                 LineHit bh = b2.get(i2);
 
-                registerClass(bh.getLine().getClassName(), i);
-                if (i >= classId) {
-                    classId = i + 1;
-                }
+                int newId = registerClass(bh.getLine().getClassName(), i);
 
-                int lineNumber = l.get(i).get(i2).getLine().getLineNumber();
-                int lastId = 0;
-
-                if (lines.get(classId) != null) {
-                    for (Integer id : lines.get(classId).keySet()) {
-                        if (lines.get(classId).get(id).getLine().getLineNumber() == lineNumber) {
-                            lastId = id;
-                        }
-                    }
-                }
-
-                if (lines.get(classId) != null && lines.get(classId).get(lastId) != null) {
-                    bh.getLine().hit(lines.get(classId).get(lastId).getLine().getHits());
-                }
+                newLines.put(newId, l.get(i));
             }
         }
 
-        lines = new ConcurrentHashMap<>(l);
+        lines = newLines;
     }
 
     public static void resetCoverage() {
@@ -248,6 +233,10 @@ public class ClassAnalyzer {
             return classNames.get(clazz);
         }
 
+
+        if (classIds.containsKey(classId)){
+            return registerClass(className);
+        }
         classIds.put(classId, clazz);
         classNames.put(clazz, classId);
         lines.put(classId, new HashMap<Integer, LineHit>());
@@ -260,8 +249,7 @@ public class ClassAnalyzer {
 
     public static int branchFound(int classId, int lineNumber, int branchId) {
         if (!branches.containsKey(classId)) {
-            branches.put(classId, new HashMap<Integer, BranchHit>());
-        }
+            branches.put(classId, new HashMap<Integer, BranchHit>())}
         branches.get(classId).put(branchId, new BranchHit(new Branch(classIds.get(classId), "<>", lineNumber), 0, 0));
         branches.get(classId).get(branchId).getBranch().setGoalId(branchId);
         return branchId;
@@ -467,7 +455,7 @@ public class ClassAnalyzer {
             }
         }
 
-        lines.get(classId).put(lineNumber, new LineHit(new Line(classIds.get(classId), "<>", lineNumber), -1));
+        lines.get(classId).put(lineNumber, new LineHit(new Line(classIds.get(classId), "<>", lineNumber), lineNumber));
         lines.get(classId).get(lineNumber).getLine().setGoalId(lineNumber);
     }
 
@@ -493,7 +481,7 @@ public class ClassAnalyzer {
         if (lines.get(classId).containsKey(lineNumber)) {
             return lines.get(classId).get(lineNumber);
         }
-        LineHit lh = new LineHit(new Line(classIds.get(classId), "<>", lineNumber), -1);
+        LineHit lh = new LineHit(new Line(classIds.get(classId), "<>", lineNumber), lineNumber);
         lines.get(classId).put(lineNumber, lh);
         return lh;
     }
@@ -522,24 +510,24 @@ public class ClassAnalyzer {
     }
 
     public static Csv toCsv() {
-        int totalLines = 0;
-        int coveredLines = 0;
+        int totalLines = getTotalLines().size();
+        int coveredLines = getLinesCovered().size();
 
-        Set<Integer> set = new HashMap<>(lines).keySet();
-
-        for (int s : set) {
-            Map<Integer, LineHit> lh = lines.get(s);
-            for (int i : lh.keySet()) {
-                totalLines++;
-                int hits = lh.get(i).getLine().getHits();
-
-                assert hits >= 0;
-
-                if (hits > 0) {
-                    coveredLines++;
-                }
-            }
-        }
+//        Set<Integer> set = new HashMap<>(lines).keySet();
+//
+//        for (int s : set) {
+//            Map<Integer, LineHit> lh = lines.get(s);
+//            for (int i : lh.keySet()) {
+//                totalLines++;
+//                int hits = lh.get(i).getLine().getHits();
+//
+//                assert hits >= 0;
+//
+//                if (hits > 0) {
+//                    coveredLines++;
+//                }
+//            }
+//        }
 
         Csv csv = new Csv();
 
@@ -781,6 +769,7 @@ public class ClassAnalyzer {
                     }
                     if (reset) {
                         resetHitCounters(cl);
+                        resetCoverage();
                     }
                 } catch (Exception e) {
                     e.printStackTrace(out);
@@ -805,6 +794,9 @@ public class ClassAnalyzer {
         return -1;
     }
 
+
+    private static ArrayList<LineHit> lastLinesCovered = new ArrayList<>();
+
     public static ArrayList<LineHit> getLinesCovered() {
         collectHitCounters(false);
 
@@ -824,6 +816,28 @@ public class ClassAnalyzer {
                 }
             }
         }
+
+        for (LineHit lh : lastLinesCovered){
+            LineHit l2 = null;
+
+            for (LineHit lh2 : coveredLines){
+                if (lh2.equals(lh)){
+                    l2 = lh2;
+                    break;
+                }
+            }
+            if (l2 != null && l2.getLine().getHits() < lh.getLine().getHits()){
+                l2 = null;
+            }
+
+            if (l2 == null){
+                out.println(lh.getLine().getClassName() + ":" + lh.getLine().getLineNumber() + " has decreased in coverage!");
+                System.exit(-1);
+            }
+
+        }
+
+        lastLinesCovered = new ArrayList<>(coveredLines);
 
         return coveredLines;
 
