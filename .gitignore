@@ -1,4 +1,5 @@
-Btarget
+target
+target/*
 ../
 .settings
 .classpath

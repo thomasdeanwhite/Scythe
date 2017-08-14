@@ -25,6 +25,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class ClassAnalyzer {
 
@@ -34,9 +36,9 @@ public class ClassAnalyzer {
 
     public static PrintStream out = System.out;
 
-    private static Map<Integer, Map<Integer, LineHit>> lines;
+    private static ConcurrentMap<Integer, Map<Integer, LineHit>> lines;
 
-    private static Map<Integer, Map<Integer, BranchHit>> branches;
+    private static ConcurrentMap<Integer, Map<Integer, BranchHit>> branches;
 
     private static Map<Integer, String> classIds;
     private static Map<String, Integer> classNames;
@@ -63,14 +65,14 @@ public class ClassAnalyzer {
 
         branchesToCover = new ArrayList<String>();
 
-        branches = new HashMap<Integer, Map<Integer, BranchHit>>();
+        branches = new ConcurrentHashMap<Integer, Map<Integer, BranchHit>>();
 
         branchesDistance = new ArrayList<String>();
         classIds = new HashMap<Integer, String>();
         classNames = new HashMap<String, Integer>();
         branchTypes = new HashMap<String, BranchType>();
         branchDistance = new HashMap<String, Float>();
-        lines = new HashMap<Integer, Map<Integer, LineHit>>();
+        lines = new ConcurrentHashMap<Integer, Map<Integer, LineHit>>();
         distancesWaiting = new ArrayList<String>();
 
         callFrequencies = new HashMap<String, Integer>();
@@ -151,7 +153,7 @@ public class ClassAnalyzer {
             }
         }
 
-        branches = b;
+        branches = new ConcurrentHashMap<>(b);
     }
 
     public static void setLines(Map<Integer, Map<Integer, LineHit>> l) {
@@ -182,7 +184,7 @@ public class ClassAnalyzer {
             }
         }
 
-        lines = l;
+        lines = new ConcurrentHashMap<>(l);
     }
 
     public static void resetCoverage() {
@@ -347,8 +349,10 @@ public class ClassAnalyzer {
     public static double branchCoverage() {
         int branchesTotal = 0;
         int branchesExecuted = 0;
-        for (int classId : branches.keySet()) {
-            for (BranchHit b : branches.get(classId).values()) {
+        Set<Integer> keys = new HashMap<>(branches).keySet();
+        for (int classId : keys) {
+            Collection<BranchHit> values = new HashMap<>(branches.get(classId)).values();
+            for (BranchHit b : values) {
                 if (b.getBranch().getFalseHits() > 0) {
                     branchesExecuted++;
                 }
@@ -527,7 +531,11 @@ public class ClassAnalyzer {
             Map<Integer, LineHit> lh = lines.get(s);
             for (int i : lh.keySet()) {
                 totalLines++;
-                if (lh.get(i).getLine().getHits() > 0) {
+                int hits = lh.get(i).getLine().getHits();
+
+                assert hits >= 0;
+
+                if (hits > 0) {
                     coveredLines++;
                 }
             }
@@ -567,10 +575,12 @@ public class ClassAnalyzer {
     public static float getLineCoverage() {
         int totalLines = 0;
         int coveredLines = 0;
-        for (int s : lines.keySet()) {
-            Map<Integer, LineHit> lh = lines.get(s);
+        Set<Integer> keys = new HashMap<>(lines).keySet();
+        for (int s : keys) {
+            Map<Integer, LineHit> lh = new HashMap<>(lines).get(s);
             totalLines += lh.size();
-            for (int i : lh.keySet()) {
+            Set<Integer> keys2 = new HashMap<>(lh).keySet();
+            for (int i : keys2) {
                 if (lh.get(i).getLine().getHits() > 0) {
                     coveredLines++;
                 }
@@ -806,7 +816,7 @@ public class ClassAnalyzer {
 
             Integer i = iter.next();
 
-            Map<Integer, LineHit> h = lines.get(i);
+            Map<Integer, LineHit> h = new HashMap<>(lines.get(i));
 
             for (LineHit l : h.values()) {
                 if (l.getLine().getHits() > 0) {

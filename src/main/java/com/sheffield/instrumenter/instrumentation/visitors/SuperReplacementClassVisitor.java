@@ -29,9 +29,6 @@ public class SuperReplacementClassVisitor extends ClassVisitor {
                 (superName)){
             String newSuper = InstrumentingClassLoader.getInstance()
                     .superClassReplacement(superName);
-            ClassAnalyzer.out.println("- Replacing super " + superName + " with "
-                    + newSuper);
-
             superName = newSuper;
 
         }
