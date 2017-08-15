@@ -1,14 +1,14 @@
 # Scythe
 An instrumentation tool for Light-weight Code Coverage tracking.
 
-#Building
+# Building
 We use Shade to build:
 - *git clone git@github.com:thomasdeanwhite/Scythe.git*
 - *cd Scythe*
 - *mvn clean install package*
 - Scythe-*-shaded.jar in target folder
 
-#Running
+# Running
 Scythe runs as a Java Agent:
 - Scythe can run using java -javaagent:Scythe-jar-name.jar=[opts] myprogram.jar
 - Options can be seen below or by directly running the Scythe jar.
