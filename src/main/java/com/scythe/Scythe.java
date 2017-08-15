@@ -1,14 +1,77 @@
 package com.scythe;
 
+import com.google.gson.Gson;
+import com.scythe.instrumenter.FileHandler;
 import com.scythe.instrumenter.InstrumentationProperties;
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.util.HashMap;
+import java.util.Map;
+import java.io.File;
 
 /**
  * Created by thomas on 15/08/2017.
  */
 public class Scythe {
+
+    private static void addExitLogger() {
+        System.setSecurityManager(new LogOnExitSecurityManager());
+    }
+
+    private static Gson gson = new Gson();
+
+    private static class LogOnExitSecurityManager extends SecurityManager {
+
+        @Override
+        public void checkExit(int status) {
+            Map<Integer, Map<Integer, LineHit>> lines = ClassAnalyzer
+                    .getRawLines();
+
+            if (!InstrumentationProperties.OUTPUT.contains("%s")){
+                InstrumentationProperties.OUTPUT = InstrumentationProperties
+                        .OUTPUT + ".%s.JSON";
+            }
+
+            File outputLines = new File(String.format(InstrumentationProperties
+                    .OUTPUT, "lines"));
+
+            if (!outputLines.exists()){
+                if (!outputLines.getParentFile().exists()){
+                    outputLines.getParentFile().mkdirs();
+                }
+            } else {
+                int backupNumber = 0;
+
+                File backup = new File(String.format(InstrumentationProperties
+                        .OUTPUT, "lines.backup." + backupNumber));
+
+                while(backup.exists()){
+                    backup = new File(String.format(InstrumentationProperties
+                            .OUTPUT, "lines.backup." + backupNumber++));
+                }
+
+                outputLines.renameTo(backup);
+
+                outputLines = new File(String.format(InstrumentationProperties
+                        .OUTPUT, "lines"));
+            }
+
+            try {
+                outputLines.createNewFile();
+                FileHandler.writeToFile(outputLines, gson.toJson(lines));
+            } catch (IOException e) {
+                e.printStackTrace(ClassAnalyzer.out);
+            }
+
+            //TODO: Implement storing branches
+            File outputBranches = new File(String.format
+                    (InstrumentationProperties
+                    .OUTPUT, "branches"));
+        }
+    }
 
     private static final String NAME = InstrumentationProperties.NAME;
 
@@ -21,6 +84,8 @@ public class Scythe {
      */
     public static void premain(String arg, Instrumentation instr) {
         InstrumentationProperties.instance().setOptions(arg.split(" "));
+
+        addExitLogger();
 
     }
 

@@ -45,7 +45,13 @@ public class InstrumentationProperties implements PropertySource {
         STATIC, ARRAY, NONE
     }
 
-    @Parameter(key = "log_filename", description = "Select the file name for the log file. Files are divided into folders for coverage etc", category = "Instrumentation")
+    @Parameter(key = "output", description = "Select the file name for the serialised results. This is the beginning of a file unless %s is specified. To specify a " +
+            "different extension than JSON, use '[filename.]%s.extension",
+            category =
+            "Output")
+    public static String OUTPUT = "Scythe.%s.JSON";
+
+    @Parameter(key = "log_filename", description = "Select the file name for the log file. Files are divided into folders for coverage etc", category = "Logging")
     public static String LOG_FILENAME = "";
 
     @Parameter(key = "instrumentation_approach", description = "Determines the approach to be used during class instrumentation. A static approach inserts calls to ClassAnalyzer.lineFound etc to track which lines/branches have been covered. Using an array stores all line/branch executions in an array of integers and has a method to get all the values", hasArgs = true, category = "Instrumentation")
@@ -61,22 +67,22 @@ public class InstrumentationProperties implements PropertySource {
             " null objects", category = "Output")
     private static final String NULL_VALUE_OUTPUT = "NA";
 
-    @Parameter(key = "write_class", description = "flag to determine whether or not to write classes. If set to true, the InstrumentingClassLoader will write out all classes to the value of BYTECODE_DIR", hasArgs = true, category = "Instrumentation")
+    @Parameter(key = "write_class", description = "flag to determine whether or not to write classes. If set to true, the InstrumentingClassLoader will write out all classes to the value of BYTECODE_DIR", hasArgs = true, category = "Dev")
     public static boolean WRITE_CLASS = false;
 
-    @Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true", hasArgs = true, category = "Instrumentation")
+    @Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true", hasArgs = true, category = "Dev")
     public static String BYTECODE_DIR = System.getProperty("user.home") + "/.bytecode/";
 
-    @Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)", hasArgs = true, category = "Instrumentation")
+    @Parameter(key = "log_dir", description = "directory in which to store log files (application.log, timings.log)", hasArgs = true, category = "Logging")
     public static String LOG_DIR = System.getProperty("user.home") + "/.logs/";
 
-    @Parameter(key = "log_timings", description = "set whether application timings should be written to a log file", hasArgs = true, category = "Instrumentation")
+    @Parameter(key = "log_timings", description = "set whether application timings should be written to a log file", hasArgs = true, category = "Logging")
     public static boolean LOG = true;
 
     @Parameter(key = "use_changed_flag", description = "It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data", hasArgs = true, category = "Instrumentation")
     public static boolean USE_CHANGED_FLAG = true;
 
-    @Parameter(key = "track_active_testcase", description = "When collecting coverage information, it is possible to include information about which test case covered each line. If this argument is true, use ClassAnalyzer.setActiveTest(TestCase), and then each line/branch object will have a list of test cases that cover it, accessed by CoverableGoal.getCoveringTests", hasArgs = true, category = "Instrumentation")
+    @Parameter(key = "track_active_testcase", description = "When collecting coverage information, it is possible to include information about which test case covered each line. If this argument is true, use ClassAnalyzer.setActiveTest(TestCase), and then each line/branch object will have a list of test cases that cover it, accessed by CoverableGoal.getCoveringTests", hasArgs = true, category = "Testing")
     public static boolean TRACK_ACTIVE_TESTCASE = false;
 
     protected Map<String, Field> parameterMap = new HashMap<String, Field>();
