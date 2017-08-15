@@ -1,4 +1,4 @@
-B# Scythe
+# Scythe
 An instrumentation tool for Light-weight Code Coverage tracking.
 
 # Building
