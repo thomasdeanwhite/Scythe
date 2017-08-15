@@ -30,5 +30,3 @@ Scythe runs as a Java Agent:
 | use_changed_flag:[arg]  | _It is possible to add a flag through instrumentation that will tell the ClassAnalyzer that a class has changed in some way. This creates a form of hybrid approach to instrumentation, but saves work at the time of collecting coverage data_ |
 | **Testing** |  |
 | track_active_testcase:[arg]  | _When collecting coverage information, it is possible to include information about which test case covered each line. If this argument is true, use ClassAnalyzer.setActiveTest(TestCase), and then each line/branch object will have a list of test cases that cover it, accessed by CoverableGoal.getCoveringTests_ |
-
-Scythe attaches to processed as a Java Agent. Please use javaagent:Sytche.jar to run as a java Agent
