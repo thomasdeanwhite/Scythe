@@ -38,13 +38,13 @@ public class Scythe {
             File outputLines = new File(String.format(InstrumentationProperties
                     .OUTPUT, "lines"));
 
+            int backupNumber = 0;
+
             if (!outputLines.exists()){
                 if (!outputLines.getParentFile().exists()){
                     outputLines.getParentFile().mkdirs();
                 }
             } else {
-                int backupNumber = 0;
-
                 File backup = new File(String.format(InstrumentationProperties
                         .OUTPUT, "lines.backup." + backupNumber));
 
@@ -62,6 +62,28 @@ public class Scythe {
             try {
                 outputLines.createNewFile();
                 FileHandler.writeToFile(outputLines, gson.toJson(lines));
+            } catch (IOException e) {
+                e.printStackTrace(ClassAnalyzer.out);
+            }
+
+            File classOutput = new File(String.format(InstrumentationProperties
+                    .OUTPUT, "classes"));
+
+            Map<String, Integer> classMappings = ClassAnalyzer
+                    .getClassMapping();
+
+            if (classOutput.exists()){
+                File classBackup = new File(String.format
+                        (InstrumentationProperties
+                        .OUTPUT, "classes." + backupNumber));
+                classOutput.renameTo(classBackup);
+                classOutput = new File(String.format(InstrumentationProperties
+                        .OUTPUT, "classes"));
+            }
+
+            try {
+                classOutput.createNewFile();
+                FileHandler.writeToFile(classOutput, gson.toJson(classMappings));
             } catch (IOException e) {
                 e.printStackTrace(ClassAnalyzer.out);
             }

@@ -59,6 +59,10 @@ public class ClassAnalyzer {
 
     private static TestCaseWrapper activeTestCase;
 
+    public static Map<String, Integer> getClassMapping() {
+        return classNames;
+    }
+
     static {
         Thread.currentThread().setUncaughtExceptionHandler(new LoggingUncaughtExceptionHandler());
         throwableListeners = new ArrayList<ThrowableListener>();
