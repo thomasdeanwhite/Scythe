@@ -1,11 +1,12 @@
 target
 target/*
-../
 .settings
 .classpath
+.project
 **/*.idea
 target/*
 **.iml
 **/*.jar
 **/*.class
 .idea/*
+.idea
