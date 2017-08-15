@@ -796,9 +796,6 @@ public class ClassAnalyzer {
         return -1;
     }
 
-
-    private static ArrayList<LineHit> lastLinesCovered = new ArrayList<>();
-
     public static ArrayList<LineHit> getLinesCovered() {
         collectHitCounters(false);
 
@@ -818,28 +815,6 @@ public class ClassAnalyzer {
                 }
             }
         }
-
-        for (LineHit lh : lastLinesCovered) {
-            LineHit l2 = null;
-
-            for (LineHit lh2 : coveredLines) {
-                if (lh2.equals(lh)) {
-                    l2 = lh2;
-                    break;
-                }
-            }
-            if (l2 != null && l2.getLine().getHits() < lh.getLine().getHits()) {
-                l2 = null;
-            }
-
-            if (l2 == null) {
-                out.println(lh.getLine().getClassName() + ":" + lh.getLine().getLineNumber() + " has decreased in coverage!");
-                System.exit(-1);
-            }
-
-        }
-
-        lastLinesCovered = new ArrayList<>(coveredLines);
 
         return coveredLines;
 
