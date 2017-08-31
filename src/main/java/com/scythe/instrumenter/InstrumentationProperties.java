@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class InstrumentationProperties implements PropertySource {
 
-    public static final String NAME = "Sytche";
+    public static final String NAME = "Scythe";
 
     protected InstrumentationProperties() {
         reflectMap();
@@ -45,10 +45,13 @@ public class InstrumentationProperties implements PropertySource {
         STATIC, ARRAY, NONE
     }
 
+    @Parameter(key = "source_dir", description = "Source code directory",
+            category = "Output")
+    public static String SOURCE_DIR = "src";
+
     @Parameter(key = "output", description = "Select the file name for the serialised results. This is the beginning of a file unless %s is specified. To specify a " +
             "different extension than JSON, use '[filename.]%s.extension",
-            category =
-            "Output")
+            category = "Output")
     public static String OUTPUT = "Scythe.%s.JSON";
 
     @Parameter(key = "log_filename", description = "Select the file name for the log file. Files are divided into folders for coverage etc", category = "Logging")

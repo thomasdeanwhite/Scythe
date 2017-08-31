@@ -1,13 +1,17 @@
 package com.scythe;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.scythe.instrumenter.FileHandler;
 import com.scythe.instrumenter.InstrumentationProperties;
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Type;
+import java.security.Permission;
 import java.util.HashMap;
 import java.util.Map;
 import java.io.File;
@@ -26,6 +30,11 @@ public class Scythe {
     private static class LogOnExitSecurityManager extends SecurityManager {
 
         @Override
+        public void checkPermission(Permission perm) {
+
+        }
+
+        @Override
         public void checkExit(int status) {
             Map<Integer, Map<Integer, LineHit>> lines = ClassAnalyzer
                     .getRawLines();
@@ -41,7 +50,9 @@ public class Scythe {
             int backupNumber = 0;
 
             if (!outputLines.exists()){
-                if (!outputLines.getParentFile().exists()){
+                if (outputLines.getParentFile() != null && !outputLines
+                        .getParentFile()
+                        .exists()){
                     outputLines.getParentFile().mkdirs();
                 }
             } else {
@@ -105,25 +116,99 @@ public class Scythe {
      * @param instr Instrumentation instance to attach a ClassFileTransformer
      */
     public static void premain(String arg, Instrumentation instr) {
-        InstrumentationProperties.instance().setOptions(arg.split(" "));
-
+        if (arg != null && arg.length() > 0) {
+            InstrumentationProperties.instance().setOptions(arg.split(" "));
+        }
         addExitLogger();
 
     }
 
     public static void main(String... args){
-        ClassAnalyzer.out.println(NAME + " Instrumentation\n" +
-                "Options:");
+        InstrumentationProperties.instance().setOptions(args);
+        ClassAnalyzer.out.println(NAME);
+        for (char c : NAME.substring(1).toCharArray()){
+            ClassAnalyzer.out.println(c);
+        }
 
         if (args.length > 0 && args[0].toLowerCase().contains("helpmd")){
             InstrumentationProperties.instance().printOptionsMd();
-        } else {
+        } else if((args.length > 0 && args[0].toLowerCase().contains("helpmd")
+                ) || args.length == 0) {
             InstrumentationProperties.instance().printOptions();
         }
 
-        ClassAnalyzer.out.println(NAME + " attaches to processed as a Java " +
-                "Agent. Please use javaagent:" + NAME + ".jar to run as a " +
-                "java Agent");
+        if (!InstrumentationProperties.OUTPUT.contains("%s")){
+            InstrumentationProperties.OUTPUT = InstrumentationProperties
+                    .OUTPUT + ".%s.JSON";
+        }
+
+        File outputLines = new File(String.format(InstrumentationProperties
+                .OUTPUT, "lines"));
+
+        File outputClasses = new File(String.format(InstrumentationProperties
+                .OUTPUT, "classes"));
+
+        if (!outputLines.exists()){
+            ClassAnalyzer.out.println("File " + outputLines.getAbsolutePath()
+                    + " does not exist!");
+        }
+        if (!outputClasses.exists()){
+            ClassAnalyzer.out.println("File " + outputClasses.getAbsolutePath
+                    () + " does not exist!");
+        }
+
+        ClassAnalyzer.out.println("Loaded lines covered and class files");
+
+        try {
+            Type typeLines = new TypeToken<Map<Integer, Map<Integer, LineHit>>>(){}
+                    .getType();
+
+            Map<Integer, Map<Integer, LineHit>> lines = gson.fromJson(FileHandler
+                    .readFile(outputLines), typeLines);
+
+            Type typeClasses = new TypeToken<Map<String, Integer>>(){}
+                    .getType();
+
+            Map<String, Integer> classes = gson.fromJson(FileHandler.readFile
+                    (outputClasses), typeClasses);
+
+
+            for (String s : classes.keySet()){
+                File sourceFile = new File(InstrumentationProperties
+                        .SOURCE_DIR + "/" + s.replace(".", "/"));
+
+                String[] sourceLines = FileHandler.readFile(sourceFile).split
+                        ("\n");
+
+                Map<Integer, LineHit> classLines = lines.get(classes.get(s));
+
+                for (int i = 0; i < sourceLines.length; i++){
+                    int lineNumber = i+1;
+
+                    String sourceLine = sourceLines[i];
+
+                    if (classLines.containsKey(lineNumber)){
+                        LineHit lh = classLines.get(lineNumber);
+
+                        if (lh.getLine().getHits() < 0){
+                            ClassAnalyzer.out.println("(hit) " + sourceLine);
+                        } else {
+                            ClassAnalyzer.out.println("(miss) " + sourceLine);
+                        }
+                    } else {
+                        //assumed covered
+                        ClassAnalyzer.out.println("(assumed) " + sourceLine);
+                    }
+                }
+
+            }
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
     }
 
 }

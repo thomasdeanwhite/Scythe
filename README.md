@@ -9,9 +9,12 @@ We use Shade to build:
 - Scythe-*-shaded.jar in target folder
 
 # Running
+## Java Agent
 Scythe runs as a Java Agent:
 - Scythe can run using java -javaagent:Scythe-jar-name.jar="[opts]" myprogram.jar
 - Options can be seen below or by directly running the Scythe jar.
+## Ant Script
+Work in Progress
 
 # Runtime Options
 | Key | Description |
