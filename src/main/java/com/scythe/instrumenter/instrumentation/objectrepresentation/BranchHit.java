@@ -46,6 +46,6 @@ public class BranchHit {
 	}
 
 	public boolean covered (){
-		return distance == 0;
+		return branch.getTrueHits() > 0;
 	}
 }

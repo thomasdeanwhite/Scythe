@@ -420,7 +420,7 @@ public class ClassAnalyzer {
         while (iter.hasNext()) {
             Integer classId = iter.next();
             for (BranchHit b : branches.get(classId).values()) {
-                if (b.getBranch().getTrueHits() > 0 || b.getBranch().getFalseHits() > 0) {
+                if (b.getBranch().getTrueHits() > 0) {
                     branchesHit.add(b);
                 }
             }
@@ -545,13 +545,9 @@ public class ClassAnalyzer {
             if (bh.getBranch().getTrueHits() > 0) {
                 exec++;
             }
-
-            if (bh.getBranch().getFalseHits() > 0) {
-                exec++;
-            }
         }
 
-        int allBranches = getAllBranches().size() * 2;
+        int allBranches = getAllBranches().size();
         double bCoverage = exec / (float) allBranches;
 
         // *2 for true/false hits

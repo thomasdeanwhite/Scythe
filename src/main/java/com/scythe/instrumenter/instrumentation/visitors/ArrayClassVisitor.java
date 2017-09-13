@@ -4,6 +4,7 @@ import com.scythe.instrumenter.InstrumentationProperties;
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
 import com.scythe.instrumenter.instrumentation.modifiers.ArrayBranchVisitor;
 import com.scythe.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
 import org.objectweb.asm.ClassVisitor;
@@ -136,7 +137,23 @@ public class ArrayClassVisitor extends ClassVisitor {
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
       }
       if (InstrumentationProperties.INSTRUMENT_BRANCHES) {
-        mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
+
+          int newCounter = newCounterId();
+          addBranchHit(new BranchHit(new Branch(className, name,
+                      0),
+                      newCounter, newDistanceId()));
+
+          mv.visitFieldInsn(Opcodes.GETSTATIC, className, ArrayClassVisitor.COUNTER_VARIABLE_NAME,
+                  ArrayClassVisitor.COUNTER_VARIABLE_DESC);
+          mv.visitLdcInsn(newCounter);
+
+          mv.visitInsn(Opcodes.DUP2);
+          mv.visitInsn(Opcodes.IALOAD);
+          mv.visitInsn(Opcodes.ICONST_1);
+          mv.visitInsn(Opcodes.IADD);
+          mv.visitInsn(Opcodes.IASTORE);
+
+          mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
       }
       if (InstrumentationProperties.INSTRUMENT_LINES) {
         mv = new ArrayLineVisitor(this, mv, className, name);
