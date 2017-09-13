@@ -30,7 +30,7 @@ public class ArrayClassVisitor extends ClassVisitor {
   public static final String COUNTER_METHOD_NAME = "__getHitCounters";
   public static final String COUNTER_METHOD_DESC = "()[I";
 
-  public static final String DISTANCE_METHOD_NAME = "__getHitCounters";
+  public static final String DISTANCE_METHOD_NAME = "__getDistanceCounters";
   public static final String DISTANCE_METHOD_DESC = "()[F";
 
   public static final String RESET_COUNTER_METHOD_NAME = "__resetCounters";
@@ -154,6 +154,7 @@ public class ArrayClassVisitor extends ClassVisitor {
     // interface
     if (shouldInstrument) {
       addGetCounterMethod(cv);
+      addGetDistanceMethod(cv);
       addResetCounterMethod(cv);
       addInitMethod(cv);
       ClassAnalyzer.classAnalyzed(classId, branchHitCounterIds, lineHitCounterIds);

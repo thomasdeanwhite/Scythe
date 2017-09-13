@@ -3,6 +3,7 @@ package com.scythe.instrumenter.instrumentation.visitors;
 import com.scythe.instrumenter.InstrumentationProperties;
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Branch;
+import com.scythe.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Line;
 import org.junit.Before;
 import org.junit.Test;
@@ -165,6 +166,57 @@ public class TestBranchArrayVisitor {
             }
         }
         assertEquals(2, trueHits);
+    }
+
+
+    @Test
+    public void branchCoveredDistance()
+            throws NoSuchMethodException, IllegalAccessException,
+                   InstantiationException, InvocationTargetException {
+
+        Object o = ic.newInstance();
+
+        Method m = ic.getDeclaredMethod("abs", new Class[]{int.class});
+
+        m.setAccessible(true);
+        Object r = m.invoke(o, 5);
+        //r = m.invoke(o, -1);
+
+        ClassAnalyzer.collectHitCounters(false);
+
+        List<BranchHit> covered = ClassAnalyzer.getBrancheDistances(
+                ExampleClass.class.getName());
+
+        for (BranchHit b : covered){
+            if (b.getBranch().getTrueHits() == 0){
+                assertEquals(5, b.getDistance(), 0.0000001);
+            }
+        }
+    }
+
+    @Test
+    public void branchCoveredDistanceFalse()
+            throws NoSuchMethodException, IllegalAccessException,
+                   InstantiationException, InvocationTargetException {
+
+        Object o = ic.newInstance();
+
+        Method m = ic.getDeclaredMethod("abs", new Class[]{int.class});
+
+        m.setAccessible(true);
+        Object r = m.invoke(o, -10);
+        //r = m.invoke(o, -1);
+
+        ClassAnalyzer.collectHitCounters(false);
+
+        List<BranchHit> covered = ClassAnalyzer.getBrancheDistances(
+                ExampleClass.class.getName());
+
+        for (BranchHit b : covered){
+            if (b.getBranch().getTrueHits() == 0){
+                assertEquals(10, b.getDistance(), 0.0000001);
+            }
+        }
     }
 
 

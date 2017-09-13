@@ -669,6 +669,19 @@ public class ClassAnalyzer {
         return null;
     }
 
+    private static BranchHit findBranchDistanceWithCounterId(int classId, int
+            i) {
+        if (!branches.containsKey(classId)) {
+            branches.put(classId, new HashMap<>());
+        }
+        for (BranchHit bh : branches.get(classId).values()) {
+            if (bh.getDistanceId() == i) {
+                return bh;
+            }
+        }
+        return null;
+    }
+
     public static void classChanged(String changedClass) {
 
         changedClass = ClassNameUtils.standardise(changedClass);
@@ -767,6 +780,37 @@ public class ClassAnalyzer {
                                 if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
                                     branch.getBranch().addCoveringTest(activeTestCase);
                                 }
+                            }
+
+                        }
+                    }
+
+                    Method getDistance = cl.getDeclaredMethod(ArrayClassVisitor.DISTANCE_METHOD_NAME, new Class<?>[]{});
+                    getDistance.setAccessible(true);
+                    float[] distances = (float[]) getDistance.invoke(null, new
+                            Object[]{});
+                    if (distances != null) {
+                        for (int i = 0; i < distances.length; i++) {
+
+                            Object o = classNames.get(cl.getName());
+                            if (o == null) {
+                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
+                            }
+
+                            if (o == null) {
+                                registerClass(ClassNameUtils.standardise(cl.getName()));
+                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
+                            }
+
+                            if (o == null) {
+                                continue;
+                            }
+
+                            int classId = (Integer) o;
+                            BranchHit branch = findBranchDistanceWithCounterId
+                                    (classId, i);
+                            if (branch != null) {
+                                branch.setDistance(Math.abs(distances[i]));
                             }
 
                         }
@@ -910,6 +954,29 @@ public class ClassAnalyzer {
         List<Branch> coverableBranches = new ArrayList<Branch>();
         for (BranchHit bh : branches.get(classId).values()) {
             coverableBranches.add(bh.getBranch());
+        }
+        return coverableBranches;
+    }
+
+    public static List<BranchHit> getBrancheDistances(String className) {
+        if (className == null) {
+            return new ArrayList<BranchHit>();
+        }
+
+        className = ClassNameUtils.standardise(className);
+
+        if (!classNames.containsKey(className)) {
+            return new ArrayList<BranchHit>();
+        }
+
+        int classId = classNames.get(className);
+
+        if (!branches.containsKey(classId)) {
+            return Collections.<BranchHit>emptyList();
+        }
+        List<BranchHit> coverableBranches = new ArrayList<BranchHit>();
+        for (BranchHit bh : branches.get(classId).values()) {
+            coverableBranches.add(bh);
         }
         return coverableBranches;
     }
