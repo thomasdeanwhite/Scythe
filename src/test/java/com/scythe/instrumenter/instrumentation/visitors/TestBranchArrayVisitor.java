@@ -1,5 +1,6 @@
 package com.scythe.instrumenter.instrumentation.visitors;
 
+import com.scythe.instrumenter.InstrumentationProperties;
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Line;
@@ -21,13 +22,21 @@ import static org.junit.Assert.assertTrue;
  */
 public class TestBranchArrayVisitor {
 
+    private static final boolean WRITE_CLASS = true;
+
     Class ic = null;
 
     @Before
     public void setup(){
+
         try {
             ClassAnalyzer.softReset();
             ic = ClassTester.getInstrumentedTestClass();
+
+            if (WRITE_CLASS){
+                InstrumentationProperties.WRITE_CLASS = true;
+                InstrumentationProperties.BYTECODE_DIR = "";
+            }
         } catch (ClassNotFoundException e) {
 
         }
@@ -120,17 +129,14 @@ public class TestBranchArrayVisitor {
                 (ExampleClass.class.getName());
 
         int trueHits = 0;
-        int falseHits = 0;
 
         for (Branch b : covered){
             if (b.getLineNumber() == 12){
                 trueHits += b.getTrueHits();
-                falseHits += b.getFalseHits();
             }
         }
 
-        assertEquals(2, falseHits);
-        assertEquals(0, trueHits);
+        assertEquals(2, trueHits);
     }
 
     @Test
@@ -152,17 +158,13 @@ public class TestBranchArrayVisitor {
                 (ExampleClass.class.getName());
 
         int trueHits = 0;
-        int falseHits = 0;
 
         for (Branch b : covered){
             if (b.getLineNumber() == 12){
                 trueHits += b.getTrueHits();
-                falseHits += b.getFalseHits();
             }
         }
-
-        assertEquals(1, falseHits);
-        assertEquals(1, trueHits);
+        assertEquals(2, trueHits);
     }
 
 
@@ -308,18 +310,15 @@ public class TestBranchArrayVisitor {
         List<Branch> covered = ClassAnalyzer.getCoverableBranches
                 (ExampleClass.class.getName());
 
-        int trueHits = 0;
-        int falseHits = 0;
+        int hits = 0;
 
         for (Branch b : covered){
             if (b.getLineNumber() == 12){
-                trueHits += b.getTrueHits();
-                falseHits += b.getFalseHits();
+                hits += b.getTrueHits();
             }
         }
 
-        assertEquals(1, falseHits);
-        assertEquals(0, trueHits);
+        assertEquals(1, hits);
     }
 
 

@@ -662,7 +662,7 @@ public class ClassAnalyzer {
             branches.put(classId, new HashMap<>());
         }
         for (BranchHit bh : branches.get(classId).values()) {
-            if (bh.getFalseCounterId() == i || bh.getTrueCounterId() == i) {
+            if (bh.getCounterId() == i) {
                 return bh;
             }
         }
@@ -756,15 +756,13 @@ public class ClassAnalyzer {
                             }
                             BranchHit branch = findBranchWithCounterId(classId, i);
                             if (branch != null) {
-                                if (branch.getTrueCounterId() == i) {
+                                if (branch.getCounterId() == i) {
                                     branch.getBranch().trueHit(counters[i]);
                                     // if (superClassId >= 0) {
                                     // for (BranchHit bh : branches.get(superClassId)){
                                     // if (bh)
                                     // }
                                     // }
-                                } else {
-                                    branch.getBranch().falseHit(counters[i]);
                                 }
                                 if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
                                     branch.getBranch().addCoveringTest(activeTestCase);

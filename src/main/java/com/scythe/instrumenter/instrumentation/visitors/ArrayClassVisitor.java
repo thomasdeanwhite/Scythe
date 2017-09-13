@@ -21,10 +21,18 @@ public class ArrayClassVisitor extends ClassVisitor {
   private String className;
   public static final String COUNTER_VARIABLE_NAME = "__hitCounters";
   public static final String COUNTER_VARIABLE_DESC = "[I";
+
+  public static final String DISTANCE_VARIABLE_NAME = "__distanceCounters";
+  public static final String DISTANCE_VARIABLE_DESC = "[F";
+
   public static final String CHANGED_VARIABLE_NAME = "__changed";
   public static final String CHANGED_VARIABLE_DESC = "Z";
   public static final String COUNTER_METHOD_NAME = "__getHitCounters";
   public static final String COUNTER_METHOD_DESC = "()[I";
+
+  public static final String DISTANCE_METHOD_NAME = "__getHitCounters";
+  public static final String DISTANCE_METHOD_DESC = "()[F";
+
   public static final String RESET_COUNTER_METHOD_NAME = "__resetCounters";
   public static final String RESET_COUNTER_METHOD_DESC = "()V";
   public static final String INIT_METHOD_NAME = "__instrumentationInit";
@@ -32,6 +40,7 @@ public class ArrayClassVisitor extends ClassVisitor {
   public static final String CHANGED_METHOD_NAME = "classChanged";
   public static final String CHANGED_METHOD_DESC = "(Ljava/lang/String;)V";
   private AtomicInteger counter = new AtomicInteger(0);
+  private AtomicInteger distanceCounter = new AtomicInteger(0);
   private List<BranchHit> branchHitCounterIds = new ArrayList<BranchHit>();
   private List<LineHit> lineHitCounterIds = new ArrayList<LineHit>();
   // isInterface represents whether or not the class we are visiting is an interface
@@ -44,6 +53,10 @@ public class ArrayClassVisitor extends ClassVisitor {
     return counter.getAndIncrement();
   }
 
+  public int newDistanceId() {
+    return distanceCounter.getAndIncrement();
+  }
+
   public void addBranchHit(BranchHit branch) {
     branchHitCounterIds.add(branch);
   }
@@ -52,7 +65,7 @@ public class ArrayClassVisitor extends ClassVisitor {
     for (LineHit lh : lineHitCounterIds){
       if (lh.getLine().getLineNumber() == line.getLine().getLineNumber()){
 
-        counter.getAndDecrement();
+        //counter.getAndDecrement();
         return lh.getCounterId();
       }
     }
@@ -82,7 +95,12 @@ public class ArrayClassVisitor extends ClassVisitor {
     if (shouldInstrument) {
       // add hit counter array
       FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
-          COUNTER_VARIABLE_DESC, null, null);
+              COUNTER_VARIABLE_DESC, null, null);
+      fv.visitEnd();
+
+
+      FieldVisitor fvd = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, DISTANCE_VARIABLE_NAME,
+              DISTANCE_VARIABLE_DESC, null, null);
       fv.visitEnd();
 
       this.classId = ClassAnalyzer.registerClass(this.className);
@@ -125,6 +143,8 @@ public class ArrayClassVisitor extends ClassVisitor {
       }
     }
 
+
+
     return mv;
   }
 
@@ -143,9 +163,20 @@ public class ArrayClassVisitor extends ClassVisitor {
 
   private void addGetCounterMethod(ClassVisitor cv) {
     MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_METHOD_NAME, COUNTER_METHOD_DESC,
-        null, null);
+            null, null);
     mv.visitCode();
     mv.visitFieldInsn(Opcodes.GETSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
+    mv.visitInsn(Opcodes.ARETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+  }
+
+  private void addGetDistanceMethod(ClassVisitor cv) {
+    MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, DISTANCE_METHOD_NAME, DISTANCE_METHOD_DESC,
+            null, null);
+    mv.visitCode();
+    mv.visitFieldInsn(Opcodes.GETSTATIC, className, DISTANCE_VARIABLE_NAME,
+            DISTANCE_VARIABLE_DESC);
     mv.visitInsn(Opcodes.ARETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
@@ -175,11 +206,25 @@ public class ArrayClassVisitor extends ClassVisitor {
     Label l = new Label();
     mv.visitFieldInsn(Opcodes.GETSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
     mv.visitJumpInsn(Opcodes.IFNONNULL, l);
+
     int count = counter.get();
     mv.visitLdcInsn(count);
     mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
     mv.visitFieldInsn(Opcodes.PUTSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
     mv.visitLabel(l);
+
+    Label ld = new Label();
+
+    mv.visitFieldInsn(Opcodes.GETSTATIC, className, DISTANCE_VARIABLE_NAME,
+            DISTANCE_VARIABLE_DESC);
+    mv.visitJumpInsn(Opcodes.IFNONNULL, ld);
+
+    int distanceCount = distanceCounter.get();
+    mv.visitLdcInsn(distanceCount);
+    mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_FLOAT);
+    mv.visitFieldInsn(Opcodes.PUTSTATIC, className, DISTANCE_VARIABLE_NAME,
+            DISTANCE_VARIABLE_DESC);
+    mv.visitLabel(ld);
     mv.visitInsn(Opcodes.RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
