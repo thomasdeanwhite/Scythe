@@ -731,90 +731,9 @@ public class ClassAnalyzer {
             }
 
             for (int c = 0; c < classes.size(); c++) {
-                Class<?> cl = classes.get(c);
                 try {
+                    collectHitCountersForClass(c, reset);
 
-                    Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[]{});
-                    getCounters.setAccessible(true);
-                    int[] counters = (int[]) getCounters.invoke(null, new Object[]{});
-                    if (counters != null) {
-                        for (int i = 0; i < counters.length; i++) {
-
-                            Object o = classNames.get(cl.getName());
-                            if (o == null) {
-                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
-                            }
-
-                            if (o == null) {
-                                registerClass(ClassNameUtils.standardise(cl.getName()));
-                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
-                            }
-
-                            if (o == null) {
-                                continue;
-                            }
-
-                            int classId = (Integer) o;
-                            Line line = findLineWithCounterId(classId, i);
-                            if (line != null) {
-                                line.hit(counters[i]);
-
-                                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
-                                    line.addCoveringTest(activeTestCase);
-                                }
-                            }
-                            BranchHit branch = findBranchWithCounterId(classId, i);
-                            if (branch != null) {
-                                if (branch.getCounterId() == i) {
-                                    branch.getBranch().trueHit(counters[i]);
-                                    // if (superClassId >= 0) {
-                                    // for (BranchHit bh : branches.get(superClassId)){
-                                    // if (bh)
-                                    // }
-                                    // }
-                                }
-                                if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
-                                    branch.getBranch().addCoveringTest(activeTestCase);
-                                }
-                            }
-
-                        }
-                    }
-
-                    Method getDistance = cl.getDeclaredMethod(ArrayClassVisitor.DISTANCE_METHOD_NAME, new Class<?>[]{});
-                    getDistance.setAccessible(true);
-                    float[] distances = (float[]) getDistance.invoke(null, new
-                            Object[]{});
-                    if (distances != null) {
-                        for (int i = 0; i < distances.length; i++) {
-
-                            Object o = classNames.get(cl.getName());
-                            if (o == null) {
-                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
-                            }
-
-                            if (o == null) {
-                                registerClass(ClassNameUtils.standardise(cl.getName()));
-                                o = classNames.get(ClassNameUtils.standardise(cl.getName()));
-                            }
-
-                            if (o == null) {
-                                continue;
-                            }
-
-                            int classId = (Integer) o;
-                            BranchHit branch = findBranchDistanceWithCounterId
-                                    (classId, i);
-                            if (branch != null) {
-                                branch.setDistance(Math.abs(distances[i]));
-                            }
-
-                        }
-                    }
-                    if (reset) {
-                        resetHitCounters(cl);
-                        resetCoverage();
-                    }
                 } catch (Exception e) {
                     e.printStackTrace(out);
                 } catch (Error e) {
@@ -825,6 +744,94 @@ public class ClassAnalyzer {
                 TaskTimer.taskEnd(timerTask);
             }
             collectingHitCounters = false;
+        }
+    }
+
+    public static void collectHitCountersForClass(int clId, boolean reset)
+            throws NoSuchMethodException, InvocationTargetException,
+                   IllegalAccessException {
+        List<Class<?>> classes = new ArrayList<Class<?>>(changedClasses);
+        Class<?> cl = classes.get(clId);
+        Method getCounters = cl.getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[]{});
+        getCounters.setAccessible(true);
+        int[] counters = (int[]) getCounters.invoke(null, new Object[]{});
+        if (counters != null) {
+            for (int i = 0; i < counters.length; i++) {
+
+                Object o = classNames.get(cl.getName());
+                if (o == null) {
+                    o = classNames.get(ClassNameUtils.standardise(cl.getName()));
+                }
+
+                if (o == null) {
+                    registerClass(ClassNameUtils.standardise(cl.getName()));
+                    o = classNames.get(ClassNameUtils.standardise(cl.getName()));
+                }
+
+                if (o == null) {
+                    continue;
+                }
+
+                int classId = (Integer) o;
+                Line line = findLineWithCounterId(classId, i);
+                if (line != null) {
+                    line.hit(counters[i]);
+
+                    if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
+                        line.addCoveringTest(activeTestCase);
+                    }
+                }
+                BranchHit branch = findBranchWithCounterId(classId, i);
+                if (branch != null) {
+                    if (branch.getCounterId() == i) {
+                        branch.getBranch().trueHit(counters[i]);
+                        // if (superClassId >= 0) {
+                        // for (BranchHit bh : branches.get(superClassId)){
+                        // if (bh)
+                        // }
+                        // }
+                    }
+                    if (InstrumentationProperties.TRACK_ACTIVE_TESTCASE) {
+                        branch.getBranch().addCoveringTest(activeTestCase);
+                    }
+                }
+
+            }
+        }
+
+        Method getDistance = cl.getDeclaredMethod(ArrayClassVisitor.DISTANCE_METHOD_NAME, new Class<?>[]{});
+        getDistance.setAccessible(true);
+        float[] distances = (float[]) getDistance.invoke(null, new
+                Object[]{});
+        if (distances != null) {
+            for (int i = 0; i < distances.length; i++) {
+
+                Object o = classNames.get(cl.getName());
+                if (o == null) {
+                    o = classNames.get(ClassNameUtils.standardise(cl.getName()));
+                }
+
+                if (o == null) {
+                    registerClass(ClassNameUtils.standardise(cl.getName()));
+                    o = classNames.get(ClassNameUtils.standardise(cl.getName()));
+                }
+
+                if (o == null) {
+                    continue;
+                }
+
+                int classId = (Integer) o;
+                BranchHit branch = findBranchDistanceWithCounterId
+                        (classId, i);
+                if (branch != null) {
+                    branch.setDistance(Math.abs(distances[i]));
+                }
+
+            }
+        }
+        if (reset) {
+            resetHitCounters(cl);
+            resetCoverage();
         }
     }
 

@@ -1,10 +1,15 @@
 package com.scythe.instrumenter.instrumentation.objectrepresentation;
 
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+
+import java.lang.reflect.InvocationTargetException;
+
 public class BranchHit {
 	private Branch branch;
 	private int counterId;
 	private float distance;
 	private boolean seen = false;
+	private int classId = 0;
 
 	public boolean isSeen() {
 		return seen;
@@ -23,6 +28,8 @@ public class BranchHit {
 		this.counterId = counterId;
 		this.distanceId = distanceId;
 		this.distance = 1f;
+
+		classId = ClassAnalyzer.getClassId(branch.getClassName());
 	}
 
 	public void setDistance(float distance){
@@ -47,5 +54,17 @@ public class BranchHit {
 
 	public boolean covered (){
 		return branch.getTrueHits() > 0;
+	}
+
+	public void collect(){
+		try {
+			ClassAnalyzer.collectHitCountersForClass(classId, false);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
 	}
 }
