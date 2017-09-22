@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  */
 public class TestDependencyTreeVisitor {
 
-    Class ic = null;
+    /*Class ic = null;
 
     @Before
     public void setup(){
@@ -79,7 +79,7 @@ public class TestDependencyTreeVisitor {
                 icNodeAbs.getParent().contains(icNodeParentAbs));
     }
 
-
+*/
 
 
 }

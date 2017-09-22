@@ -1,6 +1,5 @@
 package com.scythe.instrumenter.instrumentation.modifiers;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;

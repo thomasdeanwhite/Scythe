@@ -57,8 +57,8 @@
                   <goal>prepare-agent</goal>
                 </goals>
                 <configuration>
-                  <destFile>C:\work\instrumentation/target/coverage-reports/jacoco-unit.exec</destFile>
-                  <dataFile>C:\work\instrumentation/target/coverage-reports/jacoco-unit.exec</dataFile>
+                  <destFile>/home/thomas/work/instrumentation/target/coverage-reports/jacoco-unit.exec</destFile>
+                  <dataFile>/home/thomas/work/instrumentation/target/coverage-reports/jacoco-unit.exec</dataFile>
                 </configuration>
               </execution>
             </executions>
