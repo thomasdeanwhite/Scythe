@@ -961,7 +961,7 @@ public class ClassAnalyzer {
         return coverableBranches;
     }
 
-    public static List<BranchHit> getBrancheDistances(String className) {
+    public static List<BranchHit> getBranchDistances(String className) {
         if (className == null) {
             return new ArrayList<BranchHit>();
         }

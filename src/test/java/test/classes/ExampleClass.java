@@ -15,4 +15,12 @@ public class ExampleClass {
         return -x;
     }
 
+    public int abs(int x, int y) {
+        if (x >  y) {
+            return x;
+        }
+        return -x;
+    }
+
+
 }

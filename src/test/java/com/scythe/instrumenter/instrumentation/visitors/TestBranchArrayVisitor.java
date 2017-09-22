@@ -29,9 +29,9 @@ public class TestBranchArrayVisitor {
 
     @Before
     public void setup(){
-
+        ClassAnalyzer.softReset();
         try {
-            ClassAnalyzer.softReset();
+
             ic = ClassTester.getInstrumentedTestClass();
 
             if (WRITE_CLASS){
@@ -39,7 +39,7 @@ public class TestBranchArrayVisitor {
                 InstrumentationProperties.BYTECODE_DIR = "";
             }
         } catch (ClassNotFoundException e) {
-
+            ClassAnalyzer.out.println("Test Class 1 not found!");
         }
     }
 
@@ -172,7 +172,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void branchCoveredDistance()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -184,14 +184,41 @@ public class TestBranchArrayVisitor {
 
         ClassAnalyzer.collectHitCounters(false);
 
-        List<BranchHit> covered = ClassAnalyzer.getBrancheDistances(
+        List<BranchHit> covered = ClassAnalyzer.getBranchDistances(
                 ExampleClass.class.getName());
 
         assertTrue(covered.size() > 0);
 
         for (BranchHit b : covered){
-            if (b.getBranch().getTrueHits() == 0){
+            if (b.getBranch().getTrueHits() == 0  && b.getBranch().getLineNumber() == 12){
                 assertEquals(5, b.getDistance(), 0.0000001);
+            }
+        }
+    }
+
+    @Test
+    public void branchCoveredDistanceIcmp()
+            throws NoSuchMethodException, IllegalAccessException,
+            InstantiationException, InvocationTargetException {
+
+        Object o = ic.newInstance();
+
+        Method m = ic.getDeclaredMethod("abs", new Class[]{int.class, int.class});
+
+        m.setAccessible(true);
+        Object r = m.invoke(o, 5, 1);
+        //r = m.invoke(o, -1);
+
+        ClassAnalyzer.collectHitCounters(false);
+
+        List<BranchHit> covered = ClassAnalyzer.getBranchDistances(
+                ExampleClass.class.getName());
+
+        assertTrue(covered.size() > 0);
+
+        for (BranchHit b : covered){
+            if (b.getBranch().getTrueHits() == 0 && b.getBranch().getLineNumber() == 19){
+                assertEquals(4, b.getDistance(), 0.0000001);
             }
         }
     }
@@ -211,13 +238,13 @@ public class TestBranchArrayVisitor {
 
         ClassAnalyzer.collectHitCounters(false);
 
-        List<BranchHit> covered = ClassAnalyzer.getBrancheDistances(
+        List<BranchHit> covered = ClassAnalyzer.getBranchDistances(
                 ExampleClass.class.getName());
 
         assertTrue(covered.size() > 0);
 
         for (BranchHit b : covered){
-            if (b.getBranch().getTrueHits() == 0){
+            if (b.getBranch().getTrueHits() == 0 && b.getBranch().getLineNumber() == 12){
                 assertEquals(10, b.getDistance(), 0.0000001);
             }
         }
@@ -238,14 +265,14 @@ public class TestBranchArrayVisitor {
         Object r = m.invoke(o, -10);
         //r = m.invoke(o, -1);
 
-        List<BranchHit> covered = ClassAnalyzer.getBrancheDistances(
+        List<BranchHit> covered = ClassAnalyzer.getBranchDistances(
                 ExampleClass.class.getName());
 
         assertTrue(covered.size() > 0);
 
         for (BranchHit b : covered){
             b.collect();
-            if (b.getBranch().getTrueHits() == 0){
+            if (b.getBranch().getTrueHits() == 0 && b.getBranch().getLineNumber() == 12){
                 assertEquals(10, b.getDistance(), 0.0000001);
             }
         }

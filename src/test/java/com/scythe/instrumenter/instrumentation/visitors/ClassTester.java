@@ -25,6 +25,7 @@ public class ClassTester {
     }
 
     private static Class instrumentedClass = null;
+    private static Class instrumentedClass2 = null;
 
     public static Class getInstrumentedTestClass()
             throws ClassNotFoundException {

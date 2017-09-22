@@ -95,11 +95,11 @@ public class ArrayBranchVisitor extends MethodVisitor {
 
 	private NumberBranchDistanceCalculator ibdcgt = new
 			NumberBranchDistanceCalculator(Opcodes.ISUB,
-			1, Opcodes.I2F, Opcodes.IADD);
+			1, Opcodes.I2F, Opcodes.FADD);
 
 	private NumberBranchDistanceCalculator ibdclt = new
 			NumberBranchDistanceCalculator(Opcodes.ISUB,
-			1, Opcodes.I2F, Opcodes.ISUB);
+			1, Opcodes.I2F, Opcodes.FSUB);
 
 	private NumberBranchDistanceCalculator fbdcglte = new
 			NumberBranchDistanceCalculator(Opcodes.FSUB,
@@ -120,11 +120,11 @@ public class ArrayBranchVisitor extends MethodVisitor {
 
 	private NumberBranchDistanceCalculator dbdcgt = new
 			NumberBranchDistanceCalculator(Opcodes.DSUB,
-			1, Opcodes.D2F, Opcodes.DADD);
+			1, Opcodes.D2F, Opcodes.FADD);
 
 	private NumberBranchDistanceCalculator dbdclt = new
 			NumberBranchDistanceCalculator(Opcodes.DSUB,
-			1, Opcodes.D2F, Opcodes.DSUB);
+			1, Opcodes.D2F, Opcodes.FSUB);
 
 	private NumberBranchDistanceCalculator lbdcglte = new
 			NumberBranchDistanceCalculator(Opcodes.LSUB,
@@ -132,11 +132,11 @@ public class ArrayBranchVisitor extends MethodVisitor {
 
 	private NumberBranchDistanceCalculator lbdcgt = new
 			NumberBranchDistanceCalculator(Opcodes.LSUB,
-			1, Opcodes.L2F, Opcodes.LADD);
+			1, Opcodes.L2F, Opcodes.FADD);
 
 	private NumberBranchDistanceCalculator lbdclt = new
 			NumberBranchDistanceCalculator(Opcodes.LSUB,
-			1, Opcodes.L2F, Opcodes.LSUB);
+			1, Opcodes.L2F, Opcodes.FSUB);
 
     private BranchDistanceCalculator bdc = null;
 
@@ -179,12 +179,12 @@ public class ArrayBranchVisitor extends MethodVisitor {
 			//case Opcodes.IFGT:
                 bdc = ibdcgt;
 				break;
-			case Opcodes.IF_ACMPEQ:
-			case Opcodes.IF_ACMPNE:
-			case Opcodes.IFNONNULL:
-			case Opcodes.IFNULL:
-				bdc = obdc;
-				break;
+//			case Opcodes.IF_ACMPEQ:
+//			case Opcodes.IF_ACMPNE:
+//			case Opcodes.IFNONNULL:
+//			case Opcodes.IFNULL:
+//				bdc = obdc;
+//				break;
             case Opcodes.IFGE:
             case Opcodes.IFLE:
             case Opcodes.IFGT:
@@ -212,6 +212,7 @@ public class ArrayBranchVisitor extends MethodVisitor {
                 break;
 			default:
 				super.visitJumpInsn(opcode, label);
+				return;
 		}
 
 
@@ -302,9 +303,6 @@ public class ArrayBranchVisitor extends MethodVisitor {
 		}
         mv.visitJumpInsn(opcode, l);
 
-        if (singleStackElement){
-			super.visitLdcInsn(0);
-		}
 
         visitFieldInsn(Opcodes.GETSTATIC, className, ArrayClassVisitor.COUNTER_VARIABLE_NAME,
                 ArrayClassVisitor.COUNTER_VARIABLE_DESC);
@@ -316,18 +314,23 @@ public class ArrayBranchVisitor extends MethodVisitor {
         visitInsn(Opcodes.IADD);
         visitInsn(Opcodes.IASTORE);
 
-        if (singleStackElement){
-        	visitLdcInsn(0);
-		}
-        executeBranchDistance(zbdc, trueBranch.getDistanceId());
-
-        if (calculateFalseHits) {
+		if (calculateFalseHits) {
 			if (singleStackElement){
 				visitLdcInsn(0);
 			}
+
 			mv.visitInsn(Opcodes.DUP2);
+
 			executeBranchDistance(bdc, falseBranch.getDistanceId());
 		}
+
+        if (singleStackElement && !calculateFalseHits){
+        	visitLdcInsn(0);
+		}
+
+
+        executeBranchDistance(zbdc, trueBranch.getDistanceId());
+
 
         mv.visitJumpInsn(Opcodes.GOTO, l2);
         visitLabel(l);
@@ -344,9 +347,10 @@ public class ArrayBranchVisitor extends MethodVisitor {
 				visitLdcInsn(0);
 			}
 			mv.visitInsn(Opcodes.DUP2);
+
 			executeBranchDistance(bdc, trueBranch.getDistanceId());
 		}
-		if (singleStackElement){
+		if (singleStackElement && !calculateFalseHits){
 			visitLdcInsn(0);
 		}
         executeBranchDistance(zbdc, falseBranch.getDistanceId());
