@@ -12,7 +12,7 @@ public class BranchHit {
 	private int classId = 0;
 
 	public boolean isSeen() {
-		return seen;
+		return distance != -1;
 	}
 
 	public int getDistanceId() {
@@ -27,7 +27,7 @@ public class BranchHit {
 		this.branch = branch;
 		this.counterId = counterId;
 		this.distanceId = distanceId;
-		this.distance = 1f;
+		this.distance = -1f;
 
 		classId = ClassAnalyzer.getClassId(branch.getClassName());
 	}
