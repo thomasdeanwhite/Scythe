@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/thomasdeanwhite/Scythe.svg?branch=dev)](https://travis-ci.org/thomasdeanwhite/Scythe)[![Coverage Status](https://coveralls.io/repos/github/thomasdeanwhite/Scythe/badge.svg?branch=dev)](https://coveralls.io/github/thomasdeanwhite/Scythe?branch=dev)
+
+
 # Scythe
 An instrumentation tool for Light-weight Code Coverage tracking.
 
