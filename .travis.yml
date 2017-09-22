@@ -2,12 +2,12 @@ language: java
 jdk:
   - oraclejdk8
 script:
-  - mvn test
+  - mvn clean test jacoco:report coveralls:report
 notifications:
   slack: simpleins:kQNRJhnUsV83K05WfeAGU4Kc
   email:
     recipients:
-      - dpaterson1@scythe.ac.uk
-      - tdwhite1@scythe.ac.uk
+      - dpaterson1@sheffield.ac.uk
+      - tdwhite1@sheffield.ac.uk
     on_success: change
     on_failure: change
