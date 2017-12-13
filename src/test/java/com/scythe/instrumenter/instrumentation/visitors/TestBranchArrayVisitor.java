@@ -28,13 +28,13 @@ public class TestBranchArrayVisitor {
     Class ic = null;
 
     @Before
-    public void setup(){
+    public void setup() {
         ClassAnalyzer.softReset();
         try {
 
             ic = ClassTester.getInstrumentedTestClass();
 
-            if (WRITE_CLASS){
+            if (WRITE_CLASS) {
                 InstrumentationProperties.WRITE_CLASS = true;
                 InstrumentationProperties.BYTECODE_DIR = "";
             }
@@ -51,7 +51,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void branchCoveredFalse()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -68,10 +68,11 @@ public class TestBranchArrayVisitor {
         int trueHits = 0;
         int falseHits = 0;
 
-        for (Branch b : covered){
-            if (b.getLineNumber() == 12){
-                trueHits += b.getTrueHits();
-                falseHits += b.getFalseHits();
+        for (Branch b : covered) {
+            if (b.getGoalId() == 3) {
+                trueHits += b.getHits();
+            } else if (b.getGoalId() == 4) {
+                falseHits += b.getHits();
             }
         }
 
@@ -82,7 +83,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void branchCoveredFalseTwice()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -100,10 +101,11 @@ public class TestBranchArrayVisitor {
         int trueHits = 0;
         int falseHits = 0;
 
-        for (Branch b : covered){
-            if (b.getLineNumber() == 12){
-                trueHits += b.getTrueHits();
-                falseHits += b.getFalseHits();
+        for (Branch b : covered) {
+            if (b.getGoalId() == 3) {
+                trueHits += b.getHits();
+            } else if (b.getGoalId() == 4){
+                falseHits += b.getHits();
             }
         }
 
@@ -114,7 +116,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void branchCoveredTrueTwice()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -131,9 +133,9 @@ public class TestBranchArrayVisitor {
 
         int trueHits = 0;
 
-        for (Branch b : covered){
-            if (b.getLineNumber() == 12){
-                trueHits += b.getTrueHits();
+        for (Branch b : covered) {
+            if (b.getGoalId() == 4) {
+                trueHits += b.getHits();
             }
         }
 
@@ -143,7 +145,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void branchCoveredBoth()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -160,9 +162,9 @@ public class TestBranchArrayVisitor {
 
         int trueHits = 0;
 
-        for (Branch b : covered){
-            if (b.getLineNumber() == 12){
-                trueHits += b.getTrueHits();
+        for (Branch b : covered) {
+            if (b.getGoalId() == 3 || b.getGoalId() == 4) {
+                trueHits += b.getHits();
             }
         }
         assertEquals(2, trueHits);
@@ -189,8 +191,8 @@ public class TestBranchArrayVisitor {
 
         assertTrue(covered.size() > 0);
 
-        for (BranchHit b : covered){
-            if (b.getBranch().getTrueHits() == 0  && b.getBranch().getLineNumber() == 12){
+        for (BranchHit b : covered) {
+            if (b.getBranch().getHits() == 0 && b.getBranch().getLineNumber() == 12) {
                 assertEquals(5, b.getDistance(), 0.0000001);
             }
         }
@@ -216,8 +218,8 @@ public class TestBranchArrayVisitor {
 
         assertTrue(covered.size() > 0);
 
-        for (BranchHit b : covered){
-            if (b.getBranch().getTrueHits() == 0 && b.getBranch().getLineNumber() == 19){
+        for (BranchHit b : covered) {
+            if (b.getBranch().getHits() == 0 && b.getBranch().getLineNumber() == 19) {
                 assertEquals(4, b.getDistance(), 0.0000001);
             }
         }
@@ -226,7 +228,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void branchCoveredDistanceFalse()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -243,8 +245,8 @@ public class TestBranchArrayVisitor {
 
         assertTrue(covered.size() > 0);
 
-        for (BranchHit b : covered){
-            if (b.getBranch().getTrueHits() == 0 && b.getBranch().getLineNumber() == 12){
+        for (BranchHit b : covered) {
+            if (b.getBranch().getHits() == 0 && b.getBranch().getLineNumber() == 12) {
                 assertEquals(10, b.getDistance(), 0.0000001);
             }
         }
@@ -253,7 +255,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void branchCoveredDistanceBranchCollectCall()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -270,9 +272,9 @@ public class TestBranchArrayVisitor {
 
         assertTrue(covered.size() > 0);
 
-        for (BranchHit b : covered){
+        for (BranchHit b : covered) {
             b.collect();
-            if (b.getBranch().getTrueHits() == 0 && b.getBranch().getLineNumber() == 12){
+            if (b.getBranch().getHits() == 0 && b.getBranch().getLineNumber() == 12) {
                 assertEquals(10, b.getDistance(), 0.0000001);
             }
         }
@@ -282,7 +284,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void linesCoveredTrueBranchHit()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -303,8 +305,8 @@ public class TestBranchArrayVisitor {
 
         int numLinesCovered = 0;
 
-        for (Line l : covered){
-            if (l.getHits() > 0){
+        for (Line l : covered) {
+            if (l.getHits() > 0) {
                 assertTrue("Line " + l.getLineNumber() + " should be covered",
                         coveredLines.contains(l.getLineNumber()));
                 numLinesCovered++;
@@ -324,7 +326,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void linesCoveredFalseBranchHit()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -345,8 +347,8 @@ public class TestBranchArrayVisitor {
 
         int numLinesCovered = 0;
 
-        for (Line l : covered){
-            if (l.getHits() > 0){
+        for (Line l : covered) {
+            if (l.getHits() > 0) {
                 assertTrue("Line " + l.getLineNumber() + " should be covered",
                         coveredLines.contains(l.getLineNumber()));
                 numLinesCovered++;
@@ -365,7 +367,7 @@ public class TestBranchArrayVisitor {
     @Test
     public void linesCoveredBothBrances()
             throws NoSuchMethodException, IllegalAccessException,
-                   InstantiationException, InvocationTargetException {
+            InstantiationException, InvocationTargetException {
 
         Object o = ic.newInstance();
 
@@ -387,8 +389,8 @@ public class TestBranchArrayVisitor {
 
         int numLinesCovered = 0;
 
-        for (Line l : covered){
-            if (l.getHits() > 0){
+        for (Line l : covered) {
+            if (l.getHits() > 0) {
                 assertTrue("Line " + l.getLineNumber() + " should be covered",
                         coveredLines.contains(l.getLineNumber()));
                 numLinesCovered++;
@@ -423,9 +425,9 @@ public class TestBranchArrayVisitor {
 
         int hits = 0;
 
-        for (Branch b : covered){
-            if (b.getLineNumber() == 12){
-                hits += b.getTrueHits();
+        for (Branch b : covered) {
+            if (b.getLineNumber() == 12) {
+                hits += b.getHits();
             }
         }
 
@@ -456,8 +458,8 @@ public class TestBranchArrayVisitor {
                 7, 9, 12, 13
         });
 
-        for (Line l : covered){
-            if (l.getHits() > 0){
+        for (Line l : covered) {
+            if (l.getHits() > 0) {
                 assertTrue("Line " + l.getLineNumber() + " should be covered",
                         coveredLines.contains(l.getLineNumber()));
 
@@ -486,8 +488,8 @@ public class TestBranchArrayVisitor {
 
         numLinesCovered = 0;
 
-        for (Line l : covered){
-            if (l.getHits() > 0){
+        for (Line l : covered) {
+            if (l.getHits() > 0) {
                 assertTrue("Line " + l.getLineNumber() + " should be covered",
                         coveredLines.contains(l.getLineNumber()));
                 numLinesCovered++;
@@ -502,7 +504,6 @@ public class TestBranchArrayVisitor {
 
         assertTrue("There should be lines of code present", covered.size() > 0);
     }
-
 
 
 }

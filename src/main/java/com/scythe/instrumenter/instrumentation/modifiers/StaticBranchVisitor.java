@@ -1,16 +1,15 @@
 package com.scythe.instrumenter.instrumentation.modifiers;
 
-import java.lang.reflect.Method;
-import java.util.HashMap;
-
+import com.scythe.instrumenter.analysis.BranchType;
+import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.instrumentation.visitors.StaticClassVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
-import com.scythe.instrumenter.analysis.BranchType;
-import com.scythe.instrumenter.analysis.ClassAnalyzer;
-import com.scythe.instrumenter.instrumentation.visitors.StaticClassVisitor;
+import java.lang.reflect.Method;
+import java.util.HashMap;
 
 public class StaticBranchVisitor extends MethodVisitor {
 	private int lastBranchDistance = 0;
@@ -142,14 +141,12 @@ public class StaticBranchVisitor extends MethodVisitor {
 			Label l = new Label();
 			Label l2 = new Label();
 			mv.visitJumpInsn(opcode, l);
-			visitInsn(Opcodes.ICONST_0);
 			visitLdcInsn(classId);
 			visitLdcInsn(branchId);
 			visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",
 					Type.getMethodDescriptor(BRANCH_METHOD), false);
 			mv.visitJumpInsn(Opcodes.GOTO, l2);
 			visitLabel(l);
-			visitInsn(Opcodes.ICONST_1);
 			visitLdcInsn(classId);
 			visitLdcInsn(branchId);
 			visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, "branchExecuted",

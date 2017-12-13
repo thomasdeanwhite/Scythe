@@ -6,8 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Branch extends CoverableGoal {
-  private int trueHits;
-  private int falseHits;
+  private int hits;
   private List<TestCaseWrapper> trueBranchCoveringTests = new ArrayList<TestCaseWrapper>();
   private List<TestCaseWrapper> falseBranchCoveringTests = new ArrayList<TestCaseWrapper>();
 
@@ -15,26 +14,17 @@ public class Branch extends CoverableGoal {
     super(className, methodName, lineNumber);
   }
 
-  public void trueHit(int trueHits) {
-    this.trueHits += trueHits;
+  public void hit(int hits) {
+    this.hits += hits;
   }
 
-  public void falseHit(int falseHits) {
-    this.falseHits += falseHits;
-  }
-
-  public int getTrueHits() {
-    return trueHits;
-  }
-
-  public int getFalseHits() {
-    return falseHits;
+  public int getHits() {
+    return hits;
   }
 
   @Override
   public void reset() {
-    trueHits = 0;
-    falseHits = 0;
+    hits = 0;
   }
 
   @Override
@@ -76,31 +66,10 @@ public class Branch extends CoverableGoal {
   public Branch clone() {
     Branch clone = new Branch(className, methodName, lineNumber);
     clone.setGoalId(goalId);
-    clone.trueHits = trueHits;
-    clone.falseHits = falseHits;
+    clone.hits = hits;
     clone.coveredBy = new ArrayList<TestCaseWrapper>(coveredBy);
-    clone.falseBranchCoveringTests = new ArrayList<TestCaseWrapper>(falseBranchCoveringTests);
-    clone.trueBranchCoveringTests = new ArrayList<TestCaseWrapper>(trueBranchCoveringTests);
+    clone.coveredBy.addAll(super.getCoveringTests());
     return clone;
-  }
-
-  @Override
-  public void addCoveringTest(TestCaseWrapper t) {
-    super.addCoveringTest(t);
-    if (trueHits > 0) {
-      trueBranchCoveringTests.add(t);
-    }
-    if (falseHits > 0) {
-      falseBranchCoveringTests.add(t);
-    }
-  }
-
-  public List<TestCaseWrapper> getTrueBranchCoveringTests() {
-    return trueBranchCoveringTests;
-  }
-
-  public List<TestCaseWrapper> getfalseBranchCoveringTests() {
-    return falseBranchCoveringTests;
   }
 
 }

@@ -53,7 +53,7 @@ public class BranchHit {
 	}
 
 	public boolean covered (){
-		return branch.getTrueHits() > 0;
+		return branch.getHits() > 0;
 	}
 
 	public void collect(){
