@@ -15,7 +15,6 @@ public class ClassTester {
     static {
         ICL = InstrumentingClassLoader
                 .getInstance();
-        ICL.setShouldInstrument(true);
 
         InstrumentationProperties.WRITE_CLASS = true;
         InstrumentationProperties.BYTECODE_DIR = ExampleClass.class.getResource

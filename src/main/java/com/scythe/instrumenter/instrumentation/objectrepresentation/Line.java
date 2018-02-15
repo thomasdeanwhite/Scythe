@@ -1,7 +1,6 @@
 package com.scythe.instrumenter.instrumentation.objectrepresentation;
 
 import com.scythe.instrumenter.testcase.TestCaseWrapper;
-
 import java.util.ArrayList;
 
 public class Line extends CoverableGoal {

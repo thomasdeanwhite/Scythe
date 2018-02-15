@@ -8,76 +8,76 @@ import java.util.HashMap;
  * Created by thomas on 9/1/2016.
  */
 public class Csv {
-    private HashMap<String, String> properties;
-    private boolean finalized;
+  private HashMap<String, String> properties;
+  private boolean finalized;
 
-    public Csv() {
-        properties = new HashMap<String, String>();
-        finalized = false;
+  public Csv() {
+    properties = new HashMap<String, String>();
+    finalized = false;
+  }
+
+  public void add(String property, String value) {
+    if (finalized) {
+      throw new IllegalStateException("Cannot write to finalized Csv.");
+    }
+    properties.put(property, value);
+  }
+
+  public String getHeaders() {
+    checkFinalized();
+    ArrayList<String> headers = new ArrayList<String>();
+
+    for (String s : properties.keySet()) {
+      headers.add(s);
     }
 
-    public void add(String property, String value) {
-        if (finalized){
-            throw new IllegalStateException("Cannot write to finalized Csv.");
-        }
-        properties.put(property, value);
+    Collections.sort(headers);
+
+    String h = "";
+
+    for (String s : headers) {
+      h += s + ",";
     }
 
-    public String getHeaders() {
-        checkFinalized();
-        ArrayList<String> headers = new ArrayList<String>();
+    h = h.substring(0, h.length() - 1);
 
-        for (String s : properties.keySet()) {
-            headers.add(s);
-        }
+    return h;
+  }
 
-        Collections.sort(headers);
+  public String getValues() {
+    checkFinalized();
+    ArrayList<String> headers = new ArrayList<String>();
 
-        String h = "";
-
-        for (String s : headers) {
-            h += s + ",";
-        }
-
-        h = h.substring(0, h.length() - 1);
-
-        return h;
+    for (String s : properties.keySet()) {
+      headers.add(s);
     }
 
-    public String getValues() {
-        checkFinalized();
-        ArrayList<String> headers = new ArrayList<String>();
+    Collections.sort(headers);
 
-        for (String s : properties.keySet()) {
-            headers.add(s);
-        }
+    String h = "";
 
-        Collections.sort(headers);
-
-        String h = "";
-
-        for (String s : headers) {
-            h += properties.get(s) + ",";
-        }
-
-        h = h.substring(0, h.length() - 1);
-
-        return h;
+    for (String s : headers) {
+      h += properties.get(s) + ",";
     }
 
-    public void finalize(){
-        finalized = true;
-    }
+    h = h.substring(0, h.length() - 1);
 
-    private void checkFinalized(){
-        if (!finalized){
-            throw new IllegalStateException("Csv must be finalized before values can be read!");
-        }
-    }
+    return h;
+  }
 
-    public void merge(Csv csv){
-        for (String key : csv.properties.keySet()){
-            add(key, csv.properties.get(key));
-        }
+  public void finalize() {
+    finalized = true;
+  }
+
+  private void checkFinalized() {
+    if (!finalized) {
+      throw new IllegalStateException("Csv must be finalized before values can be read!");
     }
+  }
+
+  public void merge(Csv csv) {
+    for (String key : csv.properties.keySet()) {
+      add(key, csv.properties.get(key));
+    }
+  }
 }

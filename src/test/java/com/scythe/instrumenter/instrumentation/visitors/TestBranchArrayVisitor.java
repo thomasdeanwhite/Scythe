@@ -1,29 +1,28 @@
 package com.scythe.instrumenter.instrumentation.visitors;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import com.scythe.instrumenter.InstrumentationProperties;
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Line;
-import org.junit.Before;
-import org.junit.Test;
-import test.classes.ExampleClass;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import org.junit.Before;
+import org.junit.Test;
+import test.classes.ExampleClass;
 
 /**
  * Created by thomas on 23/11/2016.
  */
 public class TestBranchArrayVisitor {
 
-    private static final boolean WRITE_CLASS = true;
+    private static final boolean WRITE_CLASS = false;
 
     Class ic = null;
 
@@ -31,13 +30,13 @@ public class TestBranchArrayVisitor {
     public void setup() {
         ClassAnalyzer.softReset();
         try {
-
-            ic = ClassTester.getInstrumentedTestClass();
-
             if (WRITE_CLASS) {
                 InstrumentationProperties.WRITE_CLASS = true;
                 InstrumentationProperties.BYTECODE_DIR = "";
             }
+            ic = ClassTester.getInstrumentedTestClass();
+
+
         } catch (ClassNotFoundException e) {
             ClassAnalyzer.out.println("Test Class 1 not found!");
         }

@@ -9,41 +9,41 @@ import org.objectweb.asm.Opcodes;
 
 public class DependencyTreeClassVisitor extends ClassVisitor {
 
-	private String className;
-	private DependencyTree depTree;
-	private String superClass = null;
+  private String className;
+  private DependencyTree depTree;
+  private String superClass = null;
 
-	public DependencyTreeClassVisitor(ClassVisitor mv, String className) {
-		super(Opcodes.ASM5, mv);
-		this.className = ClassNameUtils.standardise(className);
-		depTree = DependencyTree.getDependencyTree();
-		//depTree.clear();
-	}
+  public DependencyTreeClassVisitor(ClassVisitor mv, String className) {
+    super(Opcodes.ASM5, mv);
+    this.className = ClassNameUtils.standardise(className);
+    depTree = DependencyTree.getDependencyTree();
+    //depTree.clear();
+  }
 
-	@Override
-	public void visit(int arg0, int access, String className, String sign, String superName, String[] arg5) {
-		super.visit(arg0, access, className, sign, superName, arg5);
-		superClass = ClassNameUtils.standardise(superName);
-	}
+  @Override
+  public void visit(int arg0, int access, String className, String sign, String superName, String[] arg5) {
+    super.visit(arg0, access, className, sign, superName, arg5);
+    superClass = ClassNameUtils.standardise(superName);
+  }
 
-	@Override
-	public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
-		MethodVisitor mv = new DependencyTreeVisitor(depTree, super.visitMethod(access, name, desc, signature, exceptions), className, name, desc, access);
+  @Override
+  public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+    MethodVisitor mv = new DependencyTreeVisitor(depTree, super.visitMethod(access, name, desc, signature, exceptions), className, name, desc, access);
 
-		if ((access & Opcodes.ACC_SYNTHETIC) != 0){
-			String classMethodId = DependencyTree.getClassMethodId(className, name);
-			String superMethodId = DependencyTree.getClassMethodId(superClass, name);
+    if ((access & Opcodes.ACC_SYNTHETIC) != 0) {
+      String classMethodId = DependencyTree.getClassMethodId(className, name);
+      String superMethodId = DependencyTree.getClassMethodId(superClass, name);
 
-			depTree.addDependency(superMethodId, classMethodId);
+      depTree.addDependency(superMethodId, classMethodId);
 
-		}
+    }
 
-		return mv;
-	}
+    return mv;
+  }
 
-	@Override
-	public void visitEnd() {
-		super.visitEnd();
-	}
+  @Override
+  public void visitEnd() {
+    super.visitEnd();
+  }
 
 }

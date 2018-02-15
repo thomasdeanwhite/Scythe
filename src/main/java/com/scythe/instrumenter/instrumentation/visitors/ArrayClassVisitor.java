@@ -7,15 +7,14 @@ import com.scythe.instrumenter.instrumentation.modifiers.ArrayLineVisitor;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Branch;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.BranchHit;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class ArrayClassVisitor extends ClassVisitor {
 
@@ -63,8 +62,8 @@ public class ArrayClassVisitor extends ClassVisitor {
   }
 
   public int addLineHit(LineHit line) {
-    for (LineHit lh : lineHitCounterIds){
-      if (lh.getLine().getLineNumber() == line.getLine().getLineNumber()){
+    for (LineHit lh : lineHitCounterIds) {
+      if (lh.getLine().getLineNumber() == line.getLine().getLineNumber()) {
 
         //counter.getAndDecrement();
         return lh.getCounterId();
@@ -81,7 +80,6 @@ public class ArrayClassVisitor extends ClassVisitor {
   }
 
 
-
   @Override
   public void visit(int arg0, int access, String className, String signature, String superName, String[] interfaces) {
 
@@ -96,12 +94,12 @@ public class ArrayClassVisitor extends ClassVisitor {
     if (shouldInstrument) {
       // add hit counter array
       FieldVisitor fv = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_VARIABLE_NAME,
-              COUNTER_VARIABLE_DESC, null, null);
+          COUNTER_VARIABLE_DESC, null, null);
       fv.visitEnd();
 
 
       FieldVisitor fvd = cv.visitField(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, DISTANCE_VARIABLE_NAME,
-              DISTANCE_VARIABLE_DESC, null, null);
+          DISTANCE_VARIABLE_DESC, null, null);
       fv.visitEnd();
 
       this.classId = ClassAnalyzer.registerClass(this.className);
@@ -128,7 +126,7 @@ public class ArrayClassVisitor extends ClassVisitor {
         mv.visitJumpInsn(Opcodes.IFGT, l);
         mv.visitLdcInsn(className);
         mv.visitMethodInsn(Opcodes.INVOKESTATIC, StaticClassVisitor.ANALYZER_CLASS, CHANGED_METHOD_NAME,
-                CHANGED_METHOD_DESC, false);
+            CHANGED_METHOD_DESC, false);
         mv.visitInsn(Opcodes.ICONST_1);
         mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
         mv.visitLabel(l);
@@ -138,28 +136,27 @@ public class ArrayClassVisitor extends ClassVisitor {
       }
       if (InstrumentationProperties.INSTRUMENT_BRANCHES) {
 
-          int newCounter = newCounterId();
-          addBranchHit(new BranchHit(new Branch(className, name,
-                      0),
-                      newCounter, newDistanceId()));
+        int newCounter = newCounterId();
+        addBranchHit(new BranchHit(new Branch(className, name,
+            0),
+            newCounter, newDistanceId()));
 
-          mv.visitFieldInsn(Opcodes.GETSTATIC, className, ArrayClassVisitor.COUNTER_VARIABLE_NAME,
-                  ArrayClassVisitor.COUNTER_VARIABLE_DESC);
-          mv.visitLdcInsn(newCounter);
+        mv.visitFieldInsn(Opcodes.GETSTATIC, className, ArrayClassVisitor.COUNTER_VARIABLE_NAME,
+            ArrayClassVisitor.COUNTER_VARIABLE_DESC);
+        mv.visitLdcInsn(newCounter);
 
-          mv.visitInsn(Opcodes.DUP2);
-          mv.visitInsn(Opcodes.IALOAD);
-          mv.visitInsn(Opcodes.ICONST_1);
-          mv.visitInsn(Opcodes.IADD);
-          mv.visitInsn(Opcodes.IASTORE);
+        mv.visitInsn(Opcodes.DUP2);
+        mv.visitInsn(Opcodes.IALOAD);
+        mv.visitInsn(Opcodes.ICONST_1);
+        mv.visitInsn(Opcodes.IADD);
+        mv.visitInsn(Opcodes.IASTORE);
 
-          mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
+        mv = new ArrayBranchVisitor(this, mv, className, name, desc, access);
       }
       if (InstrumentationProperties.INSTRUMENT_LINES) {
         mv = new ArrayLineVisitor(this, mv, className, name);
       }
     }
-
 
 
     return mv;
@@ -180,21 +177,18 @@ public class ArrayClassVisitor extends ClassVisitor {
   }
 
   private void addGetCounterMethod(ClassVisitor cv) {
-    MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, COUNTER_METHOD_NAME, COUNTER_METHOD_DESC,
-            null, null);
-    mv.visitCode();
-    mv.visitFieldInsn(Opcodes.GETSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
-    mv.visitInsn(Opcodes.ARETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
+    addGetMethod(cv, COUNTER_METHOD_NAME, COUNTER_METHOD_DESC, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
   }
 
   private void addGetDistanceMethod(ClassVisitor cv) {
-    MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, DISTANCE_METHOD_NAME, DISTANCE_METHOD_DESC,
-            null, null);
+    addGetMethod(cv, DISTANCE_METHOD_NAME, DISTANCE_METHOD_DESC, DISTANCE_VARIABLE_NAME, DISTANCE_VARIABLE_DESC);
+  }
+
+  private void addGetMethod(ClassVisitor cv, String methodName, String methodDesc, String variableName, String variableDesc) {
+    MethodVisitor mv = cv.visitMethod(Opcodes.ACC_PUBLIC | Opcodes.ACC_STATIC, methodName, methodDesc,
+        null, null);
     mv.visitCode();
-    mv.visitFieldInsn(Opcodes.GETSTATIC, className, DISTANCE_VARIABLE_NAME,
-            DISTANCE_VARIABLE_DESC);
+    mv.visitFieldInsn(Opcodes.GETSTATIC, className, variableName, variableDesc);
     mv.visitInsn(Opcodes.ARETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
@@ -208,7 +202,7 @@ public class ArrayClassVisitor extends ClassVisitor {
     mv.visitInsn(Opcodes.ARRAYLENGTH);
     mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_INT);
     mv.visitFieldInsn(Opcodes.PUTSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
-    if(InstrumentationProperties.USE_CHANGED_FLAG) {
+    if (InstrumentationProperties.USE_CHANGED_FLAG) {
       mv.visitInsn(Opcodes.ICONST_0);
       mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
     }
@@ -234,14 +228,14 @@ public class ArrayClassVisitor extends ClassVisitor {
     Label ld = new Label();
 
     mv.visitFieldInsn(Opcodes.GETSTATIC, className, DISTANCE_VARIABLE_NAME,
-            DISTANCE_VARIABLE_DESC);
+        DISTANCE_VARIABLE_DESC);
     mv.visitJumpInsn(Opcodes.IFNONNULL, ld);
 
     int distanceCount = distanceCounter.get();
     mv.visitLdcInsn(distanceCount);
     mv.visitIntInsn(Opcodes.NEWARRAY, Opcodes.T_FLOAT);
     mv.visitFieldInsn(Opcodes.PUTSTATIC, className, DISTANCE_VARIABLE_NAME,
-            DISTANCE_VARIABLE_DESC);
+        DISTANCE_VARIABLE_DESC);
     mv.visitLabel(ld);
     mv.visitInsn(Opcodes.RETURN);
     mv.visitMaxs(0, 0);

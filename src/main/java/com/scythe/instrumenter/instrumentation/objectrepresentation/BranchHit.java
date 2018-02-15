@@ -1,7 +1,6 @@
 package com.scythe.instrumenter.instrumentation.objectrepresentation;
 
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
-
 import java.lang.reflect.InvocationTargetException;
 
 public class BranchHit {
