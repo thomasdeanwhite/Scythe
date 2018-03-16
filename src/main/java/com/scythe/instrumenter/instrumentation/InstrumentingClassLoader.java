@@ -43,6 +43,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
   private InstrumentingClassLoader(URL[] urls) {
     super(urls);
     ClassAnalyzer.out.println("Created InstrumentingClassLoader with URLS " + Arrays.toString(urls));
+    Thread.currentThread().setContextClassLoader(this);
     loader = new MockClassLoader(urls);
     this.classLoader = getClass().getClassLoader();
     classInstrumentingInterceptors = new ArrayList<ClassInstrumentingInterceptor>();
