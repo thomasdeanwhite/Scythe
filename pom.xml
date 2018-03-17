@@ -143,6 +143,21 @@
 											</excludes>
 										</filter>
 									</filters>
+									<minimizeJar>false</minimizeJar>
+									<relocations>
+										<relocation>
+											<pattern>com.google.gson</pattern>
+											<shadedPattern>com.scythe.internal.com.google.gson</shadedPattern>
+										</relocation>
+										<relocation>
+											<pattern>org.apache.commons</pattern>
+											<shadedPattern>com.scythe.internal.org.apache.commons</shadedPattern>
+										</relocation>
+										<relocation>
+											<pattern>org.objectweb</pattern>
+											<shadedPattern>com.scythe.internal.org.objectweb</shadedPattern>
+										</relocation>
+									</relocations>
 									<transformers>
 										<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 											<manifestEntries>
