@@ -1,7 +1,10 @@
 package com.scythe.instrumenter.instrumentation.visitors;
 
 import com.scythe.instrumenter.InstrumentationProperties;
+import com.scythe.instrumenter.instrumentation.ClassReplacementTransformer;
 import com.scythe.instrumenter.instrumentation.InstrumentingClassLoader;
+import com.scythe.instrumenter.instrumentation.MockClassLoader;
+import java.net.URLClassLoader;
 import test.classes.ExampleClass;
 import test.classes.SubExampleClass;
 
@@ -26,6 +29,9 @@ public class ClassTester {
     private static Class instrumentedClass = null;
     private static Class instrumentedClass2 = null;
 
+    private static ClassReplacementTransformer crt = new ClassReplacementTransformer();
+    private static Class<?> nonInstrumentedClass = null;
+
     public static Class getInstrumentedTestClass()
             throws ClassNotFoundException {
         if (instrumentedClass != null){
@@ -34,6 +40,14 @@ public class ClassTester {
         instrumentedClass = ICL.loadClass(ExampleClass.class.getCanonicalName(),
                 false);
         return instrumentedClass;
+    }
+
+    public static Class<?> getNonInstrumentedTestClass() throws ClassNotFoundException{
+        if(nonInstrumentedClass == null) {
+            MockClassLoader loader = new MockClassLoader(((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs(), crt);
+            nonInstrumentedClass = loader.loadClass(ExampleClass.class.getCanonicalName());
+        }
+        return nonInstrumentedClass;
     }
 
     private static Class subInstrumentedClass = null;
