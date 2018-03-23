@@ -43,8 +43,8 @@ public class InstrumentingClassLoader extends URLClassLoader {
   private InstrumentingClassLoader(URL[] urls) {
     super(urls);
     ClassAnalyzer.out.println("Created InstrumentingClassLoader with URLS " + Arrays.toString(urls));
-    Thread.currentThread().setContextClassLoader(this);
-    loader = new MockClassLoader(urls);
+    //Thread.currentThread().setContextClassLoader(this);
+    loader = new MockClassLoader(urls, crt);
     this.classLoader = getClass().getClassLoader();
     classInstrumentingInterceptors = new ArrayList<ClassInstrumentingInterceptor>();
   }
@@ -243,43 +243,5 @@ public class InstrumentingClassLoader extends URLClassLoader {
     ClassVisitor intercept(ClassVisitor parent, String className);
   }
 
-  private class MockClassLoader extends URLClassLoader {
-    public MockClassLoader(URL[] urls) {
-      super(urls);
-    }
 
-    private Class<?> loadOriginalClass(String name) throws IOException, ClassNotFoundException {
-      InputStream stream;
-      Class<?> cl = findLoadedClass(name);
-      if (!crt.shouldInstrumentClass(name)) {
-        return super.loadClass(name);
-      }
-      if (cl == null) {
-        stream = getInputStreamForClass(name);
-        byte[] bytes = IOUtils.toByteArray(stream);
-        cl = defineClass(name, bytes, 0, bytes.length);
-      }
-      return cl;
-    }
-
-    @Override
-    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
-      String localMessage = "";
-      if (!crt.shouldInstrumentClass(name)) {
-        return super.loadClass(name, resolve);
-      }
-      try {
-        return loadOriginalClass(name);
-      } catch (IOException e) {
-        localMessage = e.getLocalizedMessage();
-        e.printStackTrace(ClassAnalyzer.out);
-      }
-      throw new ClassNotFoundException(localMessage);
-    }
-
-    @Override
-    protected void addURL(URL u) {
-      super.addURL(u);
-    }
-  }
 }
