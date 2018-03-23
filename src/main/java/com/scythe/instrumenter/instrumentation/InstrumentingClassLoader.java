@@ -9,6 +9,7 @@ import com.scythe.instrumenter.instrumentation.visitors.StaticClassVisitor;
 import com.scythe.instrumenter.instrumentation.visitors.SuperReplacementClassVisitor;
 import com.scythe.util.ArrayUtils;
 import com.scythe.util.ClassNameUtils;
+import com.scythe.util.Util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -198,18 +199,7 @@ public class InstrumentingClassLoader extends URLClassLoader {
     byte[] bytes = crt.transform(name, original, cv, writer);
 
     if (InstrumentationProperties.WRITE_CLASS) {
-      File output = new File(InstrumentationProperties.BYTECODE_DIR, ClassNameUtils.replaceDots(name) + ".class");
-
-      if (output.getParentFile() != null && !output.getParentFile().exists()) {
-        output.getParentFile().mkdirs();
-        ClassAnalyzer.out.println("- Created new Folder: " + output.getParentFile().getAbsolutePath());
-      }
-
-      output.createNewFile();
-      FileOutputStream outFile = new FileOutputStream(output);
-      outFile.write(bytes);
-      outFile.flush();
-      outFile.close();
+      Util.writeClass(name, bytes);
     }
 
     return bytes;

@@ -7,6 +7,7 @@ import com.scythe.instrumenter.analysis.InstrumentingTask;
 import com.scythe.instrumenter.analysis.task.Task;
 import com.scythe.instrumenter.analysis.task.TaskTimer;
 import com.scythe.util.ClassNameUtils;
+import com.scythe.util.Util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -147,13 +148,8 @@ public class ClassReplacementTransformer {
       } catch (IOException e) {
         e.printStackTrace(ClassAnalyzer.out);
       }
-      if (shouldWriteClass) {
-        File file = new File("classes/" + cName.replace(".", "/") + ".class");
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-        FileOutputStream fos = new FileOutputStream(file.getAbsolutePath());
-        fos.write(newClass);
-        fos.close();
+      if (InstrumentationProperties.WRITE_CLASS_IF_MODIFIED && !InstrumentationProperties.WRITE_CLASS) {
+        Util.writeClass(cName, newClass);
       }
       return newClass;
     } catch (Exception e) {

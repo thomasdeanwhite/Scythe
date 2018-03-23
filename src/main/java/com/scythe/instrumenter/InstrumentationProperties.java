@@ -77,6 +77,9 @@ public class InstrumentationProperties implements PropertySource {
   @Parameter(key = "write_class", description = "flag to determine whether or not to write classes. If set to true, the InstrumentingClassLoader will write out all classes to the value of BYTECODE_DIR", hasArgs = true, category = "Dev")
   public static boolean WRITE_CLASS = false;
 
+  @Parameter(key = "write_class_if_modified", description = "flag to write out classes that have been modified by the instrumenter. If true, changed classes will be written to the directory of BYTECODE_DIR", category= "Dev")
+  public static boolean WRITE_CLASS_IF_MODIFIED = false;
+
   @Parameter(key = "bytecode_dir", description = "directory in which to store bytecode if the WRITE_CLASS property is set to true", hasArgs = true, category = "Dev")
   public static String BYTECODE_DIR = System.getProperty("user.home") + "/.bytecode/";
 
