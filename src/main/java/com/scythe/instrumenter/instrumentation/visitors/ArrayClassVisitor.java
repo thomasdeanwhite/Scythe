@@ -131,9 +131,12 @@ public class ArrayClassVisitor extends ClassVisitor {
         mv.visitFieldInsn(Opcodes.PUTSTATIC, className, CHANGED_VARIABLE_NAME, CHANGED_VARIABLE_DESC);
         mv.visitLabel(l);
       }
-      if ((access & Opcodes.ACC_STATIC) != 0 || "<init>".equals(name)) {
-        mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
-      }
+      Label l = new Label();
+      mv.visitFieldInsn(Opcodes.GETSTATIC, className, COUNTER_VARIABLE_NAME, COUNTER_VARIABLE_DESC);
+      mv.visitJumpInsn(Opcodes.IFNONNULL, l);
+      mv.visitMethodInsn(Opcodes.INVOKESTATIC, className, INIT_METHOD_NAME, INIT_METHOD_DESC, false);
+      mv.visitLabel(l);
+
       if (InstrumentationProperties.INSTRUMENT_BRANCHES) {
 
         int newCounter = newCounterId();
