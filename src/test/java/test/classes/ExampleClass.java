@@ -23,4 +23,21 @@ public class ExampleClass {
     }
 
 
+
+    public boolean isZero(float x) {
+        if (x == 0.0f) {
+            return true;
+        }
+        return false;
+    }
+
+
+    public boolean isZeroLong(long x) {
+        if (x == 0L) {
+            return true;
+        }
+        return false;
+    }
+
+
 }

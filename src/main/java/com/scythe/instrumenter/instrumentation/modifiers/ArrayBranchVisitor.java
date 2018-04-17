@@ -106,11 +106,11 @@ public class ArrayBranchVisitor extends MethodVisitor {
 
   private NumberBranchDistanceCalculator fbdcgt = new
       NumberBranchDistanceCalculator(Opcodes.FSUB,
-      1, 0, Opcodes.FADD);
+      0, 0, 0);
 
   private NumberBranchDistanceCalculator fbdclt = new
       NumberBranchDistanceCalculator(Opcodes.FSUB,
-      1, 0, Opcodes.FSUB);
+      0, 0, 0);
 
 
   private NumberBranchDistanceCalculator dbdcglte = new
@@ -119,11 +119,11 @@ public class ArrayBranchVisitor extends MethodVisitor {
 
   private NumberBranchDistanceCalculator dbdcgt = new
       NumberBranchDistanceCalculator(Opcodes.DSUB,
-      1, Opcodes.D2F, Opcodes.FADD);
+      0, Opcodes.D2F, 0);
 
   private NumberBranchDistanceCalculator dbdclt = new
       NumberBranchDistanceCalculator(Opcodes.DSUB,
-      1, Opcodes.D2F, Opcodes.FSUB);
+      0, Opcodes.D2F, 0);
 
   private NumberBranchDistanceCalculator lbdcglte = new
       NumberBranchDistanceCalculator(Opcodes.LSUB,
@@ -222,10 +222,22 @@ public class ArrayBranchVisitor extends MethodVisitor {
     }
   }
 
+  public void duplicateTopFourWordsOnStack(){
+    super.visitInsn(Opcodes.DUP2_X2);
+    super.visitInsn(Opcodes.POP2);
+    super.visitInsn(Opcodes.DUP2_X2);
+    super.visitInsn(Opcodes.DUP2_X2);
+    super.visitInsn(Opcodes.POP2);
+    super.visitInsn(Opcodes.DUP2_X2);
+  }
+
+
   @Override
   public void visitInsn(int opcode) {
 
     BranchDistanceCalculator bdc = null;
+
+    boolean doubleWord = false;
 
     switch (opcode) {
       case Opcodes.FCMPG:
@@ -236,12 +248,17 @@ public class ArrayBranchVisitor extends MethodVisitor {
         break;
       case Opcodes.LCMP:
         bdc = lbdcglte;
+        doubleWord = true;
         break;
       case Opcodes.DCMPG:
         bdc = dbdcgt;
+        doubleWord = true;
+
         break;
       case Opcodes.DCMPL:
         bdc = dbdclt;
+        doubleWord = true;
+
         break;
 
     }
@@ -252,9 +269,13 @@ public class ArrayBranchVisitor extends MethodVisitor {
 
       BranchHit falseBranch = setupBranch();
       parent.addBranchHit(falseBranch);
-
-      super.visitInsn(Opcodes.DUP2);
-      super.visitInsn(Opcodes.DUP2);
+      if (doubleWord){
+        duplicateTopFourWordsOnStack();
+        duplicateTopFourWordsOnStack();
+      } else {
+        super.visitInsn(Opcodes.DUP2);
+        super.visitInsn(Opcodes.DUP2);
+      }
 
       executeBranchDistance(bdc, trueBranch.getDistanceId());
       executeBranchDistance(bdc, falseBranch.getDistanceId());
@@ -312,6 +333,8 @@ public class ArrayBranchVisitor extends MethodVisitor {
     visitInsn(Opcodes.IADD);
     visitInsn(Opcodes.IASTORE);
 
+    // x x
+
     if (calculateFalseHits) {
       if (singleStackElement) {
         visitLdcInsn(0);
@@ -319,16 +342,24 @@ public class ArrayBranchVisitor extends MethodVisitor {
 
       mv.visitInsn(Opcodes.DUP2);
 
+      // x x 0 x 0 singleStackElement
+
       executeBranchDistance(bdc, falseBranch.getDistanceId());
+
+      // x x 0
     }
+
+    // x x 0 if singleStackElement
 
     if (singleStackElement && !calculateFalseHits) {
       visitLdcInsn(0);
     }
 
+    // x x 0 on stack if singleStackElement
 
     executeBranchDistance(zbdc, trueBranch.getDistanceId());
 
+    // x
 
     mv.visitJumpInsn(Opcodes.GOTO, l2);
     visitLabel(l);
@@ -340,17 +371,31 @@ public class ArrayBranchVisitor extends MethodVisitor {
     visitInsn(Opcodes.ICONST_1);
     visitInsn(Opcodes.IADD);
     visitInsn(Opcodes.IASTORE);
+
+
+
+
     if (calculateFalseHits) {
       if (singleStackElement) {
         visitLdcInsn(0);
       }
+
+      // x 0
       mv.visitInsn(Opcodes.DUP2);
 
+      // x 0 x 0
+
       executeBranchDistance(bdc, trueBranch.getDistanceId());
+
+      // x 0
     }
     if (singleStackElement && !calculateFalseHits) {
       visitLdcInsn(0);
+
+      // x 0
     }
+
+    // x 0
     executeBranchDistance(zbdc, falseBranch.getDistanceId());
     mv.visitJumpInsn(Opcodes.GOTO, label);
     visitLabel(l2);
