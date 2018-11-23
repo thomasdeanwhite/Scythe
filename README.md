@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/thomasdeanwhite/Scythe.svg?branch=dev)](https://travis-ci.org/thomasdeanwhite/Scythe)[![Coverage Status](https://coveralls.io/repos/github/thomasdeanwhite/Scythe/badge.svg?branch=dev)](https://coveralls.io/github/thomasdeanwhite/Scythe?branch=dev)
+[![Build Status](https://travis-ci.org/thomasdeanwhite/Scythe.svg)](https://travis-ci.org/thomasdeanwhite/Scythe)[![Coverage Status](https://coveralls.io/repos/github/thomasdeanwhite/Scythe/badge.svg)](https://coveralls.io/github/thomasdeanwhite/Scythe)
 
 
 # Scythe
