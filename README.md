@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/thomasdeanwhite/Scythe.svg?branch=dev)](https://travis-ci.org/thomasdeanwhite/Scythe)[![Coverage Status](https://coveralls.io/repos/github/thomasdeanwhite/Scythe/badge.svg?branch=dev)](https://coveralls.io/github/thomasdeanwhite/Scythe?branch=dev)
+[![Build Status](https://travis-ci.org/thomasdeanwhite/Scythe.svg)](https://travis-ci.org/thomasdeanwhite/Scythe)[![Coverage Status](https://coveralls.io/repos/github/thomasdeanwhite/Scythe/badge.svg)](https://coveralls.io/github/thomasdeanwhite/Scythe)
 
 
 # Scythe
@@ -17,7 +17,31 @@ Scythe runs as a Java Agent:
 - Scythe can run using java -javaagent:Scythe-jar-name.jar="[opts]" myprogram.jar
 - Options can be seen below or by directly running the Scythe jar.
 ## Ant Script
-Work in Progress
+Scythe is able to run as part of an Ant script in your own projects.
+When creating a `build.xml` file, create an xml namespace for the Scythe object
+```
+<project name="Your Project Name" basedir="." xmlns:scythe="antlib:com.scythe.ant">
+```
+To load the Scythe tasks into your project, use the `taskdef` task
+```
+  <taskdef uri="antlib:com.scythe.ant"
+    resource="com/scythe/ant/antlib.xml"
+    classpath="path/to/scythe.jar"/>
+```
+For offline instrumentation, create a target with an appropriate name and include the `scythe:instrument` command. For example:
+```
+<!-- ensure all classes are compiled before instrumenting -->
+<target name="instrument" depends="compile">
+  <!-- offline instrumentation stores instrumented class files in a target directory -->
+  <scythe:instrument destdir="instrumented/files/directory">
+    <!-- an ant fileset can be used to specify all the files we wish to instrument -->
+    <fileset dir="path/to/compiled/class/files">
+      <include name="**/*.class"/>
+    </fileset>
+  </scythe:instrument>
+</target>
+```
+Once code has been instrumented, we then run the tests and collect the coverage using a second call (Coming Soon)
 
 # Runtime Options
 | Key | Description |
