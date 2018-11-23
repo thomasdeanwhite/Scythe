@@ -16,24 +16,23 @@ import java.util.Set;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.TaskContainer;
-import org.apache.tools.ant.taskdefs.optional.junit.JUnitTask;
 import org.apache.tools.ant.types.Path;
 
 public class CoverageTask extends Task implements TaskContainer{
 
   private List<Path> paths = new ArrayList<>();
-  private List<Task> tests = new ArrayList<>();
+  private Task testsTask;
 
   private File outputFile;
 
   public void execute() throws BuildException{
     validate();
-    tests.forEach(t -> System.out.println(t.getTaskType()));
-    tests.forEach(Task::execute);
+    testsTask.execute();
     writeCoverage();
   }
 
   private void writeCoverage(){
+    System.out.println("Writing coverage");
     Map<String, Set<Integer>> covered = new HashMap<>();
     ClassAnalyzer.getLinesCovered().forEach(line -> {
       String className = line.getLine().getClassName();
@@ -61,7 +60,7 @@ public class CoverageTask extends Task implements TaskContainer{
     if(outputFile == null){
       throw new BuildException("Output File is not set");
     }
-    if(tests.size() < 1){
+    if(testsTask == null){
       throw new BuildException("There are no tests to run!");
     }
   }
@@ -69,7 +68,11 @@ public class CoverageTask extends Task implements TaskContainer{
 
   @Override
   public void addTask(Task task) {
-    tests.add(task);
+    if (testsTask != null){
+      throw new BuildException("We can only run a single child task of "+getClass().getName(), getLocation());
+    }
+    this.testsTask = task;
+    task.maybeConfigure();
   }
 
   public void addPath(Path path){
