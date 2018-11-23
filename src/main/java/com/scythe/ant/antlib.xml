@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+
+<antlib>
+  <taskdef name="instrument" classname="com.scythe.ant.InstrumentTask" />
+  <taskdef name="coverage" classname="com.scythe.ant.CoverageTask" />
+</antlib>
