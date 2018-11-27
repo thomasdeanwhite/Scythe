@@ -1,14 +1,12 @@
 package com.scythe.instrumenter.analysis;
 
+import static org.junit.Assert.assertEquals;
+
 import com.scythe.instrumenter.instrumentation.objectrepresentation.Line;
 import com.scythe.instrumenter.instrumentation.objectrepresentation.LineHit;
-import com.scythe.instrumenter.instrumentation.visitors.ClassTester;
 import java.io.File;
-import java.lang.reflect.Method;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -16,14 +14,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.FieldSetter;
-import test.classes.ExampleClass;
-
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
 
 public class TestClassAnalyzerSerialize {
 
@@ -79,7 +69,7 @@ public class TestClassAnalyzerSerialize {
     assertEquals(1, ClassAnalyzer.getChangedClasses().size());
   }
 
-  private static class MockClass extends ExampleClass{
+  private static class MockClass {
     public static void __resetCounters(){
     }
     public static int[] __getHitCounters(){

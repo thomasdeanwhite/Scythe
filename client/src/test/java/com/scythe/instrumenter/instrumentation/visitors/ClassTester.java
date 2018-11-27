@@ -23,8 +23,7 @@ public class ClassTester {
   private static final boolean WRITE_CLASS = true;
 
   static {
-    ICL = InstrumentingClassLoader
-        .getInstance();
+    ICL = InstrumentingClassLoader.getInstance();
     try {
       tmpFile = Files.createTempDirectory("bytecode").toFile();
       tmpFile.deleteOnExit();
