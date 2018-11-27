@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -43,6 +44,10 @@ public class TestClassAnalyzerSerialize {
       LineHit lh = new LineHit(l, i);
       lines.get(classId).put(i, lh);
     }
+  }
+
+  @After
+  public void tearDown(){
     ClassAnalyzer.reset();
   }
 

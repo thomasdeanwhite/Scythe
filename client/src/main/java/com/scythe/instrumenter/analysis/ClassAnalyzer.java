@@ -2,7 +2,6 @@ package com.scythe.instrumenter.analysis;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.scythe.instrumenter.FileHandler;
@@ -21,7 +20,6 @@ import com.scythe.instrumenter.instrumentation.visitors.ArrayClassVisitor;
 import com.scythe.instrumenter.testcase.TestCaseWrapper;
 import com.scythe.output.Csv;
 import com.scythe.util.ClassNameUtils;
-
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -31,9 +29,17 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
 
 public class ClassAnalyzer {
 
@@ -121,9 +127,23 @@ public class ClassAnalyzer {
   }
 
   public static void reset() {
-    branches.clear();
-    lines.clear();
-    changedClasses.clear();
+    List<Field> fields = Arrays.asList(ClassAnalyzer.class.getDeclaredFields()).stream().filter(
+        f -> Collection.class.isAssignableFrom(f.getType()) ||
+            Map.class.isAssignableFrom(f.getType()))
+        .collect(Collectors.toList());
+    for(Field f : fields){
+      try {
+        Object obj = f.get(null);
+        Method clear = f.getType().getMethod("clear");
+        clear.invoke(obj, null);
+      } catch (IllegalAccessException e) {
+        e.printStackTrace();
+      } catch(NoSuchMethodException e) {
+        e.printStackTrace();
+      } catch (InvocationTargetException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   public static void softReset() {
@@ -728,7 +748,7 @@ public class ClassAnalyzer {
       List<Class<?>> classes = new ArrayList<Class<?>>(changedClasses);
       if (!InstrumentationProperties.USE_CHANGED_FLAG) {
         classes = new ArrayList<Class<?>>();
-        for (int classId : lines.keySet()) {
+        for (int classId : classIds.keySet()) {
           Class<?> c = ClassStore.get(classIds.get(classId));
           if (c == null) {
             try {
@@ -743,7 +763,7 @@ public class ClassAnalyzer {
 
       }
 
-      for (int c = 0; c < classes.size(); c++) {
+      for (Class<?> c : changedClasses) {
         try {
           collectHitCountersForClass(c, reset);
 
@@ -760,11 +780,9 @@ public class ClassAnalyzer {
     }
   }
 
-  public static void collectHitCountersForClass(int clId, boolean reset)
+  public static void collectHitCountersForClass(Class<?> cl, boolean reset)
       throws NoSuchMethodException, InvocationTargetException,
       IllegalAccessException {
-    List<Class<?>> classes = new ArrayList<Class<?>>(changedClasses);
-    Class<?> cl = classes.get(clId);
     Method getCounters = cl
         .getDeclaredMethod(ArrayClassVisitor.COUNTER_METHOD_NAME, new Class<?>[]{});
     getCounters.setAccessible(true);
@@ -1077,10 +1095,10 @@ public class ClassAnalyzer {
 
   private static Gson getGson() {
     GsonBuilder builder = new GsonBuilder();
-    if(InstrumentationProperties.DISABLE_HTML_ESCAPE){
+    if (InstrumentationProperties.DISABLE_HTML_ESCAPE) {
       builder.disableHtmlEscaping();
     }
-    if(InstrumentationProperties.PRETTY_PRINT_COVERAGE){
+    if (InstrumentationProperties.PRETTY_PRINT_COVERAGE) {
       builder.setPrettyPrinting();
     }
     CoverageSerializer cs = new CoverageSerializer();

@@ -1,6 +1,7 @@
 package com.scythe.instrumenter.instrumentation.objectrepresentation;
 
 import com.scythe.instrumenter.analysis.ClassAnalyzer;
+import com.scythe.instrumenter.instrumentation.ClassStore;
 import java.lang.reflect.InvocationTargetException;
 
 public class BranchHit {
@@ -57,7 +58,7 @@ public class BranchHit {
 
 	public void collect(){
 		try {
-			ClassAnalyzer.collectHitCountersForClass(classId, false);
+			ClassAnalyzer.collectHitCountersForClass(ClassStore.get(branch.getClassName()), false);
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		} catch (InvocationTargetException e) {
