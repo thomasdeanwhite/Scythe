@@ -1,0 +1,187 @@
+<?xml version="1.0"?>
+<project
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+  xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>scythe-ant</artifactId>
+  <packaging>jar</packaging>
+  <name>Scythe Ant</name>
+
+  <parent>
+    <groupId>com.scythe</groupId>
+    <artifactId>scythe</artifactId>
+    <version>0.0.1-DEV</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources/</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.7.8</version>
+
+        <configuration>
+          <destFile>
+            ${basedir}/target/coverage-reports/jacoco-unit.exec
+          </destFile>
+          <dataFile>
+            ${basedir}/target/coverage-reports/jacoco-unit.exec
+          </dataFile>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>jacoco-initialize</id>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>jacoco-site</id>
+            <phase>package</phase>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <url>http://maven.apache.org</url>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.9.3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-junit</artifactId>
+      <version>LATEST</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>client</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>scythe-agent</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>run-shade</id>
+
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <executions>
+              <execution>
+                <phase>package</phase>
+                <goals>
+                  <goal>shade</goal>
+                </goals>
+                <configuration>
+                  <shadedArtifactAttached>true</shadedArtifactAttached>
+                  <shadedClassifierName>jar-with-dependencies</shadedClassifierName>
+                  <minimizeJar>true</minimizeJar>
+                  <relocations>
+                    <relocation>
+                      <pattern>com.scythe.instrumenter</pattern>
+                      <shadedPattern>com.scythe.internal.instrumenter</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>com.scythe.output</pattern>
+                      <shadedPattern>com.scythe.internal.output</shadedPattern>
+                    </relocation>
+                    <relocation>
+                      <pattern>com.scythe.util</pattern>
+                      <shadedPattern>com.scythe.internal.util</shadedPattern>
+                    </relocation>
+                  </relocations>
+                  <transformers>
+                    <transformer
+                      implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                      <manifestEntries>
+                        <Implementation-Title>${project.description}</Implementation-Title>
+                        <Implementation-Vendor>${project.organization.name}</Implementation-Vendor>
+                        <Implementation-Version>${project.version}</Implementation-Version>
+                      </manifestEntries>
+                    </transformer>
+                  </transformers>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>maven-bundle-plugin</artifactId>
+            <executions>
+              <execution>
+                <!--
+                None of resource tranformers from maven-shade-plugin
+                (including combination of DontIncludeResourceTransformer and ManifestResourceTransformer)
+                does not allow us to leave only desired entries and remove others from META-INF/MANIFEST.MF
+                So we use goal "bundle" instead of "manifest".
+                This introduces some redundant operations, but their cost is negligible.
+                -->
+                <phase>package</phase>
+                <goals>
+                  <goal>bundle</goal>
+                </goals>
+                <configuration>
+                  <excludeDependencies>true</excludeDependencies>
+                  <instructions>
+                    <Require-Bundle>org.apache.ant;bundle-version="[1.7.0,2.0.0)"</Require-Bundle>
+                  </instructions>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>
